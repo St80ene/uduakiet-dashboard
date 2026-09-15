@@ -93,7 +93,7 @@ export const SideNav: React.FC = () => {
           </div>
           <div>
             <span className="font-bold tracking-wide text-white text-sm">
-              SWIFTBUY
+              UduaKiet
             </span>
             <p className="text-[10px] text-slate-500">Inventory System</p>
           </div>

@@ -1,4 +1,4 @@
-# SwiftBuy Dashboard
+# Udua-Ket Dashboard
 
 A modern, production-ready e-commerce management dashboard built with React, TypeScript, and Vite. Designed to manage product inventory, track stock levels.
 
@@ -34,10 +34,10 @@ Ensure you have **Node.js 18+** and a package manager (`npm`, `pnpm`, or `yarn`)
 1. **Clone the repository**
 
 ```bash
-git clone [https://github.com/St80ene/swiftbuy-dashboard.git](https://github.com/St80ene/swiftbuy-dashboard.git)
+git clone [https://github.com/St80ene/uduakiet-dashboard.git](https://github.com/St80ene/uduakiet-dashboard.git)
 
 
-cd swiftbuy-dashboard
+cd uduakiet-dashboard
 ```
 
 Install Dependencies
