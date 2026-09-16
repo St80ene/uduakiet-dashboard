@@ -1,8 +1,10 @@
 import type { ProductStatus } from '@/enum/product';
+import type { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
 import type { PaginationMeta } from '@/interfaces';
 import type { AuditLog } from '@/interfaces/auditlog';
 import type { IBusiness } from '@/interfaces/business.interface';
 import type { ICategory } from '@/interfaces/category.interface';
+import type { PurchaseOrderItem } from '@/interfaces/purchase_order.interface';
 import type { IStock } from '@/interfaces/stock.interface';
 import type { IStockMovement } from '@/interfaces/stock_movements.interface';
 import type { IStore } from '@/interfaces/store.interface';
@@ -66,10 +68,13 @@ export interface PurchaseOrder {
   id: string;
   po_number: string;
   supplier_name: string;
-  status: 'DRAFT' | 'APPROVED' | 'RECEIVED' | 'CANCELLED';
+  status: PurchaseOrderStatus;
   total_estimated_cost: number;
   createdAt: string;
-  items: { product_name: string; quantity: number; cost: number }[];
+  items: PurchaseOrderItem[];
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date | null;
 }
 
 export interface Supplier {
@@ -86,16 +91,6 @@ export interface Supplier {
   city?: string;
   createdAt: string;
   updatedAt: string;
-}
-
-export interface PurchaseOrder {
-  id: string;
-  po_number: string;
-  supplier_name: string;
-  status: 'DRAFT' | 'APPROVED' | 'RECEIVED' | 'CANCELLED';
-  total_estimated_cost: number;
-  createdAt: string;
-  items: { product_name: string; quantity: number; cost: number }[];
 }
 
 export type PaginatedResponse<T, K extends string> = {
