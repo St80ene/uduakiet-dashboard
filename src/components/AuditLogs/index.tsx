@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Search, ArrowUpDown, Filter, FileText, Code2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +13,7 @@ import useDebouncedValue from '@/hooks/debounceHook';
 import DataTable from '../common/DataTable';
 import { LoadingScreen } from '../common/Error/LoadingScreen';
 import { ErrorPage } from '../common/Error/ErrorPage';
+import { AuditEventInspector } from './AuditEventInspector';
 
 export const AuditLogsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -167,10 +168,9 @@ export const AuditLogsPage: React.FC = () => {
         {/* ---------------------------------------------------------------- */}
         {/* Audit Logs Table */}
         {/* ---------------------------------------------------------------- */}
-
         <div className="lg:col-span-2">
           <DataTable<AuditLog>
-            records={data?.audit_logs || []}
+            records={data?.auditLogs ?? []}
             columns={columns}
             meta={data?.meta}
             isLoading={isLoading}
@@ -262,102 +262,11 @@ export const AuditLogsPage: React.FC = () => {
             }
           />
         </div>
-
         {/* ---------------------------------------------------------------- */}
         {/* Diff Inspector */}
         {/* ---------------------------------------------------------------- */}
 
-        <div className="bg-white border border-slate-200/80 rounded-xl p-4 space-y-4 shadow-2xs h-fit">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
-            <Code2 size={14} className="text-purple-600" />
-            Diff Inspector
-          </h3>
-
-          {selectedLog ? (
-            <div className="space-y-4 text-xs">
-              {/* -------------------------------------------------------- */}
-              {/* Entity Details */}
-              {/* -------------------------------------------------------- */}
-
-              <div>
-                <p className="text-[10px] text-slate-400 mb-1">
-                  Entity Details
-                </p>
-
-                <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 font-mono text-[11px]">
-                  <div className="font-medium">{selectedLog.entity}</div>
-
-                  <div className="text-slate-400 mt-0.5 break-all">
-                    {selectedLog.entityId}
-                  </div>
-                </div>
-              </div>
-
-              {/* -------------------------------------------------------- */}
-              {/* Old Value */}
-              {/* -------------------------------------------------------- */}
-
-              <div>
-                <p className="text-[10px] text-slate-400 mb-1">
-                  Previous State
-                </p>
-
-                <pre
-                  className="
-                  p-2.5 rounded-lg
-                  bg-slate-50 border border-slate-200
-                  font-mono text-[11px] text-rose-600
-                  overflow-x-auto max-h-72
-                  whitespace-pre-wrap break-words
-                "
-                >
-                  {selectedLog.oldValue !== null &&
-                  selectedLog.oldValue !== undefined
-                    ? JSON.stringify(selectedLog.oldValue, null, 2)
-                    : 'null'}
-                </pre>
-              </div>
-
-              {/* -------------------------------------------------------- */}
-              {/* New Value */}
-              {/* -------------------------------------------------------- */}
-
-              <div>
-                <p className="text-[10px] text-slate-400 mb-1">Updated State</p>
-
-                <pre
-                  className="
-                  p-2.5 rounded-lg
-                  bg-slate-50 border border-slate-200
-                  font-mono text-[11px] text-emerald-600
-                  overflow-x-auto max-h-72
-                  whitespace-pre-wrap break-words
-                "
-                >
-                  {selectedLog.newValue !== null &&
-                  selectedLog.newValue !== undefined
-                    ? JSON.stringify(selectedLog.newValue, null, 2)
-                    : 'null'}
-                </pre>
-              </div>
-            </div>
-          ) : (
-            <div
-              className="
-              flex h-48 items-center justify-center
-              text-center text-xs text-slate-400
-              border border-dashed border-slate-200
-              rounded-lg px-6
-            "
-            >
-              Click{' '}
-              <span className="font-medium text-slate-500 mx-1">
-                "View changes"
-              </span>
-              on any row to inspect the state differences.
-            </div>
-          )}
-        </div>
+        <AuditEventInspector selectedLog={selectedLog} />
       </div>
     </div>
   );

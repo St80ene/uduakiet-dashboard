@@ -114,4 +114,4 @@ export type StockMovementsResponse = PaginatedResponse<
   IStockMovement,
   'stock_movements'
 >;
-export type AuditLogsResponse = PaginatedResponse<AuditLog, 'audit_logs'>;
+export type AuditLogsResponse = PaginatedResponse<AuditLog, 'auditLogs'>;
