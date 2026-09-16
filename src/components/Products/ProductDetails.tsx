@@ -752,8 +752,8 @@ export default function ProductDetailsPage() {
                           </p>
 
                           <p className="mt-1 text-sm font-semibold text-slate-900">
-                            {purchase.items?.[0]?.quantity
-                              ? purchase.items[0].quantity.toLocaleString()
+                            {purchase.items?.[0]?.quantity_requested
+                              ? purchase.items[0].quantity_requested.toLocaleString()
                               : '—'}
                           </p>
                         </div>
@@ -764,8 +764,8 @@ export default function ProductDetailsPage() {
                           </p>
 
                           <p className="mt-1 text-sm font-semibold text-slate-900">
-                            {purchase.items?.[0]?.cost
-                              ? `₦${Number(purchase.items[0].cost).toLocaleString()}`
+                            {purchase.items?.[0]?.estimated_unit_cost
+                              ? `₦${Number(purchase.items[0].estimated_unit_cost).toLocaleString()}`
                               : '—'}
                           </p>
                         </div>
