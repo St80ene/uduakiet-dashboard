@@ -15,7 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 import DataTable from '@/components/common/DataTable';
 import type { IStore } from '@/interfaces/store.interface';
 import type { StoresResponse } from '@/types';
-import { storeService } from '@/services/stores';
+import { storeService } from '@/services/stores.service.api';
 import useDebouncedValue from '@/hooks/debounceHook';
 import { LoadingScreen } from '../common/Error/LoadingScreen';
 import { ErrorPage } from '../common/Error/ErrorPage';

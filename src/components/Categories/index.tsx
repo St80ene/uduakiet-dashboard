@@ -17,7 +17,7 @@ import DataTable from '../common/DataTable';
 import { LoadingScreen } from '../common/Error/LoadingScreen';
 import { ErrorPage } from '../common/Error/ErrorPage';
 
-import { categoryService } from '@/services/categories';
+import { categoryService } from '@/services/categories.service.api';
 import useDebouncedValue from '@/hooks/debounceHook';
 import type {
   CategoryFormData,

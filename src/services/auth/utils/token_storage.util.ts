@@ -1,5 +1,5 @@
-const ACCESS_TOKEN_KEY = 'swiftbuy_access_token';
-const REFRESH_TOKEN_KEY = 'swiftbuy_refresh_token';
+const ACCESS_TOKEN_KEY = 'uduakiet_access_token';
+const REFRESH_TOKEN_KEY = 'uduakiet_refresh_token';
 
 export const tokenStorage = {
   getAccessToken() {

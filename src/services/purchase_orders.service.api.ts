@@ -8,8 +8,8 @@ const PURCHASE_ORDERS_RESOURCE = '/purchase-orders';
 export const purchaseOrderService = {
   getAllPurchaseOrders: async (
     params: BasePaginationParams = {},
-  ): Promise<PurchaseOrdersResponse> => {
-    const response = await apiClient.get(PURCHASE_ORDERS_RESOURCE, {
+  ): Promise<ApiResponse<PurchaseOrdersResponse>> => {
+    const response = await apiClient.get<ApiResponse<PurchaseOrdersResponse>>(PURCHASE_ORDERS_RESOURCE, {
       params: {
         page: params.page ?? 1,
         limit: params.limit ?? 10,
@@ -18,13 +18,13 @@ export const purchaseOrderService = {
       },
     });
 
-    return response.data.data;
+    return response.data;
   },
 
   getPurchaseOrderByID: async (
     purchaseOrderId: string,
-  ): Promise<ApiResponse<PurchaseOrder>> => {
-    const response = await apiClient.get<ApiResponse<PurchaseOrder>>(
+  ): Promise<ApiResponse<PurchaseOrdersResponse>> => {
+    const response = await apiClient.get<ApiResponse<PurchaseOrdersResponse>>(
       `${PURCHASE_ORDERS_RESOURCE}/${purchaseOrderId}`,
     );
 
@@ -33,8 +33,8 @@ export const purchaseOrderService = {
 
   createPurchaseOrder: async (
     purchaseOrderData: FormData,
-  ): Promise<ApiResponse<PurchaseOrder>> => {
-    const response = await apiClient.post<ApiResponse<PurchaseOrder>>(
+  ): Promise<ApiResponse<PurchaseOrdersResponse>> => {
+    const response = await apiClient.post<ApiResponse<PurchaseOrdersResponse>>(
       PURCHASE_ORDERS_RESOURCE,
       purchaseOrderData,
     );

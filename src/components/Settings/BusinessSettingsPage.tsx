@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Save, Building2, Globe, MapPin, Sliders } from 'lucide-react';
+import { useAuth } from '@/services/auth/hooks/useAuth';
+import type { IBusiness } from '@/interfaces/business.interface';
 
 export const BusinessSettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -7,31 +9,38 @@ export const BusinessSettingsPage: React.FC = () => {
   >('general');
   const [isSaving, setIsSaving] = useState(false);
 
+  const { user } = useAuth();
+
+  const business: IBusiness = user?.business as IBusiness;
+
   // Mock initial state corresponding to Business entity fields
-  const [formData, setFormData] = useState({
-    legal_name: 'SwiftBuy Technologies Ltd',
-    display_name: 'SwiftBuy Inventory',
-    slug: 'swiftbuy-inventory',
-    registration_number: 'RC-1234567',
-    tax_identification_number: 'TIN-98765432',
-    business_type: 'Retail',
-    email: 'admin@swiftbuy.com',
-    phone_number: '+2348012345678',
-    website: 'https://swiftbuy.ng',
-    address_line_1: 'Plot 123, Ozumba Mbadiwe Avenue',
-    address_line_2: 'Victoria Island',
-    city: 'Lagos',
-    state: 'Lagos',
-    country: 'NG',
-    postal_code: '101241',
-    currency: 'NGN',
-    timezone: 'Africa/Lagos',
-    locale: 'en-NG',
-    settings: {
-      themeColor: '#06b6d4',
-      enableNotifications: true,
+  const [formData, setFormData] = useState(
+    business || {
+      id: '',
+      legal_name: '',
+      display_name: '',
+      slug: '',
+      registration_number: '',
+      tax_identification_number: '',
+      business_type: '',
+      email: '',
+      phone_number: '',
+      website: '',
+      address_line_1: '',
+      address_line_2: '',
+      city: '',
+      state: '',
+      country: '',
+      postal_code: '',
+      currency: '',
+      timezone: '',
+      locale: '',
+      settings: {
+        themeColor: '#06b6d4',
+        enableNotifications: true,
+      },
     },
-  });
+  );
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -40,7 +49,7 @@ export const BusinessSettingsPage: React.FC = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleNestedChange = (key: string, value: any) => {
+  const handleNestedChange = (key: string, value: unknown) => {
     setFormData((prev) => ({
       ...prev,
       settings: { ...prev.settings, [key]: value },
@@ -295,7 +304,7 @@ export const BusinessSettingsPage: React.FC = () => {
                 </div>
                 <input
                   type="checkbox"
-                  checked={formData.settings.enableNotifications}
+                  checked={formData?.settings?.enableNotifications}
                   onChange={(e) =>
                     handleNestedChange('enableNotifications', e.target.checked)
                   }

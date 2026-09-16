@@ -7,12 +7,3 @@ export enum PurchaseOrderStatus {
   PENDING_APPROVAL = 'PENDING_APPROVAL',
   SENT_TO_SUPPLIER = 'SENT_TO_SUPPLIER',
 }
-
-export interface PurchaseOrderItem {
-  id: string;
-  purchase_order_id: string;
-  product_id: string;
-  product_name: string;
-  quantity_requested: number;
-  estimated_unit_cost: number;
-}

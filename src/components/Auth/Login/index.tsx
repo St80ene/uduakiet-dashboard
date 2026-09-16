@@ -187,7 +187,7 @@ export default function Login() {
                 <Box size={20} />
               </motion.div>
               <span className="text-xl font-bold tracking-wider text-white">
-                SWIFT<span className="text-cyan-400">BUY</span>
+                UDUA<span className="text-cyan-400">KIET</span>
               </span>
             </motion.div>
 
@@ -347,7 +347,7 @@ export default function Login() {
 
             {/* Footer */}
             <div className="flex items-center justify-between text-[10px] text-slate-500">
-              <p>© {new Date().getFullYear()} SwiftBuy</p>
+              <p>© {new Date().getFullYear()} UduaKiet</p>
               <p>Made for growing businesses</p>
             </div>
           </div>

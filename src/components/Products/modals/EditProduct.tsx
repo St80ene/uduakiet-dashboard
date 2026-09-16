@@ -16,7 +16,7 @@ import {
   UomType,
 } from '@/enum/product';
 import type { ICategory } from '@/interfaces/category.interface';
-import { categoryService } from '@/services/categories';
+import { categoryService } from '@/services/categories.service.api';
 import type { CloudinaryImage, Product } from '@/types';
 
 const MAX_IMAGES = 5;

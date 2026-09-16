@@ -63,3 +63,34 @@ export interface IBusiness {
   updated_at: Date;
   deleted_at: Date | null;
 }
+
+export interface BusinessFormData {
+  // Identity
+  legal_name: string;
+  display_name: string;
+  registration_number?: string | null;
+  tax_identification_number?: string | null;
+  business_type?: string | null;
+  phone_number?: string | null;
+  website?: string | null;
+
+  // Address
+  address_line_1?: string | null;
+  address_line_2?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country: string;
+  postal_code?: string | null;
+
+  // Branding
+  logo?: CloudinaryImage | null;
+
+  // Configuration
+  currency: string;
+  timezone: string;
+  locale: string;
+  tax_settings?: Record<string, unknown> | null;
+  name: string;
+  description: string;
+  settings?: BusinessSettings;
+}
