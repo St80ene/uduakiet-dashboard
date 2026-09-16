@@ -17,7 +17,7 @@ import useDebouncedValue from '@/hooks/debounceHook';
 import DataTable from '../common/DataTable';
 import { LoadingScreen } from '../common/Error/LoadingScreen';
 import { ErrorPage } from '../common/Error/ErrorPage';
-import { getAllStocks } from '@/services/stocks.api';
+import { getAllStocks } from '@/services/stocks.service.api';
 
 export const StocksPage = () => {
   // Pagination

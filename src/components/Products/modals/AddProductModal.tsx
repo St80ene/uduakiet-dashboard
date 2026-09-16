@@ -11,7 +11,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { UomBaseName, UomDisplayName, UomType } from '@/enum/product';
 import BaseModal from '@/components/common/BaseModal';
-import { categoryService } from '@/services/categories';
+import { categoryService } from '@/services/categories.service.api';
 import type { ICategory } from '@/interfaces/category.interface';
 
 const MAX_IMAGES = 5;

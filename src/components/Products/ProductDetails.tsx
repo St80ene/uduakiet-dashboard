@@ -24,7 +24,7 @@ import {
   TriangleAlert,
   Users,
 } from 'lucide-react';
-import { productService } from '../../services/products';
+import { productService } from '../../services/products.service.api';
 import { LoadingScreen } from '../common/Error/LoadingScreen';
 import EditProductModal from './modals/EditProduct';
 import DataTable from '../common/DataTable';
