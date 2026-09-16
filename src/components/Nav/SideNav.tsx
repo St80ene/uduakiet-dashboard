@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { ChevronRight, Loader2, LogOut, Zap } from 'lucide-react';
+import { ChevronRight, Loader2, LogOut } from 'lucide-react';
 
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { UserRole } from '@/enum/role';
@@ -8,6 +8,7 @@ import { UserRole } from '@/enum/role';
 import { ROLE_CONFIG } from '../common/role_config';
 import { NAV_SECTIONS, type NavItem } from './NavItems';
 import type { ViewPermission } from '@/enum/view_permission.enum';
+import { UduaKietLogo } from './AppLogo';
 
 export const SideNav: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -89,7 +90,7 @@ export const SideNav: React.FC = () => {
         {/* APP LOGO */}
         <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-800 bg-slate-950 p-3">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400">
-            <Zap size={18} />
+            <UduaKietLogo className="w-4 h-4" />
           </div>
           <div>
             <span className="font-bold tracking-wide text-white text-sm">
