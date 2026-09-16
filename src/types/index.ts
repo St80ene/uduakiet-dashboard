@@ -1,8 +1,10 @@
 import type { ProductStatus } from '@/enum/product';
 import type { PaginationMeta } from '@/interfaces';
+import type { AuditLog } from '@/interfaces/auditlog';
 import type { IBusiness } from '@/interfaces/business.interface';
 import type { ICategory } from '@/interfaces/category.interface';
 import type { IStock } from '@/interfaces/stock.interface';
+import type { IStockMovement } from '@/interfaces/stock_movements.interface';
 import type { IStore } from '@/interfaces/store.interface';
 import type { IUser } from '@/interfaces/user.interface';
 
@@ -113,3 +115,8 @@ export type PurchaseOrdersResponse = PaginatedResponse<
   PurchaseOrder,
   'purchase_orders'
 >;
+export type StockMovementsResponse = PaginatedResponse<
+  IStockMovement,
+  'stock_movements'
+>;
+export type AuditLogsResponse = PaginatedResponse<AuditLog, 'audit_logs'>;
