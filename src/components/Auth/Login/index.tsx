@@ -1,4 +1,5 @@
 import { useAuth } from '@/services/auth/hooks/useAuth';
+import { SplashScreen } from '@/components/common/SplashScreen';
 import {
   AlertCircle,
   ArrowRight,
@@ -19,10 +20,10 @@ import {
 import { type FormEvent, useState, useMemo } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { LoadingScreen } from '../../common/Error/LoadingScreen';
 import { GoogleIcon } from './icons/Google';
 import { MicrosoftIcon } from './icons/Microsoft';
 import { AppleIcon } from './icons/Apple';
+import { UduaKietLogo } from '@/components/common/AppLogo';
 
 const chartData = [35, 50, 42, 68, 55, 75, 62, 88, 72, 94, 82, 100];
 
@@ -87,7 +88,7 @@ export default function Login() {
   }, [criteria]);
 
   if (isLoading) {
-    return <LoadingScreen />;
+    return <SplashScreen />;
   }
 
   if (isAuthenticated) {
@@ -184,7 +185,7 @@ export default function Login() {
                 }
                 className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 shadow-[0_0_20px_rgba(6,182,212,0.3)] transition-colors"
               >
-                <Box size={20} />
+                <UduaKietLogo />
               </motion.div>
               <span className="text-xl font-bold tracking-wider text-white">
                 UDUA<span className="text-cyan-400">KIET</span>
