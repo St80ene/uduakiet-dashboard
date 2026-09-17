@@ -23,7 +23,7 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { GoogleIcon } from './icons/Google';
 import { MicrosoftIcon } from './icons/Microsoft';
 import { AppleIcon } from './icons/Apple';
-import { UduaKietLogo } from '@/components/Nav/AppLogo';
+import { UduaKietLogo } from '@/components/common/AppLogo';
 
 const chartData = [35, 50, 42, 68, 55, 75, 62, 88, 72, 94, 82, 100];
 

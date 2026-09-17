@@ -8,7 +8,7 @@ import { UserRole } from '@/enum/role';
 import { ROLE_CONFIG } from '../common/role_config';
 import { NAV_SECTIONS, type NavItem } from './NavItems';
 import type { ViewPermission } from '@/enum/view_permission.enum';
-import { UduaKietLogo } from './AppLogo';
+import { UduaKietLogo } from '../common/AppLogo';
 
 export const SideNav: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);

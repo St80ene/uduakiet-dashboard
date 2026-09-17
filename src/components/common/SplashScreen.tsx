@@ -1,5 +1,5 @@
 import React from 'react';
-import { UduaKietLogo } from '../Nav/AppLogo';
+import { UduaKietLogo } from './AppLogo';
 
 /**
  * UduaKiet Splash Screen Component

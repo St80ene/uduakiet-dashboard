@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { UduaKietLogo } from '@/components/Nav/AppLogo';
+import { UduaKietLogo } from '@/components/common/AppLogo';
 
 export interface LoadingScreenProps {
   /** Text label displayed next to the status pulse indicator */
