@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { ChevronRight, Loader2, LogOut } from 'lucide-react';
+import { Loader2, LogOut } from 'lucide-react';
 
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { UserRole } from '@/enum/role';
@@ -158,24 +158,7 @@ export const SideNav: React.FC = () => {
           BOTTOM SECTION
       ====================================================== */}
       <div className="space-y-1.5 border-t border-slate-800 p-2.5 bg-slate-950 shrink-0">
-        {/* PROFILE LINK */}
-        <NavLink
-          to="/settings/profile"
-          aria-label="View user profile"
-          className={({ isActive }) =>
-            [
-              'group flex items-center justify-between',
-              'rounded-lg border',
-              'p-2',
-              'transition-all',
-              'focus:outline-none focus:ring-1 focus:ring-cyan-500',
-
-              isActive
-                ? 'border-cyan-500/50 bg-cyan-950/40 text-white'
-                : 'border-slate-800/80 bg-slate-900/30 text-slate-300 hover:border-slate-700 hover:bg-slate-900',
-            ].join(' ')
-          }
-        >
+        <div className="group flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/30 p-2 text-slate-300 transition-all hover:border-slate-700 hover:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-cyan-500">
           <div className="flex items-center gap-2.5 overflow-hidden">
             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-slate-800 bg-slate-900 text-cyan-400">
               <RoleIcon size={14} />
@@ -190,12 +173,7 @@ export const SideNav: React.FC = () => {
               </p>
             </div>
           </div>
-
-          <ChevronRight
-            size={14}
-            className="shrink-0 text-slate-600 transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-cyan-400"
-          />
-        </NavLink>
+        </div>
 
         {/* SIGN OUT BUTTON */}
         <button
