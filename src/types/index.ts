@@ -93,6 +93,26 @@ export interface Supplier {
   updatedAt: string;
 }
 
+export enum BadgeVariant {
+  Danger = 'danger',
+  Warning = 'warning',
+  Brand = 'brand',
+}
+
+export interface DynamicFaviconProps {
+  /** Unread low-stock alerts or pending orders count */
+  badgeCount?: number;
+  /** Primary indicator theme: 'danger' (red) | 'warning' (amber) | 'brand' (cyan) */
+  badgeVariant?: BadgeVariant;
+  showBackground?: boolean;
+}
+
+export interface BadgeColors {
+  danger: string;
+  warning: string;
+  brand: string;
+}
+
 export type PaginatedResponse<T, K extends string> = {
   [P in K]: T[];
 } & {
