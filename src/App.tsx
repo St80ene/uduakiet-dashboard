@@ -1,6 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { StocksPage } from './components/Stocks';
-
+import { ProductSources } from './components/ProductSources';
 import AppLayout from './layouts/AppLayout';
 
 // Auth & Settings
@@ -48,6 +48,7 @@ export default function App() {
             {/* Procurement */}
             <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
             <Route path="/suppliers" element={<SuppliersPage />} />
+            <Route path="/product-sources" element={<ProductSources />} />
 
             {/* Administration */}
             <Route path="/stores" element={<StoresPage />} />
