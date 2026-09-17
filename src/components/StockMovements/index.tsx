@@ -21,11 +21,11 @@ import {
 import type { StockMovementsResponse } from '@/types';
 
 import DataTable from '../common/DataTable';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
 import { ErrorPage } from '../common/Error/ErrorPage';
 
 import useDebouncedValue from '@/hooks/debounceHook';
 import { stockMovementService } from '@/services/stock_movements.service.api';
+import LoadingScreen from '../common/Error/LoadingScreen';
 
 interface StockMovementRow extends IStockMovement {
   product_name?: string;
