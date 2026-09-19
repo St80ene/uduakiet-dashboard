@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import BaseModal from '../common/BaseModal';
 import { useChangePassword } from '@/hooks/useChangePassword';
 import {
   Key,
@@ -17,6 +16,7 @@ import {
   ClipboardCheck,
 } from 'lucide-react';
 import { useAuth } from '@/services/auth/hooks/useAuth';
+import BaseModal from '@/common/BaseModal';
 
 interface ChangePasswordModalProps {
   isOpen: boolean;

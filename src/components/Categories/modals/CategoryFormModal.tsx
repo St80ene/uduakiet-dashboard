@@ -1,9 +1,10 @@
 import React, { useState, type Dispatch, type SetStateAction } from 'react';
-import BaseModal from '../../common/BaseModal';
+
 import type {
   CategoryFormData,
   ICategory,
 } from '@/interfaces/category.interface';
+import BaseModal from '@/common/BaseModal';
 
 interface CategoryFormModalProps {
   category?: ICategory | null;

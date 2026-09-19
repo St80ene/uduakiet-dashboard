@@ -3,12 +3,12 @@ import type { ProductsResponse } from '@/types';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { productService } from '../../services/products.service.api';
 import useDebouncedValue from '../../hooks/debounceHook';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
 import AddProductModal from './modals/AddProductModal';
 import { useNavigate } from 'react-router-dom';
 import ProductTable from './ProductsTable';
-import ItemsSearch from '../common/ItemsSearch';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import ItemsSearch from '@/common/ItemsSearch';
 
 export const Products: React.FC = () => {
   const queryClient = useQueryClient();

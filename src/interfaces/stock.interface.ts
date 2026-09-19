@@ -1,5 +1,5 @@
-import type { Product } from '@/types';
 import type { IBusiness } from './business.interface';
+import type { IProduct } from './products';
 import type { IStore } from './store.interface';
 
 export interface IStock {
@@ -9,10 +9,9 @@ export interface IStock {
   business_id: string;
   store_id: string;
 
-  quantity: number;
-  reorder_level: number;
+  current_quantity: number;
 
-  product?: Product;
+  product?: IProduct;
   business?: IBusiness;
   store?: IStore;
 

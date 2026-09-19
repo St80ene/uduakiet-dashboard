@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
-import type { PaginationMeta } from '.';
+import type { IPaginationMeta } from '.';
 
-export interface DataTableColumn<T> {
+export interface IDataTableColumn<T> {
   /**
    * Unique key for the column.
    */
@@ -33,7 +33,7 @@ export interface DataTableColumn<T> {
   headerClassName?: string;
 }
 
-export interface DataTableProps<T> {
+export interface IDataTableProps<T> {
   /**
    * Records to display.
    */
@@ -42,12 +42,12 @@ export interface DataTableProps<T> {
   /**
    * Column definitions.
    */
-  columns: DataTableColumn<T>[];
+  columns: IDataTableColumn<T>[];
 
   /**
    * Backend pagination metadata.
    */
-  meta?: PaginationMeta;
+  meta?: IPaginationMeta;
 
   /**
    * Called when the user changes page.
@@ -109,8 +109,8 @@ export interface DataTableProps<T> {
   horizontalScroll?: boolean;
 }
 
-export interface DataTablePaginationProps {
-  meta: PaginationMeta;
+export interface IDataTablePaginationProps {
+  meta: IPaginationMeta;
   startItem: number;
   endItem: number;
   onPageChange?: (newPage: number) => void;
@@ -118,7 +118,7 @@ export interface DataTablePaginationProps {
   pageSizeOptions: number[];
 }
 
-export interface DataTableEmptyStateProps {
+export interface IDataTableEmptyStateProps {
   columnCount: number;
   icon: ReactNode;
   title: ReactNode;

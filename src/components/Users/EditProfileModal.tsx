@@ -1,13 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { User, Phone, Info, Camera, X } from 'lucide-react';
-import BaseModal from '../common/BaseModal';
 import type { IUser } from '@/interfaces/user.interface';
 import { usersService } from '@/services/user/api/users.api';
-
-export interface CloudinaryImage {
-  url: string;
-  publicId: string;
-}
+import type { ICloudinaryImage } from '@/interfaces/cloudImage';
+import BaseModal from '@/common/BaseModal';
 
 export interface EditProfileData {
   id: string;
@@ -15,7 +11,7 @@ export interface EditProfileData {
   last_name: string;
   phone_number?: string;
   company_email: string;
-  profile_picture?: CloudinaryImage | null;
+  profile_picture?: ICloudinaryImage | null;
 }
 
 interface EditProfileModalProps {
@@ -51,7 +47,7 @@ export const EditProfileModal: React.FC<EditProfileModalProps> = ({
     phone_number: initialData.phone_number || '',
   });
 
-  const [currentProfilePicture] = useState<CloudinaryImage | null>(
+  const [currentProfilePicture] = useState<ICloudinaryImage | null>(
     initialData.profile_picture ?? null,
   );
 

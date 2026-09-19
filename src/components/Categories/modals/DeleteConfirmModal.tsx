@@ -1,4 +1,4 @@
-import BaseModal from '../../common/BaseModal';
+import BaseModal from '@/common/BaseModal';
 import { AlertTriangle } from 'lucide-react';
 
 interface DeleteConfirmModalProps {

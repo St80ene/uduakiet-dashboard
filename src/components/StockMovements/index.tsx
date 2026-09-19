@@ -12,22 +12,21 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import type { DataTableColumn } from '@/interfaces/data_table';
+import type { IDataTableColumn } from '@/interfaces/data_table';
 import {
-  StockMovementType,
   type IStockMovement,
   type StockMovementFormData,
 } from '@/interfaces/stock_movements.interface';
 import type { StockMovementsResponse } from '@/types';
 
-import DataTable from '../common/DataTable';
-import { ErrorPage } from '../common/Error/ErrorPage';
-
 import useDebouncedValue from '@/hooks/debounceHook';
 import { stockMovementService } from '@/services/stock_movements.service.api';
-import LoadingScreen from '../common/Error/LoadingScreen';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
+import { StockMovementType } from '@/enum/stock_movement.enum';
 
-interface StockMovementRow extends IStockMovement {
+interface IStockMovementRow extends IStockMovement {
   product_name?: string;
 }
 
@@ -173,7 +172,7 @@ export const StockMovementsPage: React.FC = () => {
   // Columns
   // ---------------------------------------------------------------------------
 
-  const columns: DataTableColumn<StockMovementRow>[] = [
+  const columns: IDataTableColumn<IStockMovementRow>[] = [
     {
       key: 'type',
       header: 'Type',
@@ -399,13 +398,13 @@ export const StockMovementsPage: React.FC = () => {
       {/* Data Table */}
       {/* ------------------------------------------------------------------ */}
 
-      <DataTable<StockMovementRow>
-        records={(data?.stock_movements ?? []) as StockMovementRow[]}
+      <DataTable<IStockMovementRow>
+        records={(data?.stock_movements ?? []) as IStockMovementRow[]}
         columns={columns}
         meta={data?.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
-        getRowKey={(record) => record.id}
+        getRowKey={(record: IStockMovementRow) => record.id}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         emptyState={{

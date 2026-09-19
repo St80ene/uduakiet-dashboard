@@ -20,12 +20,11 @@ import type {
   ProductSourcesResponse,
 } from '@/interfaces/product_source.interface';
 
-import DataTable from '../common/DataTable';
-import { ErrorPage } from '../common/Error/ErrorPage';
-import LoadingScreen from '../common/Error/LoadingScreen';
-
 import useDebouncedValue from '@/hooks/debounceHook';
 import { productSourceService } from '@/services/product_source.service.api';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 interface ProductSourceRow extends IProductSource {
   product_name?: string;
@@ -305,7 +304,7 @@ export const ProductSources: React.FC = () => {
         meta={data?.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
-        getRowKey={(record) => record.id}
+        getRowKey={(record: ProductSourceRow) => record.id}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         emptyState={{

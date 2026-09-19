@@ -1,9 +1,20 @@
-import type { PaginationMeta } from '.';
-import type { ProductStatus } from '../enum/product';
-import type { Product } from '../types';
+import type { ISupplier } from '@/types';
+import type {
+  ProductStatus,
+  UomBaseName,
+  UomDisplayName,
+  UomType,
+} from '../enum/product';
+import type { IAuditLog } from './auditlog';
+import type { IBusiness } from './business.interface';
+import type { ICategory } from './category.interface';
+import type { IPurchaseOrder } from './purchase_order.interface';
+import type { IStock } from './stock.interface';
+import type { IPaginationMeta } from '.';
+import type { ICloudinaryImage } from './cloudImage';
 
 // Interface definitions for incoming query configuration parameters
-export interface GetAllProductsParams {
+export interface IGetAllProductsParams {
   page?: number;
   limit?: number;
   sortBy?: string;
@@ -13,24 +24,22 @@ export interface GetAllProductsParams {
   status?: ProductStatus;
 }
 
-// Interface wrapper representing the NestJS backend response envelope structure
-export interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
+export interface IProductAuditLogsResponse<T = IAuditLog> {
+  auditLogs: T[];
+  meta: IPaginationMeta;
 }
 
-export interface ProductTableProps {
-  products: Product[];
-  meta?: PaginationMeta;
+export interface IProductTableProps {
+  products: IProduct[];
+  meta?: IPaginationMeta;
   isPlaceholderData?: boolean;
   isLoading?: boolean;
   onPageChange: (page: number) => void;
   onPageSizeChange: (limit: number) => void;
-  onSelectProduct?: (product: Product) => void;
+  onSelectProduct?: (product: IProduct) => void;
 }
-export interface ProductsWithMeta {
-  products: Product[];
+export interface IProductsWithMeta {
+  products: IProduct[];
   meta: {
     totalItems: number;
     itemCount: number;
@@ -41,6 +50,29 @@ export interface ProductsWithMeta {
     hasPreviousPage: boolean;
   };
 }
-export class ProductStatusUpdateDto {
+export class IProductStatusUpdateDto {
   status!: ProductStatus;
+}
+
+export interface IProduct {
+  id: string;
+  name: string;
+  description?: string | null;
+  images: ICloudinaryImage[];
+  cost_price: number;
+  selling_price: number;
+  uom_type: UomType;
+  uom_base_name: UomBaseName;
+  uom_display_name: UomDisplayName;
+  status: ProductStatus;
+  stocks: IStock[];
+  category_id: string | null;
+  business_id: string;
+  category?: ICategory | null;
+  suppliers?: ISupplier[];
+  purchase_orders?: IPurchaseOrder[];
+  business: IBusiness;
+  created_at: Date;
+  updated_at: Date;
+  deleted_at: Date | null;
 }

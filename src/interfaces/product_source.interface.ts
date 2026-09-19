@@ -1,4 +1,4 @@
-import type { PaginationMeta } from '.';
+import type { IPaginationMeta } from '.';
 
 export interface ISupplierRef {
   id: string;
@@ -24,10 +24,10 @@ export interface IProductSource {
 
 export interface ProductSourcesResponse {
   product_sources: IProductSource[];
-  meta: PaginationMeta;
+  meta: IPaginationMeta;
 }
 
-export interface ProductSourceFormData {
+export interface IProductSourceFormData {
   product_id: string;
   supplier_id: string;
 }

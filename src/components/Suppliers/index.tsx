@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { Truck, Plus, Search, Mail, Edit2, Trash2 } from 'lucide-react';
 
 import type { ISupplier } from '@/interfaces/supplier';
-import DataTable from '../common/DataTable';
+import DataTable from '@/common/DataTable';
 
 export const SuppliersPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -138,7 +138,7 @@ export const SuppliersPage = () => {
       <DataTable<ISupplier>
         records={filteredSuppliers}
         columns={columns}
-        getRowKey={(record) => record.id}
+        getRowKey={(record: ISupplier) => record.id}
         emptyState={{
           icon: <Truck className="h-7 w-7" />,
           title: 'No suppliers registered',

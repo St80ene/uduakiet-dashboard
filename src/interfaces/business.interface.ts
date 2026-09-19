@@ -1,8 +1,9 @@
-import type { CloudinaryImage, Product } from '@/types';
-import type { AuditLog } from './auditlog';
+import type { IAuditLog } from './auditlog';
 import type { IStore } from './store.interface';
 import type { IUser } from './user.interface';
 import type { ICategory } from './category.interface';
+import type { ICloudinaryImage } from './cloudImage';
+import type { IProduct } from './products';
 
 export enum BusinessStatus {
   ACTIVE = 'ACTIVE',
@@ -10,7 +11,7 @@ export enum BusinessStatus {
   ARCHIVED = 'ARCHIVED',
 }
 
-export interface BusinessSettings {
+export interface IBusinessSettings {
   themeColor?: string;
   enableNotifications?: boolean;
   timezone?: string;
@@ -42,21 +43,21 @@ export interface IBusiness {
   postal_code?: string | null;
 
   // Branding
-  logo?: CloudinaryImage | null;
+  logo?: ICloudinaryImage | null;
 
   // Configuration
   currency: string;
   timezone: string;
   locale: string;
   tax_settings?: Record<string, unknown> | null;
-  settings?: BusinessSettings | null;
+  settings?: IBusinessSettings | null;
 
   // Relationships
   categories?: ICategory[];
   users?: IUser[];
   stores?: IStore[];
-  products?: Product[];
-  audit_logs?: AuditLog[];
+  products?: IProduct[];
+  audit_logs?: IAuditLog[];
 
   // Timestamps
   created_at: Date;
@@ -64,7 +65,7 @@ export interface IBusiness {
   deleted_at: Date | null;
 }
 
-export interface BusinessFormData {
+export interface IBusinessFormData {
   // Identity
   legal_name: string;
   display_name: string;
@@ -83,7 +84,7 @@ export interface BusinessFormData {
   postal_code?: string | null;
 
   // Branding
-  logo?: CloudinaryImage | null;
+  logo?: ICloudinaryImage | null;
 
   // Configuration
   currency: string;
@@ -92,5 +93,5 @@ export interface BusinessFormData {
   tax_settings?: Record<string, unknown> | null;
   name: string;
   description: string;
-  settings?: BusinessSettings;
+  settings?: IBusinessSettings;
 }

@@ -3,17 +3,17 @@ import { Search, ArrowUpDown, Filter, FileText } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import type { AuditLog } from '@/interfaces/auditlog';
+import type { IAuditLog } from '@/interfaces/auditlog';
 import type { AuditLogsResponse } from '@/types';
 
 import { getAuditLogColumns } from './audit_logs_columns';
 import { auditLogService } from '@/services/audit_logs.service';
 import useDebouncedValue from '@/hooks/debounceHook';
 
-import DataTable from '../common/DataTable';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
 import { AuditEventInspector } from './AuditEventInspector';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 export const AuditLogsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -37,7 +37,7 @@ export const AuditLogsPage: React.FC = () => {
   // Selected audit log
   // ---------------------------------------------------------------------------
 
-  const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
+  const [selectedLog, setSelectedLog] = useState<IAuditLog | null>(null);
 
   // ---------------------------------------------------------------------------
   // Debounced search
@@ -78,7 +78,7 @@ export const AuditLogsPage: React.FC = () => {
   // Action handlers
   // ---------------------------------------------------------------------------
 
-  const handleViewChanges = (log: AuditLog) => {
+  const handleViewChanges = (log: IAuditLog) => {
     setSelectedLog(log);
   };
 
@@ -169,17 +169,17 @@ export const AuditLogsPage: React.FC = () => {
         {/* Audit Logs Table */}
         {/* ---------------------------------------------------------------- */}
         <div className="lg:col-span-2">
-          <DataTable<AuditLog>
+          <DataTable<IAuditLog>
             records={data?.auditLogs ?? []}
             columns={columns}
             meta={data?.meta}
             isLoading={isLoading}
             isPlaceholderData={isPlaceholderData}
-            getRowKey={(record: AuditLog) => record.id}
+            getRowKey={(record: IAuditLog) => record.id}
             onPageChange={handlePageChange}
             onPageSizeChange={handlePageSizeChange}
             onSelectRecord={handleViewChanges}
-            getRowClassName={(record: AuditLog) =>
+            getRowClassName={(record: IAuditLog) =>
               record.id === selectedLog?.id ? 'bg-purple-50/50' : ''
             }
             emptyState={{

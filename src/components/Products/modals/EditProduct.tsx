@@ -8,7 +8,6 @@ import {
 } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-import BaseModal from '@/components/common/BaseModal';
 import {
   ProductStatus,
   UomBaseName,
@@ -17,7 +16,9 @@ import {
 } from '@/enum/product';
 import type { ICategory } from '@/interfaces/category.interface';
 import { categoryService } from '@/services/categories.service.api';
-import type { CloudinaryImage, Product } from '@/types';
+import type { IProduct } from '@/interfaces/products';
+import type { ICloudinaryImage } from '@/interfaces/cloudImage';
+import BaseModal from '@/common/BaseModal';
 
 const MAX_IMAGES = 5;
 
@@ -45,7 +46,7 @@ const UOM_CONFIG: Record<
 };
 
 interface EditProductModalProps {
-  product: Product;
+  product: IProduct;
   isSubmitting: boolean;
   setIsModalOpen: Dispatch<SetStateAction<boolean>>;
   onSubmit: (formData: FormData) => void | Promise<void>;
@@ -82,7 +83,7 @@ export default function EditProductModal({
     status: product.status,
   });
 
-  const [existingImages, setExistingImages] = useState<CloudinaryImage[]>(
+  const [existingImages, setExistingImages] = useState<ICloudinaryImage[]>(
     product.images || [],
   );
 

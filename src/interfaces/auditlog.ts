@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
-import type { PaginationMeta } from '.';
 
-export interface AuditLog {
+export interface IAuditLog {
   id: string;
   action: string;
   entity: string;
@@ -17,14 +16,9 @@ export interface AuditLog {
   newValue: Record<string, unknown> | null;
 }
 
-export interface ProductAuditLogsResponse<T = AuditLog> {
-  auditLogs: T[];
-  meta: PaginationMeta;
-}
-
-export interface AuditLogDetailsModalProps {
+export interface IAuditLogDetailsModalProps {
   isOpen: boolean;
-  auditLog: AuditLog | null;
+  auditLog: IAuditLog | null;
   onClose: () => void;
 }
 
@@ -34,13 +28,13 @@ export interface InfoCardProps {
   value: string;
 }
 
-export interface ChangeItemProps {
+export interface IChangeItemProps {
   field: string;
   oldValue: unknown;
   newValue: unknown;
 }
 
-export interface ValueBoxProps {
+export interface IValueBoxProps {
   label: string;
   value: string;
   isNew?: boolean;

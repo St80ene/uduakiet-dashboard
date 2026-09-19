@@ -14,10 +14,10 @@ import type { IStock } from '@/interfaces/stock.interface';
 import type { StocksResponse } from '@/types';
 import useDebouncedValue from '@/hooks/debounceHook';
 
-import DataTable from '../common/DataTable';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
 import { getAllStocks } from '@/services/stocks.service.api';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 export const StocksPage = () => {
   // Pagination
@@ -125,7 +125,7 @@ export const StocksPage = () => {
         render: (stock: IStock) => (
           <div className="flex items-baseline gap-1.5">
             <span className="text-sm font-bold text-slate-800">
-              {stock.quantity}
+              {stock.current_quantity}
             </span>
 
             {stock.product?.uom_display_name && (
@@ -138,38 +138,17 @@ export const StocksPage = () => {
       },
 
       {
-        key: 'reorder_level',
-        header: 'Reorder Level',
-        width: '15%',
-        render: (stock: IStock) => (
-          <span className="text-xs font-medium text-slate-600">
-            {stock.reorder_level}
-          </span>
-        ),
-      },
-
-      {
         key: 'status',
         header: 'Status',
         width: '15%',
         render: (stock: IStock) => {
-          const quantity = Number(stock.quantity ?? 0);
-          const reorderLevel = Number(stock.reorder_level ?? 0);
+          const quantity = Number(stock.current_quantity ?? 0);
 
           if (quantity <= 0) {
             return (
               <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-50 text-red-700">
                 <AlertTriangle className="w-3 h-3" />
                 Out of Stock
-              </span>
-            );
-          }
-
-          if (quantity <= reorderLevel) {
-            return (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-amber-50 text-amber-700">
-                <AlertTriangle className="w-3 h-3" />
-                Low Stock
               </span>
             );
           }
@@ -217,16 +196,6 @@ export const StocksPage = () => {
 
   const totalStocks = data?.meta?.totalItems ?? stocks.length;
 
-  const lowStockCount = stocks.filter(
-    (stock: IStock) =>
-      Number(stock.quantity) > 0 &&
-      Number(stock.quantity) <= Number(stock.reorder_level),
-  ).length;
-
-  const outOfStockCount = stocks.filter(
-    (stock: IStock) => Number(stock.quantity) <= 0,
-  ).length;
-
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 min-h-screen bg-slate-50/50">
       {/* Header */}
@@ -249,26 +218,6 @@ export const StocksPage = () => {
 
           <p className="text-xl font-bold text-slate-900 mt-1">{totalStocks}</p>
         </div>
-
-        <div className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-            Low Stock
-          </p>
-
-          <p className="text-xl font-bold text-amber-600 mt-1">
-            {lowStockCount}
-          </p>
-        </div>
-
-        <div className="p-4 bg-white border border-slate-200/80 rounded-xl shadow-2xs">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-            Out of Stock
-          </p>
-
-          <p className="text-xl font-bold text-red-600 mt-1">
-            {outOfStockCount}
-          </p>
-        </div>
       </div>
 
       {/* Stock table */}
@@ -278,7 +227,7 @@ export const StocksPage = () => {
         meta={data?.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
-        getRowKey={(record) => record.id}
+        getRowKey={(record: IStock) => record.id}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         emptyState={{

@@ -36,7 +36,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             {/* Overview */}
             <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/reports" element={<ReportsPage />} />
+            {/* <Route path="/reports" element={<ReportsPage />} /> */}
 
             {/* Inventory */}
             <Route path="/products" element={<Products />} />
