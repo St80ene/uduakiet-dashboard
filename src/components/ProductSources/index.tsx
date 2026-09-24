@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Boxes,
   Download,
@@ -14,7 +14,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
-import type { DataTableColumn } from '@/interfaces/data_table';
+import type { IDataTableColumn } from '@/interfaces/data_table';
 import type {
   IProductSource,
   ProductSourcesResponse,
@@ -25,6 +25,10 @@ import { productSourceService } from '@/services/product_source.service.api';
 import LoadingScreen from '@/common/Error/LoadingScreen';
 import { ErrorPage } from '@/common/Error/ErrorPage';
 import DataTable from '@/common/DataTable';
+import { productService } from '@/services/products.service.api';
+import { supplierService } from '@/services/suppliers.service.api';
+import type { IProduct } from '@/interfaces/products';
+import type { ISupplier } from '@/interfaces/supplier';
 
 interface ProductSourceRow extends IProductSource {
   product_name?: string;
@@ -47,6 +51,7 @@ export const ProductSources: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
+  const [isSubmitting, setIsSubmitting] = useState<true | false>(false);
 
   const debouncedSearch = useDebouncedValue(searchQuery.trim(), 350);
 
@@ -84,11 +89,31 @@ export const ProductSources: React.FC = () => {
       placeholderData: (previousData) => previousData,
     });
 
+  const { data: productsData, isLoading: isLoadingProducts } = useQuery({
+    queryKey: ['products-list'],
+    queryFn: () =>
+      productService.getAllProducts({
+        page: 1,
+        limit: 100,
+      }),
+  });
+
+  const { data: suppliersData, isLoading: isLoadingSuppliers } = useQuery({
+    queryKey: ['suppliers-list'],
+    queryFn: () =>
+      supplierService.getAllSuppliers({
+        page: 1,
+        limit: 100,
+      }),
+  });
+
+  const suppliers = suppliersData?.suppliers || [];
+  const products = productsData?.products || [];
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
   const createMutation = useMutation({
-    mutationFn: (formData: FormData) =>
+    mutationFn: (formData: { product_id: string; supplier_id: string }) =>
       productSourceService.createProductSource(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product_sources'] });
@@ -97,8 +122,16 @@ export const ProductSources: React.FC = () => {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, formData }: { id: string; formData: FormData }) =>
-      productSourceService.updateProductSource(id, formData),
+    mutationFn: ({
+      id,
+      formData,
+    }: {
+      id: string;
+      formData: {
+        product_id: string;
+        supplier_id: string;
+      };
+    }) => productSourceService.updateProductSource(id, formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product_sources'] });
       closeModal();
@@ -153,14 +186,20 @@ export const ProductSources: React.FC = () => {
 
   const handleSubmitModal = (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData();
-    formData.append('product_id', productIdInput);
-    formData.append('supplier_id', supplierIdInput);
 
     if (editingSource) {
-      updateMutation.mutate({ id: editingSource.id, formData });
+      updateMutation.mutate({
+        id: editingSource.id,
+        formData: {
+          product_id: productIdInput,
+          supplier_id: supplierIdInput,
+        },
+      });
     } else {
-      createMutation.mutate(formData);
+      createMutation.mutate({
+        product_id: productIdInput,
+        supplier_id: supplierIdInput,
+      });
     }
   };
 
@@ -171,7 +210,7 @@ export const ProductSources: React.FC = () => {
   // ---------------------------------------------------------------------------
   // Columns
   // ---------------------------------------------------------------------------
-  const columns: DataTableColumn<ProductSourceRow>[] = [
+  const columns: IDataTableColumn<ProductSourceRow>[] = [
     {
       key: 'product_name',
       header: 'Product',
@@ -280,7 +319,7 @@ export const ProductSources: React.FC = () => {
           <button
             type="button"
             onClick={handleExport}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+            className="flex items-center cursor-pointer gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
           >
             <Download size={14} />
             Export Mapping
@@ -289,7 +328,7 @@ export const ProductSources: React.FC = () => {
           <button
             type="button"
             onClick={handleOpenCreateModal}
-            className="flex items-center gap-1.5 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors shadow-2xs"
+            className="flex items-center cursor-pointer gap-1.5 rounded-lg bg-cyan-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-cyan-500 transition-colors shadow-2xs"
           >
             <Plus size={14} />
             Map Source
@@ -299,7 +338,7 @@ export const ProductSources: React.FC = () => {
 
       {/* Data Table */}
       <DataTable<ProductSourceRow>
-        records={(data?.product_sources ?? []) as ProductSourceRow[]}
+        records={(data?.productSources ?? []) as ProductSourceRow[]}
         columns={columns}
         meta={data?.meta}
         isLoading={isLoading}
@@ -379,37 +418,51 @@ export const ProductSources: React.FC = () => {
             <form onSubmit={handleSubmitModal} className="p-4 space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Product ID
+                  Product
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. prd_9f8e7d..."
+                <select
+                  name="product_id"
                   value={productIdInput}
                   onChange={(e) => setProductIdInput(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                />
+                  disabled={isLoadingProducts || isSubmitting}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <option value="">Select a Product...</option>
+
+                  {products.map((product: IProduct) => (
+                    <option key={product.id} value={product.id}>
+                      {product.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Supplier ID
+                  Supplier
                 </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. sup_1a2b3c..."
+                <select
+                  name="supplier_id"
                   value={supplierIdInput}
                   onChange={(e) => setSupplierIdInput(e.target.value)}
-                  className="w-full px-3 py-2 text-xs border border-slate-200 rounded-lg outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500"
-                />
+                  disabled={isLoadingSuppliers || isSubmitting}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all cursor-pointer disabled:opacity-50"
+                >
+                  <option value="">Select a Supplier...</option>
+
+                  {suppliers.map((supplier: ISupplier) => (
+                    <option key={supplier.id} value={supplier.id}>
+                      {supplier.name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="px-3 py-1.5 cursor-pointer text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
                 >
                   Cancel
                 </button>
@@ -418,7 +471,7 @@ export const ProductSources: React.FC = () => {
                   disabled={
                     createMutation.isPending || updateMutation.isPending
                   }
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-50"
+                  className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {(createMutation.isPending || updateMutation.isPending) && (
                     <Loader2 size={12} className="animate-spin" />

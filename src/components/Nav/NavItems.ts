@@ -148,7 +148,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         to: '/settings/business',
-        label: 'Business Settings',
+        label: 'Business',
         icon: Settings,
         permissions: [ViewPermission.BUSINESS_VIEW],
       },

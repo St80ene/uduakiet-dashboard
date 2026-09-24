@@ -1,9 +1,6 @@
 import apiClient from '@/services/api';
-import type {
-  AuthUser,
-  LoginResponse,
-  RefreshResponse,
-} from '../types/auth.type';
+import type { AuthUser, LoginResponse } from '../types/auth.type';
+import { tokenStorage } from '../utils/token_storage.util';
 
 export interface LoginPayload {
   email: string;
@@ -20,12 +17,24 @@ export const authApi = {
     return data;
   },
 
-  async refresh(refreshToken: string): Promise<RefreshResponse> {
-    const { data } = await apiClient.post<RefreshResponse>('/auth/refresh', {
-      refreshToken,
-    });
+  async refresh() {
+    const refreshToken = tokenStorage.getRefreshToken();
 
-    return data;
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    const response = await apiClient.post(
+      `/auth/refresh`,
+      {}, // Empty body since payload is in headers
+      {
+        headers: {
+          Authorization: `Bearer ${refreshToken}`,
+        },
+      },
+    );
+
+    return response.data;
   },
 
   async profile(): Promise<AuthUser> {

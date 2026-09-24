@@ -23,7 +23,7 @@ export interface IProductSource {
 }
 
 export interface ProductSourcesResponse {
-  product_sources: IProductSource[];
+  productSources: IProductSource[];
   meta: IPaginationMeta;
 }
 

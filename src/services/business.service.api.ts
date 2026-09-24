@@ -1,28 +1,20 @@
-import type { ApiResponse } from '@/interfaces';
-
+import type { IApiResponse } from '@/interfaces';
 import apiClient from './api';
-import type {
-  BusinessFormData,
-  IBusiness,
-} from '@/interfaces/business.interface';
+import type { IBusiness } from '@/interfaces/business.interface';
 
 const BUSINESSES_RESOURCE = '/businesses';
 
 export const businessService = {
-  getBusinessByID: async (
-    businessId: string,
-  ): Promise<ApiResponse<IBusiness>> => {
-    const response = await apiClient.get<ApiResponse<IBusiness>>(
+  getBusinessByID: async (businessId: string) => {
+    const response = await apiClient.get(
       `${BUSINESSES_RESOURCE}/${businessId}`,
     );
 
-    return response.data;
+    return response.data.data;
   },
 
-  createBusiness: async (
-    businessData: BusinessFormData,
-  ): Promise<ApiResponse<IBusiness>> => {
-    const response = await apiClient.post<ApiResponse<IBusiness>>(
+  createBusiness: async (businessData: FormData) => {
+    const response = await apiClient.post<IApiResponse<IBusiness>>(
       BUSINESSES_RESOURCE,
       businessData,
     );
@@ -32,9 +24,9 @@ export const businessService = {
 
   updateBusiness: async (
     businessId: string,
-    businessData: BusinessFormData,
-  ): Promise<ApiResponse<IBusiness>> => {
-    const response = await apiClient.patch<ApiResponse<IBusiness>>(
+    businessData: Partial<IBusiness>,
+  ) => {
+    const response = await apiClient.patch(
       `${BUSINESSES_RESOURCE}/${businessId}`,
       businessData,
     );

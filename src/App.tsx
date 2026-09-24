@@ -7,7 +7,6 @@ import AppLayout from './layouts/AppLayout';
 import Login from './components/Auth/Login';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { UserProfilePage } from './components/Settings/UserProfilePage';
-import { BusinessSettingsPage } from './components/Settings/BusinessSettingsPage';
 
 // Overview
 import { Dashboard } from './components/Dashboard';
@@ -23,6 +22,7 @@ import { StockMovementsPage } from './components/StockMovements';
 import { AuditLogsPage } from './components/AuditLogs';
 import { PurchaseOrdersPage } from './components/PurchaseOrders';
 import StoresPage from './components/Stores';
+import Settings from './components/Settings/Business/Settings';
 
 export default function App() {
   return (
@@ -36,7 +36,7 @@ export default function App() {
           <Route element={<AppLayout />}>
             {/* Overview */}
             <Route path="/dashboard" element={<Dashboard />} />
-            {/* <Route path="/reports" element={<ReportsPage />} /> */}
+            <Route path="/reports" element={<ReportsPage />} />
 
             {/* Inventory */}
             <Route path="/products" element={<Products />} />
@@ -56,10 +56,7 @@ export default function App() {
             <Route path="/audit-logs" element={<AuditLogsPage />} />
 
             {/* Settings */}
-            <Route
-              path="/settings/business"
-              element={<BusinessSettingsPage />}
-            />
+            <Route path="/settings/business" element={<Settings />} />
             <Route path="/settings/profile" element={<UserProfilePage />} />
 
             {/* Redirect root to dashboard */}

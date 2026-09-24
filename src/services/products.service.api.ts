@@ -1,7 +1,6 @@
-import type { AuditLog, ProductAuditLogsResponse } from '@/interfaces/auditlog';
-import type { ApiResponse, GetAllProductsParams } from '../interfaces/products';
+import type { ProductsResponse } from '@/types';
 import apiClient from './api';
-import type { Product, ProductsResponse } from '@/types';
+import type { IGetAllProductsParams } from '@/interfaces/products';
 
 const PRODUCTS_RESOURCE = '/products';
 
@@ -13,7 +12,7 @@ export const productService = {
    * Supports searching, status filtering, sorting, and pagination.
    */
   getAllProducts: async (
-    params: GetAllProductsParams = {},
+    params: IGetAllProductsParams = {},
   ): Promise<ProductsResponse> => {
     const {
       page = 1,
@@ -24,19 +23,16 @@ export const productService = {
       order = 'DESC',
     } = params;
 
-    const response = await apiClient.get<ApiResponse<ProductsResponse>>(
-      PRODUCTS_RESOURCE,
-      {
-        params: {
-          page,
-          limit,
-          ...(search && { search }),
-          ...(status && { status }),
-          ...(sortBy && { sortBy }),
-          order,
-        },
+    const response = await apiClient.get(PRODUCTS_RESOURCE, {
+      params: {
+        page,
+        limit,
+        ...(search && { search }),
+        ...(status && { status }),
+        ...(sortBy && { sortBy }),
+        order,
       },
-    );
+    });
 
     return response.data.data;
   },
@@ -46,10 +42,8 @@ export const productService = {
    *
    * The backend also returns the product's category and stock relationships.
    */
-  getProductByID: async (productId: string): Promise<Product> => {
-    const response = await apiClient.get<ApiResponse<Product>>(
-      `${PRODUCTS_RESOURCE}/${productId}`,
-    );
+  getProductByID: async (productId: string) => {
+    const response = await apiClient.get(`${PRODUCTS_RESOURCE}/${productId}`);
 
     return response.data.data;
   },
@@ -63,20 +57,21 @@ export const productService = {
    */
   getProductAuditLogs: async (
     productId: string,
-    params: GetAllProductsParams = {},
-  ): Promise<ProductAuditLogsResponse<AuditLog>> => {
-    const response = await apiClient.get<
-      ApiResponse<ProductAuditLogsResponse<AuditLog>>
-    >(`${PRODUCTS_RESOURCE}/${productId}/audit-logs`, {
-      params: {
-        page: params.page ?? 1,
-        limit: params.limit ?? 10,
-        ...(params.search && { search: params.search }),
-        ...(params.status && { status: params.status }),
-        ...(params.sortBy && { sortBy: params.sortBy }),
-        ...(params.order && { order: params.order }),
+    params: IGetAllProductsParams = {},
+  ) => {
+    const response = await apiClient.get(
+      `${PRODUCTS_RESOURCE}/${productId}/audit-logs`,
+      {
+        params: {
+          page: params.page ?? 1,
+          limit: params.limit ?? 10,
+          ...(params.search && { search: params.search }),
+          ...(params.status && { status: params.status }),
+          ...(params.sortBy && { sortBy: params.sortBy }),
+          ...(params.order && { order: params.order }),
+        },
       },
-    });
+    );
 
     return response.data.data;
   },
@@ -104,16 +99,12 @@ export const productService = {
    * @param productData - Multipart form data containing product details
    * and optional product images.
    */
-  createProduct: async (productData: FormData): Promise<Product> => {
-    const response = await apiClient.post<ApiResponse<Product>>(
-      PRODUCTS_RESOURCE,
-      productData,
-      {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+  createProduct: async (productData: FormData) => {
+    const response = await apiClient.post(PRODUCTS_RESOURCE, productData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
       },
-    );
+    });
 
     return response.data.data;
   },
@@ -128,11 +119,8 @@ export const productService = {
    * @param productData - Multipart form data containing the fields to update
    * and optional product images.
    */
-  updateProduct: async (
-    productId: string,
-    productData: FormData,
-  ): Promise<Product> => {
-    const response = await apiClient.patch<ApiResponse<Product>>(
+  updateProduct: async (productId: string, productData: FormData) => {
+    const response = await apiClient.patch(
       `${PRODUCTS_RESOURCE}/${productId}`,
       productData,
       {
@@ -150,8 +138,8 @@ export const productService = {
    *
    * @param productId - UUID of the product to remove.
    */
-  removeProduct: async (productId: string): Promise<null> => {
-    const response = await apiClient.delete<ApiResponse<null>>(
+  removeProduct: async (productId: string) => {
+    const response = await apiClient.delete(
       `${PRODUCTS_RESOURCE}/${productId}`,
     );
 

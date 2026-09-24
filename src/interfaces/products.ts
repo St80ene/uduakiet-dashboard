@@ -1,4 +1,3 @@
-import type { ISupplier } from '@/types';
 import type {
   ProductStatus,
   UomBaseName,
@@ -12,6 +11,8 @@ import type { IPurchaseOrder } from './purchase_order.interface';
 import type { IStock } from './stock.interface';
 import type { IPaginationMeta } from '.';
 import type { ICloudinaryImage } from './cloudImage';
+import type { Dispatch, SetStateAction } from 'react';
+import type { ISupplier } from './supplier';
 
 // Interface definitions for incoming query configuration parameters
 export interface IGetAllProductsParams {
@@ -27,6 +28,24 @@ export interface IGetAllProductsParams {
 export interface IProductAuditLogsResponse<T = IAuditLog> {
   auditLogs: T[];
   meta: IPaginationMeta;
+}
+
+export interface ICreateProductFormData {
+  name: string;
+  description: string;
+  category_id: string;
+  cost_price: string;
+  selling_price: string;
+  uom_type: UomType;
+  uom_base_name: UomBaseName;
+  uom_display_name: UomDisplayName;
+  images: File[];
+}
+
+export interface IAddProductModalProps {
+  isSubmitting: boolean;
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  onSubmit: (formData: FormData) => void | Promise<void>;
 }
 
 export interface IProductTableProps {

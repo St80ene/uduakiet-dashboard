@@ -1,4 +1,4 @@
-import type { BasePaginationParams } from '@/interfaces';
+import type { IBasePaginationParams } from '@/interfaces';
 import apiClient from './api';
 
 const PRODUCT_SOURCE_RESOURCE = '/product-sources';
@@ -7,7 +7,7 @@ export const productSourceService = {
   /**
    * Get all product sources.
    */
-  getAllProductSources: async (params: BasePaginationParams = {}) => {
+  getAllProductSources: async (params: IBasePaginationParams = {}) => {
     const response = await apiClient.get(PRODUCT_SOURCE_RESOURCE, {
       params: {
         page: params.page ?? 1,
@@ -17,10 +17,15 @@ export const productSourceService = {
       },
     });
 
+    console.log('PRODUCT_SOURCE_RESOURCE response => ', response.data.data);
+
     return response.data.data;
   },
 
-  createProductSource: async (productSourceData: FormData) => {
+  createProductSource: async (productSourceData: {
+    product_id: string;
+    supplier_id: string;
+  }) => {
     const response = await apiClient.post(
       PRODUCT_SOURCE_RESOURCE,
       productSourceData,
@@ -31,7 +36,10 @@ export const productSourceService = {
 
   updateProductSource: async (
     productSourceId: string,
-    productSourceData: FormData,
+    productSourceData: {
+      product_id: string;
+      supplier_id: string;
+    },
   ) => {
     const response = await apiClient.put(
       `${PRODUCT_SOURCE_RESOURCE}/${productSourceId}`,

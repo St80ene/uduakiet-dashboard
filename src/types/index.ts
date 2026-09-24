@@ -45,3 +45,4 @@ export type StockMovementsResponse = PaginatedResponse<
   'stock_movements'
 >;
 export type AuditLogsResponse = PaginatedResponse<IAuditLog, 'auditLogs'>;
+export type BusinessResponse = PaginatedResponse<IAuditLog, 'business'>;

@@ -1,4 +1,4 @@
-import type { ApiResponse, BasePaginationParams } from '@/interfaces';
+import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
 
 import apiClient from './api';
 import type { SuppliersResponse } from '@/types';
@@ -8,7 +8,7 @@ const SUPPLIERS_RESOURCE = '/suppliers';
 
 export const supplierService = {
   getAllSuppliers: async (
-    params: BasePaginationParams = {},
+    params: IBasePaginationParams = {},
   ): Promise<SuppliersResponse> => {
     const response = await apiClient.get(SUPPLIERS_RESOURCE, {
       params: {
@@ -24,8 +24,8 @@ export const supplierService = {
 
   getSupplierByID: async (
     supplierId: string,
-  ): Promise<ApiResponse<ISupplier>> => {
-    const response = await apiClient.get<ApiResponse<ISupplier>>(
+  ): Promise<IApiResponse<ISupplier>> => {
+    const response = await apiClient.get<IApiResponse<ISupplier>>(
       `${SUPPLIERS_RESOURCE}/${supplierId}`,
     );
 
@@ -34,8 +34,8 @@ export const supplierService = {
 
   createSupplier: async (
     supplierData: FormData,
-  ): Promise<ApiResponse<ISupplier>> => {
-    const response = await apiClient.post<ApiResponse<ISupplier>>(
+  ): Promise<IApiResponse<ISupplier>> => {
+    const response = await apiClient.post<IApiResponse<ISupplier>>(
       SUPPLIERS_RESOURCE,
       supplierData,
     );
@@ -46,8 +46,8 @@ export const supplierService = {
   updateSupplier: async (
     supplierId: string,
     supplierData: FormData,
-  ): Promise<ApiResponse<ISupplier>> => {
-    const response = await apiClient.patch<ApiResponse<ISupplier>>(
+  ): Promise<IApiResponse<ISupplier>> => {
+    const response = await apiClient.patch<IApiResponse<ISupplier>>(
       `${SUPPLIERS_RESOURCE}/${supplierId}`,
       supplierData,
     );
@@ -56,7 +56,7 @@ export const supplierService = {
   },
 
   removeSupplier: async (supplierId: string) => {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<IApiResponse<null>>(
       `${SUPPLIERS_RESOURCE}/${supplierId}`,
     );
 
