@@ -2,14 +2,11 @@ import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
 
 import apiClient from './api';
 import type { IStore } from '@/interfaces/store.interface';
-import type { StoresResponse } from '@/types';
 
 const STORES_RESOURCE = '/stores';
 
 export const storeService = {
-  getAllStores: async (
-    params: IBasePaginationParams = {},
-  ): Promise<IApiResponse<StoresResponse>> => {
+  getAllStores: async (params: IBasePaginationParams = {}) => {
     const response = await apiClient.get(STORES_RESOURCE, {
       params: {
         page: params.page ?? 1,
