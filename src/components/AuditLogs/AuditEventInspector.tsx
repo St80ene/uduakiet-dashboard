@@ -1,4 +1,4 @@
-import type { AuditLog } from '@/interfaces/auditlog';
+import type { IAuditLog } from '@/interfaces/auditlog';
 import {
   Activity,
   CheckCircle2,
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 interface AuditEventInspectorProps {
-  selectedLog: AuditLog | null;
+  selectedLog: IAuditLog | null;
 }
 
 const ACTION_LABELS: Record<string, string> = {

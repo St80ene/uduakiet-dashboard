@@ -6,6 +6,7 @@ import {
   Boxes,
   FileText,
   LayoutDashboard,
+  Link,
   Package,
   Settings,
   ShoppingCart,
@@ -103,6 +104,12 @@ export const NAV_SECTIONS: NavSection[] = [
         icon: Truck,
         permissions: [ViewPermission.SUPPLIERS_VIEW],
       },
+      {
+        to: '/product-sources',
+        label: 'Product Sources',
+        icon: Link,
+        permissions: [ViewPermission.PRODUCT_SOURCES_VIEW],
+      },
     ],
   },
 
@@ -141,7 +148,7 @@ export const NAV_SECTIONS: NavSection[] = [
     items: [
       {
         to: '/settings/business',
-        label: 'Business Settings',
+        label: 'Business',
         icon: Settings,
         permissions: [ViewPermission.BUSINESS_VIEW],
       },

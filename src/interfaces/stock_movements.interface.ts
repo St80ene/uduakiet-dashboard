@@ -1,32 +1,11 @@
+import type {
+  StockMovementType,
+  StockMovementDirection,
+  StockMovementReferenceType,
+} from '@/enum/stock_movement.enum';
 import type { IBusiness } from './business.interface';
 import type { IStock } from './stock.interface';
 import type { IUser } from './user.interface';
-
-export enum StockMovementType {
-  RECEIPT = 'RECEIPT',
-  SALE = 'SALE',
-  ADJUSTMENT = 'ADJUSTMENT',
-  TRANSFER_IN = 'TRANSFER_IN',
-  TRANSFER_OUT = 'TRANSFER_OUT',
-  RETURN_IN = 'RETURN_IN',
-  RETURN_OUT = 'RETURN_OUT',
-  DAMAGE = 'DAMAGE',
-  LOSS = 'LOSS',
-  REVERSAL = 'REVERSAL',
-}
-
-export enum StockMovementDirection {
-  IN = 'IN',
-  OUT = 'OUT',
-}
-
-export enum StockMovementReferenceType {
-  PURCHASE_ORDER = 'PURCHASE_ORDER',
-  STOCK_ADJUSTMENT = 'STOCK_ADJUSTMENT',
-  STOCK_TRANSFER = 'STOCK_TRANSFER',
-  SALE = 'SALE',
-  STOCK_MOVEMENT = 'STOCK_MOVEMENT',
-}
 
 export interface IStockMovement {
   id: string;
@@ -51,10 +30,6 @@ export interface IStockMovement {
 
   // Explanation
   reason: string | null;
-
-  // Reference to the originating business operation
-  reference_type: StockMovementReferenceType | null;
-  reference_id: string | null;
 
   // Relationships
   stock?: IStock;

@@ -1,19 +1,16 @@
 import React, { useEffect } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { UduaKietLogo } from './AppLogo';
-import {
-  type BadgeColors,
-  type DynamicFaviconProps,
-  BadgeVariant,
-} from '@/types';
+import { type IDynamicFaviconProps, BadgeVariant } from '@/types';
+import type { IBadgeColors } from '@/interfaces';
 
-const badgeColors: BadgeColors = {
+const badgeColors: IBadgeColors = {
   danger: '#ef4444', // Red (e.g. Out of stock)
   warning: '#f59e0b', // Amber (e.g. Low stock threshold reached)
   brand: '#06b6d4', // Cyan (e.g. New orders)
 };
 
-export const DynamicFavicon: React.FC<DynamicFaviconProps> = ({
+export const DynamicFavicon: React.FC<IDynamicFaviconProps> = ({
   badgeCount = 0,
   badgeVariant = BadgeVariant.Danger,
   showBackground = true,

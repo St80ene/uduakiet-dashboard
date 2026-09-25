@@ -18,10 +18,9 @@ import type { UsersResponse } from '@/types';
 import { UserRole } from '@/enum/role';
 import useDebouncedValue from '@/hooks/debounceHook';
 import { usersService } from '@/services/user/api/users.api';
-
-import DataTable from '../common/DataTable';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 export const UsersPage = () => {
   // Pagination state
@@ -288,7 +287,7 @@ export const UsersPage = () => {
         meta={data?.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
-        getRowKey={(record) => record.id}
+        getRowKey={(record: IUser) => record.id}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
         emptyState={{

@@ -14,12 +14,12 @@ import {
   Layers,
   Filter,
 } from 'lucide-react';
-import type { PaginationMeta } from '@/interfaces';
-import type { DataTableColumn } from '@/interfaces/data_table';
-import DataTable from '../common/DataTable';
+import type { IDataTableColumn } from '@/interfaces/data_table';
+import type { IPaginationMeta } from '@/interfaces';
+import DataTable from '@/common/DataTable';
 
 // --- Types & Models ---
-export interface StorePerformanceMetric {
+export interface IStorePerformanceMetric {
   id: string;
   store_code: string;
   store_name: string;
@@ -42,7 +42,7 @@ export interface CategoryRevenueBreakdown {
 }
 
 // --- Mock Multi-Store Data ---
-const mockStoreMetrics: StorePerformanceMetric[] = [
+const mockStoreMetrics: IStorePerformanceMetric[] = [
   {
     id: 'str-001',
     store_code: 'BOS-01',
@@ -160,7 +160,7 @@ export const ReportsPage: React.FC = () => {
     (filteredStores.length || 1)
   ).toFixed(1);
 
-  const paginationMeta: PaginationMeta = {
+  const paginationMeta: IPaginationMeta = {
     currentPage,
     itemCount: filteredStores.length,
     itemsPerPage: pageSize,
@@ -170,7 +170,7 @@ export const ReportsPage: React.FC = () => {
     hasNextPage: currentPage * pageSize < filteredStores.length,
   };
 
-  const columns: DataTableColumn<StorePerformanceMetric>[] = [
+  const columns: IDataTableColumn<IStorePerformanceMetric>[] = [
     {
       key: 'store_name',
       header: 'Store / Location',
@@ -399,13 +399,13 @@ export const ReportsPage: React.FC = () => {
           </span>
         </div>
 
-        <DataTable<StorePerformanceMetric>
+        <DataTable<IStorePerformanceMetric>
           records={filteredStores}
           columns={columns}
           meta={paginationMeta}
           onPageChange={setCurrentPage}
           onPageSizeChange={setPageSize}
-          getRowKey={(record) => record.id}
+          getRowKey={(record: IStorePerformanceMetric) => record.id}
         />
       </div>
 

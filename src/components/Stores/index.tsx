@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Building2,
@@ -12,13 +12,13 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 
-import DataTable from '@/components/common/DataTable';
 import type { IStore } from '@/interfaces/store.interface';
 import type { StoresResponse } from '@/types';
 import { storeService } from '@/services/stores.service.api';
 import useDebouncedValue from '@/hooks/debounceHook';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 const StoresPage = () => {
   const navigate = useNavigate();
@@ -69,15 +69,18 @@ const StoresPage = () => {
     setPage(1);
   };
 
-  const handleSortChange = (sortBy: string) => {
-    if (selectedSort === sortBy) {
-      setSortOrder((current) => (current === 'ASC' ? 'DESC' : 'ASC'));
-      return;
-    }
+  const handleSortChange = useCallback(
+    (sortBy: string) => {
+      if (selectedSort === sortBy) {
+        setSortOrder((current) => (current === 'ASC' ? 'DESC' : 'ASC'));
+        return;
+      }
 
-    setSelectedSort(sortBy);
-    setSortOrder('ASC');
-  };
+      setSelectedSort(sortBy);
+      setSortOrder('ASC');
+    },
+    [selectedSort],
+  );
 
   const columns = useMemo(
     () => [
@@ -184,7 +187,7 @@ const StoresPage = () => {
         ),
       },
     ],
-    [navigate, selectedSort, sortOrder],
+    [navigate, handleSortChange],
   );
 
   if (isLoading) {

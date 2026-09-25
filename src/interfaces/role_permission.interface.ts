@@ -1,10 +1,10 @@
-import type { Permission } from './permission.interface';
+import type { IPermission } from './permission.interface';
 
-export interface RolePermission {
+export interface IRolePermission {
   id: string;
   role_id: string;
   permission_id: string;
-  permission: Permission;
+  permission: IPermission;
   created_at: Date;
   updated_at: Date;
 }

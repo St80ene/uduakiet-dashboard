@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import type { PurchaseOrder, Supplier } from '@/types';
 import { getAuditLogColumns } from '@/components/AuditLogs/audit_logs_columns';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -25,20 +24,22 @@ import {
   Users,
 } from 'lucide-react';
 import { productService } from '../../services/products.service.api';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
 import EditProductModal from './modals/EditProduct';
-import DataTable from '../common/DataTable';
 import AuditLogDetailsModal from '../AuditLogs/AuditLogModal';
-import type { PaginationMeta } from '@/interfaces';
-import type { AuditLog } from '@/interfaces/auditlog';
-import type { Product } from '@/types';
+import type { IAuditLog } from '@/interfaces/auditlog';
+import type { IPaginationMeta } from '@/interfaces';
+import type { IProduct } from '@/interfaces/products';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import DataTable from '@/common/DataTable';
+import type { ISupplier } from '@/interfaces/supplier';
+import type { IPurchaseOrder } from '@/interfaces/purchase_order.interface';
 
 export default function ProductDetailsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { productId } = useParams<{ productId: string }>();
 
-  const [selectedAuditLog, setSelectedAuditLog] = useState<AuditLog | null>(
+  const [selectedAuditLog, setSelectedAuditLog] = useState<IAuditLog | null>(
     null,
   );
   const [auditPage, setAuditPage] = useState(1);
@@ -60,8 +61,8 @@ export default function ProductDetailsPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [productLedger, setProductLedger] = useState<{
-    auditLogs: AuditLog[];
-    meta: PaginationMeta;
+    auditLogs: IAuditLog[];
+    meta: IPaginationMeta;
   }>({
     auditLogs: [],
     meta: {
@@ -74,7 +75,7 @@ export default function ProductDetailsPage() {
       totalPages: 1,
     },
   });
-  const { data, isLoading, isError, error } = useQuery<Product>({
+  const { data, isLoading, isError, error } = useQuery<IProduct>({
     queryKey: ['product', productId],
     queryFn: () => productService.getProductByID(productId!),
     enabled: Boolean(productId),
@@ -507,7 +508,7 @@ export default function ProductDetailsPage() {
 
                 {product.suppliers?.length ? (
                   <div className="divide-y divide-slate-100">
-                    {product.suppliers.map((supplier: Supplier) => (
+                    {product.suppliers.map((supplier: ISupplier) => (
                       <div
                         key={supplier.id}
                         className="flex items-center justify-between gap-4 px-6 py-4"
@@ -525,55 +526,7 @@ export default function ProductDetailsPage() {
                               <p className="truncate text-sm font-semibold text-slate-900">
                                 {supplier.email}
                               </p>
-
-                              {supplier.is_primary && (
-                                <span className="rounded-full border border-emerald-100 bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">
-                                  Preferred
-                                </span>
-                              )}
                             </div>
-
-                            <p className="mt-1 text-xs text-slate-500">
-                              {supplier.city || 'Location not provided'}
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="grid shrink-0 grid-cols-3 gap-6 text-right">
-                          <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                              Last Cost
-                            </p>
-
-                            <p className="mt-1 text-sm font-semibold text-slate-900">
-                              {supplier.last_purchase_price
-                                ? `₦${Number(
-                                    supplier.last_purchase_price,
-                                  ).toLocaleString()}`
-                                : '—'}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                              Lead Time
-                            </p>
-
-                            <p className="mt-1 text-sm font-semibold text-slate-900">
-                              {supplier.lead_time_days
-                                ? `${supplier.lead_time_days} days`
-                                : '—'}
-                            </p>
-                          </div>
-
-                          <div>
-                            <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                              Status
-                            </p>
-
-                            <p className="mt-1 text-sm font-semibold text-emerald-600">
-                              {supplier.is_active ? 'Active' : 'Inactive'}
-                            </p>
                           </div>
                         </div>
                       </div>
@@ -712,7 +665,7 @@ export default function ProductDetailsPage() {
                 <div className="divide-y divide-slate-100">
                   {product.purchase_orders
                     .slice(0, 5)
-                    .map((purchase: PurchaseOrder) => (
+                    .map((purchase: IPurchaseOrder) => (
                       <div
                         key={purchase.id}
                         className="grid grid-cols-2 gap-4 px-6 py-4 sm:grid-cols-5"
@@ -829,7 +782,7 @@ export default function ProductDetailsPage() {
             </div>
 
             {/* Audit table */}
-            <DataTable<AuditLog>
+            <DataTable<IAuditLog>
               records={productLedger?.auditLogs ?? []}
               columns={auditLogColumns}
               meta={productLedger?.meta}

@@ -1,4 +1,4 @@
-import type { BasePaginationParams } from '@/interfaces';
+import type { IBasePaginationParams } from '@/interfaces';
 
 import apiClient from './api';
 
@@ -8,7 +8,7 @@ export const stockService = {
   /**
    * Get paginated current stock balances.
    */
-  getAllStocks: async (params: BasePaginationParams = {}) => {
+  getAllStocks: async (params: IBasePaginationParams = {}) => {
     const response = await apiClient.get(STOCK_RESOURCE, {
       params: {
         page: params.page ?? 1,

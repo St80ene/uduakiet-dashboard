@@ -1,9 +1,9 @@
-import type { AuditLog } from '@/interfaces/auditlog';
-import type { DataTableColumn } from '@/interfaces/data_table';
+import type { IAuditLog } from '@/interfaces/auditlog';
+import type { IDataTableColumn } from '@/interfaces/data_table';
 
 export const getAuditLogColumns = (
-  onViewChanges: (log: AuditLog) => void,
-): DataTableColumn<AuditLog>[] => [
+  onViewChanges: (log: IAuditLog) => void,
+): IDataTableColumn<IAuditLog>[] => [
   {
     key: 'date',
     header: 'Date',

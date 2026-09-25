@@ -1,7 +1,7 @@
 import type { IBusiness } from './business.interface';
 import type { IUser } from './user.interface';
-import type { AuditLog } from './auditlog';
-import type { PurchaseOrder } from '@/types';
+import type { IAuditLog } from './auditlog';
+import type { IPurchaseOrder } from './purchase_order.interface';
 
 export interface IStore {
   id: string;
@@ -20,8 +20,8 @@ export interface IStore {
   // Relationships
   business?: IBusiness;
   users?: IUser[];
-  audit_logs?: AuditLog[];
-  purchase_orders?: PurchaseOrder[];
+  audit_logs?: IAuditLog[];
+  purchase_orders?: IPurchaseOrder[];
 
   // Timestamps
   created_at: Date;

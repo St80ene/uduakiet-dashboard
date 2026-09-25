@@ -12,16 +12,16 @@ import { useQuery } from '@tanstack/react-query';
 
 import {
   PurchaseOrderStatus,
-  type PurchaseOrderItem,
+  type IPurchaseOrder,
+  type IPurchaseOrderItem,
 } from '@/interfaces/purchase_order.interface';
-import type { PurchaseOrder } from '@/types';
-import type { DataTableColumn } from '@/interfaces/data_table';
+import type { IDataTableColumn } from '@/interfaces/data_table';
 
-import DataTable from '../common/DataTable';
 import useDebouncedValue from '@/hooks/debounceHook';
 import { getAllPurchaseOrders } from '@/services/purchase_orders.service.api';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 export const PurchaseOrdersPage: React.FC = () => {
   const [selectedPoId, setSelectedPoId] = useState<string | null>(null);
@@ -127,7 +127,7 @@ export const PurchaseOrdersPage: React.FC = () => {
     }).format(date);
   };
 
-  const poColumns: DataTableColumn<PurchaseOrder>[] = [
+  const poColumns: IDataTableColumn<IPurchaseOrder>[] = [
     {
       key: 'po_number',
       header: 'PO Number',
@@ -183,7 +183,7 @@ export const PurchaseOrdersPage: React.FC = () => {
     },
   ];
 
-  const itemColumns: DataTableColumn<PurchaseOrderItem>[] = [
+  const itemColumns: IDataTableColumn<IPurchaseOrderItem>[] = [
     {
       key: 'product_id',
       header: 'Product ID',
@@ -228,7 +228,7 @@ export const PurchaseOrdersPage: React.FC = () => {
   ];
 
   const selectedOrder = orders.find(
-    (order: PurchaseOrder) => order.id === selectedPoId,
+    (order: IPurchaseOrder) => order.id === selectedPoId,
   );
 
   return (
@@ -257,21 +257,21 @@ export const PurchaseOrdersPage: React.FC = () => {
       </div>
 
       {/* Purchase Orders Table */}
-      <DataTable<PurchaseOrder>
+      <DataTable<IPurchaseOrder>
         records={
-          purchaseOrdersData.data?.purchase_orders ?? ([] as PurchaseOrder[])
+          purchaseOrdersData.data?.purchase_orders ?? ([] as IPurchaseOrder[])
         }
         columns={poColumns}
         meta={purchaseOrdersData.data?.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
-        getRowKey={(record) => record.id}
+        getRowKey={(record: IPurchaseOrder) => record.id}
         onPageChange={handlePageChange}
         onPageSizeChange={handlePageSizeChange}
-        onSelectRecord={(order) =>
+        onSelectRecord={(order: IPurchaseOrder) =>
           setSelectedPoId((current) => (current === order.id ? null : order.id))
         }
-        getRowClassName={(record) =>
+        getRowClassName={(record: IPurchaseOrder) =>
           record.id === selectedPoId ? 'bg-sky-50/50' : ''
         }
         emptyState={{
@@ -319,10 +319,10 @@ export const PurchaseOrdersPage: React.FC = () => {
             Items for {selectedOrder.po_number}
           </h3>
 
-          <DataTable<PurchaseOrderItem>
+          <DataTable<IPurchaseOrderItem>
             records={selectedOrder.items ?? []}
             columns={itemColumns}
-            getRowKey={(record) => record.id}
+            getRowKey={(record: IPurchaseOrderItem) => record.id}
           />
         </div>
       )}

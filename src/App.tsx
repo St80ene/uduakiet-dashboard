@@ -1,13 +1,12 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { StocksPage } from './components/Stocks';
-
+import { ProductSources } from './components/ProductSources';
 import AppLayout from './layouts/AppLayout';
 
 // Auth & Settings
 import Login from './components/Auth/Login';
 import { ProtectedRoute } from './components/Auth/ProtectedRoute';
 import { UserProfilePage } from './components/Settings/UserProfilePage';
-import { BusinessSettingsPage } from './components/Settings/BusinessSettingsPage';
 
 // Overview
 import { Dashboard } from './components/Dashboard';
@@ -23,8 +22,16 @@ import { StockMovementsPage } from './components/StockMovements';
 import { AuditLogsPage } from './components/AuditLogs';
 import { PurchaseOrdersPage } from './components/PurchaseOrders';
 import StoresPage from './components/Stores';
+import Settings from './components/Settings/Business/Settings';
+import { useAuth } from './services/auth/hooks/useAuth';
+import { SplashScreen } from './common/SplashScreen';
 
 export default function App() {
+  const { isInitializing, isLoading } = useAuth();
+
+  if (isInitializing || isLoading) {
+    return <SplashScreen />; // Prevents child components from firing API calls too early!
+  }
   return (
     <BrowserRouter>
       <Routes>
@@ -48,6 +55,7 @@ export default function App() {
             {/* Procurement */}
             <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
             <Route path="/suppliers" element={<SuppliersPage />} />
+            <Route path="/product-sources" element={<ProductSources />} />
 
             {/* Administration */}
             <Route path="/stores" element={<StoresPage />} />
@@ -55,10 +63,7 @@ export default function App() {
             <Route path="/audit-logs" element={<AuditLogsPage />} />
 
             {/* Settings */}
-            <Route
-              path="/settings/business"
-              element={<BusinessSettingsPage />}
-            />
+            <Route path="/settings/business" element={<Settings />} />
             <Route path="/settings/profile" element={<UserProfilePage />} />
 
             {/* Redirect root to dashboard */}

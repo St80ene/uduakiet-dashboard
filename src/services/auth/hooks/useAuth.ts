@@ -5,7 +5,9 @@ export function useAuth() {
   const context = useContext(AuthContext);
 
   if (!context) {
-    throw new Error('useAuth must be used inside AuthProvider');
+    throw new Error(
+      'No AuthContext found. Make sure to wrap your component with AuthProvider.',
+    );
   }
 
   return context;

@@ -1,5 +1,4 @@
 import { useAuth } from '@/services/auth/hooks/useAuth';
-import { SplashScreen } from '@/components/common/SplashScreen';
 import {
   AlertCircle,
   ArrowRight,
@@ -23,7 +22,8 @@ import { motion, useReducedMotion } from 'framer-motion';
 import { GoogleIcon } from './icons/Google';
 import { MicrosoftIcon } from './icons/Microsoft';
 import { AppleIcon } from './icons/Apple';
-import { UduaKietLogo } from '@/components/common/AppLogo';
+import { UduaKietLogo } from '@/common/AppLogo';
+import SplashScreen from '@/common/SplashScreen';
 
 const chartData = [35, 50, 42, 68, 55, 75, 62, 88, 72, 94, 82, 100];
 
@@ -372,7 +372,7 @@ export default function Login() {
               <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
                 <Box size={18} />
               </div>
-              <span className="text-xl font-bold text-white">SwiftBuy</span>
+              <span className="text-xl font-bold text-white">Udua-Kiet</span>
             </motion.div>
 
             {/* Header */}

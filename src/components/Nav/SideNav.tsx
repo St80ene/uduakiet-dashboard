@@ -5,10 +5,10 @@ import { Loader2, LogOut } from 'lucide-react';
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { UserRole } from '@/enum/role';
 
-import { ROLE_CONFIG } from '../common/role_config';
 import { NAV_SECTIONS, type NavItem } from './NavItems';
 import type { ViewPermission } from '@/enum/view_permission.enum';
-import { UduaKietLogo } from '../common/AppLogo';
+import { ROLE_CONFIG } from '@/common/role_config';
+import { UduaKietLogo } from '@/common/AppLogo';
 
 export const SideNav: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);

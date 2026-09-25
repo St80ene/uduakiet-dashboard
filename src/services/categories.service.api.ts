@@ -1,4 +1,4 @@
-import type { ApiResponse, BasePaginationParams } from '@/interfaces';
+import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
 
 import apiClient from './api';
 import type {
@@ -11,7 +11,7 @@ const CATEGORIES_RESOURCE = '/categories';
 
 export const categoryService = {
   getAllCategories: async (
-    params: BasePaginationParams = {},
+    params: IBasePaginationParams = {},
   ): Promise<CategoriesResponse> => {
     const response = await apiClient.get(CATEGORIES_RESOURCE, {
       params: {
@@ -27,8 +27,8 @@ export const categoryService = {
 
   getCategoryByID: async (
     categoryId: string,
-  ): Promise<ApiResponse<ICategory>> => {
-    const response = await apiClient.get<ApiResponse<ICategory>>(
+  ): Promise<IApiResponse<ICategory>> => {
+    const response = await apiClient.get<IApiResponse<ICategory>>(
       `${CATEGORIES_RESOURCE}/${categoryId}`,
     );
 
@@ -37,8 +37,8 @@ export const categoryService = {
 
   createCategory: async (
     categoryData: CategoryFormData,
-  ): Promise<ApiResponse<ICategory>> => {
-    const response = await apiClient.post<ApiResponse<ICategory>>(
+  ): Promise<IApiResponse<ICategory>> => {
+    const response = await apiClient.post<IApiResponse<ICategory>>(
       CATEGORIES_RESOURCE,
       categoryData,
     );
@@ -49,8 +49,8 @@ export const categoryService = {
   updateCategory: async (
     categoryId: string,
     categoryData: CategoryFormData,
-  ): Promise<ApiResponse<ICategory>> => {
-    const response = await apiClient.patch<ApiResponse<ICategory>>(
+  ): Promise<IApiResponse<ICategory>> => {
+    const response = await apiClient.patch<IApiResponse<ICategory>>(
       `${CATEGORIES_RESOURCE}/${categoryId}`,
       categoryData,
     );
@@ -59,7 +59,7 @@ export const categoryService = {
   },
 
   removeCategory: async (categoryId: string) => {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<IApiResponse<null>>(
       `${CATEGORIES_RESOURCE}/${categoryId}`,
     );
 

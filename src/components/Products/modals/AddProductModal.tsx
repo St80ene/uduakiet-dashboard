@@ -3,16 +3,18 @@ import React, {
   useMemo,
   useRef,
   useState,
-  type Dispatch,
-  type SetStateAction,
   type SubmitEvent,
 } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
 import { UomBaseName, UomDisplayName, UomType } from '@/enum/product';
-import BaseModal from '@/components/common/BaseModal';
 import { categoryService } from '@/services/categories.service.api';
 import type { ICategory } from '@/interfaces/category.interface';
+import BaseModal from '@/common/BaseModal';
+import type {
+  IAddProductModalProps,
+  ICreateProductFormData,
+} from '@/interfaces/products';
 
 const MAX_IMAGES = 5;
 
@@ -39,29 +41,11 @@ const UOM_CONFIG: Record<
   },
 };
 
-export interface CreateProductFormData {
-  name: string;
-  description: string;
-  category_id: string;
-  cost_price: string;
-  selling_price: string;
-  uom_type: UomType;
-  uom_base_name: UomBaseName;
-  uom_display_name: UomDisplayName;
-  images: File[];
-}
-
-interface AddProductModalProps {
-  isSubmitting: boolean;
-  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
-  onSubmit: (formData: FormData) => void | Promise<void>;
-}
-
 export default function AddProductModal({
   isSubmitting,
   setIsModalOpen,
   onSubmit,
-}: AddProductModalProps) {
+}: IAddProductModalProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const { data: categoriesData, isLoading: isLoadingCategories } = useQuery({
@@ -75,7 +59,7 @@ export default function AddProductModal({
 
   const categories = categoriesData?.categories || [];
 
-  const [formData, setFormData] = useState<CreateProductFormData>({
+  const [formData, setFormData] = useState<ICreateProductFormData>({
     name: '',
     description: '',
     category_id: '',

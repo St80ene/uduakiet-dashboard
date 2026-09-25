@@ -1,9 +1,8 @@
 import { Eye } from 'lucide-react';
-import DataTable from '@/components/common/DataTable';
-import { formatCurrency } from '../common/utils';
-import type { DataTableColumn } from '@/interfaces/data_table';
-import type { ProductTableProps } from '@/interfaces/products';
-import type { Product } from '@/types';
+import type { IProduct, IProductTableProps } from '@/interfaces/products';
+import { formatCurrency } from '@/common/utils';
+import DataTable from '@/common/DataTable';
+import type { IDataTableColumn } from '@/interfaces/data_table';
 
 const ProductTable = ({
   products,
@@ -13,8 +12,8 @@ const ProductTable = ({
   onPageChange,
   onPageSizeChange,
   onSelectProduct,
-}: ProductTableProps) => {
-  const productColumns: DataTableColumn<Product>[] = [
+}: IProductTableProps) => {
+  const productColumns: IDataTableColumn<IProduct>[] = [
     {
       key: 'product',
       header: 'Product',
@@ -153,7 +152,7 @@ const ProductTable = ({
       onSelectRecord={onSelectProduct}
       isPlaceholderData={isPlaceholderData}
       isLoading={isLoading}
-      getRowKey={(product) => product.id}
+      getRowKey={(product: IProduct) => product.id}
       emptyState={{
         title: 'No products found',
         description:

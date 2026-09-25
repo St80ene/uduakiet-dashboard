@@ -1,14 +1,14 @@
 import { Edit2, Trash2, Tag, Layers } from 'lucide-react';
 import type {
-  GetCategoryColumnsProps,
+  IGetCategoryColumnsProps,
   ICategory,
 } from '@/interfaces/category.interface';
-import type { DataTableColumn } from '@/interfaces/data_table';
+import type { IDataTableColumn } from '@/interfaces/data_table';
 
 export const getCategoryColumns = ({
   onEdit,
   onDelete,
-}: GetCategoryColumnsProps): DataTableColumn<ICategory>[] => [
+}: IGetCategoryColumnsProps): IDataTableColumn<ICategory>[] => [
   {
     key: 'name',
     header: 'Category Name',

@@ -13,9 +13,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { CategoryFormModal } from './modals/CategoryFormModal';
 import { getCategoryColumns } from './CategoriesTableColumns';
-import DataTable from '../common/DataTable';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
-import { ErrorPage } from '../common/Error/ErrorPage';
 
 import { categoryService } from '@/services/categories.service.api';
 import useDebouncedValue from '@/hooks/debounceHook';
@@ -26,6 +23,9 @@ import type {
 } from '@/interfaces/category.interface';
 import type { CategoriesResponse } from '@/types';
 import { DeleteConfirmModal } from './modals/DeleteConfirmModal';
+import LoadingScreen from '@/common/Error/LoadingScreen';
+import { ErrorPage } from '@/common/Error/ErrorPage';
+import DataTable from '@/common/DataTable';
 
 export const CategoriesPage = () => {
   const queryClient = useQueryClient();

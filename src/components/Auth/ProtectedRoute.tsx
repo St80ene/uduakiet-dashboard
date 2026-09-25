@@ -1,14 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAuth } from '@/services/auth/hooks/useAuth';
-import { LoadingScreen } from '../common/Error/LoadingScreen';
 
 export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth();
+  // Destructure isAuthenticated from your auth context hook
+  const { isAuthenticated } = useAuth();
 
-  if (isLoading) {
-    return <LoadingScreen />; // You can replace this with your own loading component
-  }
-
+  // Safely redirect only if the authentication process is completed and the user is unauthorized
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }

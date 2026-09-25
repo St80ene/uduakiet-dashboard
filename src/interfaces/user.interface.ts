@@ -1,7 +1,7 @@
 import type { IBusiness } from './business.interface';
 import type { IStore } from './store.interface';
 import type { Role } from './role.interface';
-import type { CloudinaryImage } from '@/types';
+import type { ICloudinaryImage } from './cloudImage';
 
 export interface IUser {
   id: string;
@@ -14,7 +14,7 @@ export interface IUser {
   business_id: string;
   store_id: string;
   phone_number?: string | null;
-  profile_picture?: CloudinaryImage | null;
+  profile_picture?: ICloudinaryImage | null;
 
   is_active: boolean;
 

@@ -1,5 +1,5 @@
-import type { Product } from '@/types';
 import type { IBusiness } from './business.interface';
+import type { IProduct } from './products';
 
 export const CATEGORY_SORT_FIELD_NAMES = [
   'name',
@@ -19,14 +19,14 @@ export interface ICategory {
 
   // Relationships
   business?: IBusiness;
-  products?: Product[];
+  products?: IProduct[];
 
   // Timestamps
   created_at: Date;
   updated_at: Date;
 }
 
-export interface GetCategoryColumnsProps {
+export interface IGetCategoryColumnsProps {
   onEdit: (category: ICategory) => void;
   onDelete: (category: ICategory) => void;
 }

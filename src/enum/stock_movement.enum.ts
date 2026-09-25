@@ -1,0 +1,25 @@
+export enum StockMovementType {
+  RECEIPT = 'RECEIPT',
+  SALE = 'SALE',
+  ADJUSTMENT = 'ADJUSTMENT',
+  TRANSFER_IN = 'TRANSFER_IN',
+  TRANSFER_OUT = 'TRANSFER_OUT',
+  RETURN_IN = 'RETURN_IN',
+  RETURN_OUT = 'RETURN_OUT',
+  DAMAGE = 'DAMAGE',
+  LOSS = 'LOSS',
+  REVERSAL = 'REVERSAL',
+}
+
+export enum StockMovementDirection {
+  IN = 'IN',
+  OUT = 'OUT',
+}
+
+export enum StockMovementReferenceType {
+  PURCHASE_ORDER = 'PURCHASE_ORDER',
+  STOCK_ADJUSTMENT = 'STOCK_ADJUSTMENT',
+  STOCK_TRANSFER = 'STOCK_TRANSFER',
+  SALE = 'SALE',
+  STOCK_MOVEMENT = 'STOCK_MOVEMENT',
+}

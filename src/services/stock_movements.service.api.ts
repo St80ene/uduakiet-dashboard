@@ -1,4 +1,4 @@
-import type { ApiResponse, BasePaginationParams } from '@/interfaces';
+import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
 import apiClient from './api';
 
 import type { StockMovementsResponse } from '@/types';
@@ -11,7 +11,7 @@ const STOCK_MOVEMENTS_RESOURCE = '/stock-movements';
 
 export const stockMovementService = {
   getAllStockMovements: async (
-    params: BasePaginationParams = {},
+    params: IBasePaginationParams = {},
   ): Promise<StockMovementsResponse> => {
     const response = await apiClient.get(STOCK_MOVEMENTS_RESOURCE, {
       params: {
@@ -27,8 +27,8 @@ export const stockMovementService = {
 
   getStockMovementByID: async (
     movementId: string,
-  ): Promise<ApiResponse<IStockMovement>> => {
-    const response = await apiClient.get<ApiResponse<IStockMovement>>(
+  ): Promise<IApiResponse<IStockMovement>> => {
+    const response = await apiClient.get<IApiResponse<IStockMovement>>(
       `${STOCK_MOVEMENTS_RESOURCE}/${movementId}`,
     );
 
@@ -37,8 +37,8 @@ export const stockMovementService = {
 
   getMovementsByStock: async (
     stockId: string,
-  ): Promise<ApiResponse<IStockMovement[]>> => {
-    const response = await apiClient.get<ApiResponse<IStockMovement[]>>(
+  ): Promise<IApiResponse<IStockMovement[]>> => {
+    const response = await apiClient.get<IApiResponse<IStockMovement[]>>(
       `${STOCK_MOVEMENTS_RESOURCE}/stock/${stockId}`,
     );
 
@@ -47,8 +47,8 @@ export const stockMovementService = {
 
   getMovementsByProduct: async (
     productId: string,
-  ): Promise<ApiResponse<IStockMovement[]>> => {
-    const response = await apiClient.get<ApiResponse<IStockMovement[]>>(
+  ): Promise<IApiResponse<IStockMovement[]>> => {
+    const response = await apiClient.get<IApiResponse<IStockMovement[]>>(
       `${STOCK_MOVEMENTS_RESOURCE}/product/${productId}`,
     );
 
@@ -57,8 +57,8 @@ export const stockMovementService = {
 
   createMovement: async (
     movementData: StockMovementFormData,
-  ): Promise<ApiResponse<IStockMovement>> => {
-    const response = await apiClient.post<ApiResponse<IStockMovement>>(
+  ): Promise<IApiResponse<IStockMovement>> => {
+    const response = await apiClient.post<IApiResponse<IStockMovement>>(
       `${STOCK_MOVEMENTS_RESOURCE}/movement`,
       movementData,
     );
@@ -68,8 +68,8 @@ export const stockMovementService = {
 
   bulkCreateMovements: async (
     movementData: StockMovementFormData[],
-  ): Promise<ApiResponse<IStockMovement[]>> => {
-    const response = await apiClient.post<ApiResponse<IStockMovement[]>>(
+  ): Promise<IApiResponse<IStockMovement[]>> => {
+    const response = await apiClient.post<IApiResponse<IStockMovement[]>>(
       `${STOCK_MOVEMENTS_RESOURCE}/movement/bulk`,
       movementData,
     );

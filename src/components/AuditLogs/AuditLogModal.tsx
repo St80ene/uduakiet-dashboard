@@ -7,23 +7,23 @@ import {
   FileText,
   User,
 } from 'lucide-react';
-import BaseModal from '@/components/common/BaseModal';
-import type {
-  AuditLogDetailsModalProps,
-  ChangeItemProps,
-  InfoCardProps,
-  ValueBoxProps,
-} from '@/interfaces/auditlog';
 import {
-  getChangedFields,
-  getActionStyle,
-  formatFieldName,
-  formatValue,
   formatExactDateTime,
+  formatFieldName,
   formatRelativeTime,
-} from '@/components/common/utils';
+  formatValue,
+  getActionStyle,
+  getChangedFields,
+} from '@/common/utils';
+import BaseModal from '@/common/BaseModal';
+import type {
+  IAuditLogDetailsModalProps,
+  IChangeItemProps,
+  InfoCardProps,
+  IValueBoxProps,
+} from '@/interfaces/auditlog';
 
-const AuditLogModal: FC<AuditLogDetailsModalProps> = ({
+const AuditLogModal: FC<IAuditLogDetailsModalProps> = ({
   isOpen,
   auditLog,
   onClose,
@@ -208,7 +208,7 @@ const InfoCard: FC<InfoCardProps> = ({ icon, label, value }) => (
   </div>
 );
 
-const ChangeItem: FC<ChangeItemProps> = ({ field, oldValue, newValue }) => {
+const ChangeItem: FC<IChangeItemProps> = ({ field, oldValue, newValue }) => {
   return (
     <div className="rounded-xl border border-slate-200 overflow-hidden">
       <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
@@ -228,7 +228,7 @@ const ChangeItem: FC<ChangeItemProps> = ({ field, oldValue, newValue }) => {
   );
 };
 
-const ValueBox: FC<ValueBoxProps> = ({ label, value, isNew = false }) => (
+const ValueBox: FC<IValueBoxProps> = ({ label, value, isNew = false }) => (
   <div className="min-w-0">
     <p
       className={`

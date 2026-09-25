@@ -1,4 +1,4 @@
-import type { ApiResponse, BasePaginationParams } from '@/interfaces';
+import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
 import type { IUser } from '@/interfaces/user.interface';
 import apiClient from '@/services/api';
 
@@ -27,7 +27,7 @@ export const usersService = {
   /**
    * Get all users
    */
-  getAll: async (params: BasePaginationParams = {}) => {
+  getAll: async (params: IBasePaginationParams = {}) => {
     const response = await apiClient.get('/users', { params }); // Debug log
     return response.data.data;
   },
@@ -56,8 +56,8 @@ export const usersService = {
   update: async (
     id: string,
     payload: FormData,
-  ): Promise<ApiResponse<IUser>> => {
-    const response = await apiClient.patch<ApiResponse<IUser>>(
+  ): Promise<IApiResponse<IUser>> => {
+    const response = await apiClient.patch<IApiResponse<IUser>>(
       `/users/${id}`,
       payload,
     );
