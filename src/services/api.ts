@@ -71,7 +71,6 @@ apiClient.interceptors.response.use(
     // C. NO REFRESH TOKEN FOUND
     if (!refreshToken) {
       tokenStorage.clearTokens();
-      console.log('No refresh token available, logging out.');
       window.location.href = '/login';
       return Promise.reject(error);
     }
@@ -79,6 +78,7 @@ apiClient.interceptors.response.use(
     // D. QUEUE CONCURRENT REQUESTS ON SLOW NETWORKS
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
+        // 1. Subscribe with both success and failure handlers
         subscribeToRefresh((newAccessToken) => {
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -86,12 +86,15 @@ apiClient.interceptors.response.use(
           resolve(apiClient(originalRequest));
         });
 
-        // Fail-safe timeout or rejection handling
+        // 2. Fail-safe timeout: If the refresh process takes longer than 20 seconds,
+        // force-reject the queued requests so components don't freeze forever.
+        setTimeout(() => {
+          reject(new Error('Token refresh queue timeout'));
+        }, 20000);
       });
     }
 
     isRefreshing = true;
-    console.log('Initiating silent token refresh...');
 
     try {
       // E. EXECUTING REFRESH

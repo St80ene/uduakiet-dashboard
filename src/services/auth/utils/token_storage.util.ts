@@ -1,7 +1,6 @@
 const ACCESS_TOKEN_KEY = import.meta.env.VITE_ACCESS_TOKEN_KEY;
 const REFRESH_TOKEN_KEY = import.meta.env.VITE_REFRESH_TOKEN_KEY;
 
-console.log({ REFRESH_TOKEN_KEY, ACCESS_TOKEN_KEY });
 export const tokenStorage = {
   getAccessToken() {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
