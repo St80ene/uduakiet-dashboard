@@ -1,7 +1,7 @@
-import type { AuditLog } from '@/interfaces/auditlog';
+import type { IAuditLog } from '@/interfaces/auditlog';
 import type { IBusiness } from '@/interfaces/business.interface';
+import type { IPurchaseOrder } from '@/interfaces/purchase_order.interface';
 import type { IUser } from '@/interfaces/user.interface';
-import type { PurchaseOrder } from '@/types';
 
 export interface Store {
   id: string;
@@ -24,11 +24,11 @@ export interface Store {
 
   phone_number?: string;
 
-  audit_logs: AuditLog[];
+  audit_logs: IAuditLog[];
 
   users: IUser[];
 
-  purchase_orders: PurchaseOrder[];
+  purchase_orders: IPurchaseOrder[];
 
   created_at: Date;
 

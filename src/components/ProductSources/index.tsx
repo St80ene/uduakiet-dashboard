@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   Boxes,
   Download,
@@ -51,7 +51,7 @@ export const ProductSources: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
-  const [isSubmitting, setIsSubmitting] = useState<true | false>(false);
+  const [isSubmitting] = useState<true | false>(false);
 
   const debouncedSearch = useDebouncedValue(searchQuery.trim(), 350);
 

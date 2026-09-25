@@ -1,30 +1,33 @@
-import type { ApiResponse, BasePaginationParams } from '@/interfaces';
-
+import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
+import type { IPurchaseOrder } from '@/interfaces/purchase_order.interface';
 import apiClient from './api';
-import type { PurchaseOrder, PurchaseOrdersResponse } from '@/types';
+import type { IPurchaseOrdersResponse } from '@/types';
 
 const PURCHASE_ORDERS_RESOURCE = '/purchase-orders';
 
 export const purchaseOrderService = {
   getAllPurchaseOrders: async (
-    params: BasePaginationParams = {},
-  ): Promise<ApiResponse<PurchaseOrdersResponse>> => {
-    const response = await apiClient.get<ApiResponse<PurchaseOrdersResponse>>(PURCHASE_ORDERS_RESOURCE, {
-      params: {
-        page: params.page ?? 1,
-        limit: params.limit ?? 10,
-        ...(params.search && { search: params.search }),
-        ...(params.order && { order: params.order }),
+    params: IBasePaginationParams = {},
+  ): Promise<IApiResponse<IPurchaseOrdersResponse>> => {
+    const response = await apiClient.get<IApiResponse<IPurchaseOrdersResponse>>(
+      PURCHASE_ORDERS_RESOURCE,
+      {
+        params: {
+          page: params.page ?? 1,
+          limit: params.limit ?? 10,
+          ...(params.search && { search: params.search }),
+          ...(params.order && { order: params.order }),
+        },
       },
-    });
+    );
 
     return response.data;
   },
 
   getPurchaseOrderByID: async (
     purchaseOrderId: string,
-  ): Promise<ApiResponse<PurchaseOrdersResponse>> => {
-    const response = await apiClient.get<ApiResponse<PurchaseOrdersResponse>>(
+  ): Promise<IApiResponse<IPurchaseOrdersResponse>> => {
+    const response = await apiClient.get<IApiResponse<IPurchaseOrdersResponse>>(
       `${PURCHASE_ORDERS_RESOURCE}/${purchaseOrderId}`,
     );
 
@@ -33,11 +36,10 @@ export const purchaseOrderService = {
 
   createPurchaseOrder: async (
     purchaseOrderData: FormData,
-  ): Promise<ApiResponse<PurchaseOrdersResponse>> => {
-    const response = await apiClient.post<ApiResponse<PurchaseOrdersResponse>>(
-      PURCHASE_ORDERS_RESOURCE,
-      purchaseOrderData,
-    );
+  ): Promise<IApiResponse<IPurchaseOrdersResponse>> => {
+    const response = await apiClient.post<
+      IApiResponse<IPurchaseOrdersResponse>
+    >(PURCHASE_ORDERS_RESOURCE, purchaseOrderData);
 
     return response.data;
   },
@@ -45,8 +47,8 @@ export const purchaseOrderService = {
   updatePurchaseOrder: async (
     purchaseOrderId: string,
     purchaseOrderData: FormData,
-  ): Promise<ApiResponse<PurchaseOrder>> => {
-    const response = await apiClient.patch<ApiResponse<PurchaseOrder>>(
+  ): Promise<IApiResponse<IPurchaseOrder>> => {
+    const response = await apiClient.patch<IApiResponse<IPurchaseOrder>>(
       `${PURCHASE_ORDERS_RESOURCE}/${purchaseOrderId}`,
       purchaseOrderData,
     );
@@ -55,7 +57,7 @@ export const purchaseOrderService = {
   },
 
   removePurchaseOrder: async (purchaseOrderId: string) => {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<IApiResponse<null>>(
       `${PURCHASE_ORDERS_RESOURCE}/${purchaseOrderId}`,
     );
 

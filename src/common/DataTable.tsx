@@ -1,10 +1,9 @@
 import type { FC } from 'react';
 import { ChevronLeft, ChevronRight, PackageSearch } from 'lucide-react';
-
 import type {
-  DataTableEmptyStateProps,
-  DataTablePaginationProps,
-  DataTableProps,
+  IDataTableEmptyStateProps,
+  IDataTablePaginationProps,
+  IDataTableProps,
 } from '@/interfaces/data_table';
 
 const DEFAULT_PAGE_SIZE_OPTIONS = [5, 7, 10, 25, 50, 100];
@@ -24,7 +23,7 @@ const DataTable = <T,>({
   getRowClassName,
   header,
   horizontalScroll = true,
-}: DataTableProps<T>) => {
+}: IDataTableProps<T>) => {
   const startItem =
     meta && meta.totalItems > 0
       ? (meta.currentPage - 1) * meta.itemsPerPage + 1
@@ -122,7 +121,7 @@ const DataTable = <T,>({
   );
 };
 
-const DataTableEmptyState: FC<DataTableEmptyStateProps> = ({
+const DataTableEmptyState: FC<IDataTableEmptyStateProps> = ({
   columnCount,
   icon,
   title,
@@ -149,7 +148,9 @@ const DataTableEmptyState: FC<DataTableEmptyStateProps> = ({
   );
 };
 
-const DataTableLoadingState = ({ columnCount }: { columnCount: number }) => {
+const DataTableLoadingState: FC<{ columnCount: number }> = ({
+  columnCount,
+}) => {
   return (
     <>
       {Array.from({ length: 5 }).map((_, rowIndex) => (
@@ -165,7 +166,7 @@ const DataTableLoadingState = ({ columnCount }: { columnCount: number }) => {
   );
 };
 
-const DataTablePagination: FC<DataTablePaginationProps> = ({
+const DataTablePagination: FC<IDataTablePaginationProps> = ({
   meta,
   startItem,
   endItem,

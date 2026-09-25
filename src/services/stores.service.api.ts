@@ -1,4 +1,4 @@
-import type { ApiResponse, BasePaginationParams } from '@/interfaces';
+import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
 
 import apiClient from './api';
 import type { IStore } from '@/interfaces/store.interface';
@@ -8,8 +8,8 @@ const STORES_RESOURCE = '/stores';
 
 export const storeService = {
   getAllStores: async (
-    params: BasePaginationParams = {},
-  ): Promise<StoresResponse> => {
+    params: IBasePaginationParams = {},
+  ): Promise<IApiResponse<StoresResponse>> => {
     const response = await apiClient.get(STORES_RESOURCE, {
       params: {
         page: params.page ?? 1,
@@ -22,16 +22,16 @@ export const storeService = {
     return response.data.data;
   },
 
-  getStoreByID: async (storeId: string): Promise<ApiResponse<IStore>> => {
-    const response = await apiClient.get<ApiResponse<IStore>>(
+  getStoreByID: async (storeId: string): Promise<IApiResponse<IStore>> => {
+    const response = await apiClient.get<IApiResponse<IStore>>(
       `${STORES_RESOURCE}/${storeId}`,
     );
 
     return response.data;
   },
 
-  createStore: async (storeData: FormData): Promise<ApiResponse<IStore>> => {
-    const response = await apiClient.post<ApiResponse<IStore>>(
+  createStore: async (storeData: FormData): Promise<IApiResponse<IStore>> => {
+    const response = await apiClient.post<IApiResponse<IStore>>(
       STORES_RESOURCE,
       storeData,
     );
@@ -42,8 +42,8 @@ export const storeService = {
   updateStore: async (
     storeId: string,
     storeData: FormData,
-  ): Promise<ApiResponse<IStore>> => {
-    const response = await apiClient.patch<ApiResponse<IStore>>(
+  ): Promise<IApiResponse<IStore>> => {
+    const response = await apiClient.patch<IApiResponse<IStore>>(
       `${STORES_RESOURCE}/${storeId}`,
       storeData,
     );
@@ -52,7 +52,7 @@ export const storeService = {
   },
 
   removeStore: async (storeId: string) => {
-    const response = await apiClient.delete<ApiResponse<null>>(
+    const response = await apiClient.delete<IApiResponse<null>>(
       `${STORES_RESOURCE}/${storeId}`,
     );
 

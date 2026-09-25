@@ -46,3 +46,7 @@ export type StockMovementsResponse = PaginatedResponse<
 >;
 export type AuditLogsResponse = PaginatedResponse<IAuditLog, 'auditLogs'>;
 export type BusinessResponse = PaginatedResponse<IAuditLog, 'business'>;
+export type IPurchaseOrdersResponse = PaginatedResponse<
+  IPurchaseOrder,
+  'purchase_orders'
+>;
