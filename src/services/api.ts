@@ -1,11 +1,13 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { tokenStorage } from './auth/utils/token_storage.util';
 
-const API_BASE_URL = import.meta.env.VITE_API_BACKEND_URL;
+export const API_BASE_URL = import.meta.env.VITE_API_BACKEND_URL;
+
+export const ApiTimeOut: number = 10000; // 10-second default timeout to catch slow networks gracefully
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000, // 10-second default timeout to catch slow networks gracefully
+  timeout: ApiTimeOut,
 });
 
 // 1. SINGLE REQUEST INTERCEPTOR
@@ -51,8 +53,6 @@ apiClient.interceptors.response.use(
     };
 
     // A. HANDLE NETWORK OUTAGE / SLOW TIMEOUTS
-    // If there is no response object, the network is down or dropped (ERR_NETWORK).
-    // Stop here and pass the network error up to TanStack Query.
     if (!error.response) {
       console.warn(
         'Network outage or timeout detected. Skipping token refresh.',
@@ -86,60 +86,56 @@ apiClient.interceptors.response.use(
           resolve(apiClient(originalRequest));
         });
 
-        // Fail-safe: if refresh finishes and fails, clear the pending promise
-        if (!isRefreshing && !tokenStorage.getAccessToken()) {
-          reject(error);
-        }
+        // Fail-safe timeout or rejection handling
       });
     }
 
     isRefreshing = true;
     console.log('Initiating silent token refresh...');
 
-    // try {
-    //   // E. EXECUTING REFRESH WITH CORRECT NESTJS HEADER FORMAT
-    //   const {
-    //     data: { tokens },
-    //   } = await apiClient.post(
-    //     `${API_BASE_URL}/auth/refresh`,
-    //     {}, // Empty body
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${refreshToken}`,
-    //       },
-    //       timeout: 15000, // Elevated 15s timeout specifically for token rotation on lagging connections
-    //     },
-    //   );
+    try {
+      // E. EXECUTING REFRESH
+      const response = await axios.post(
+        `${API_BASE_URL}/auth/refresh`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${refreshToken}`,
+          },
+          timeout: ApiTimeOut,
+        },
+      );
 
-    //   console.log('Refresh response success:', tokens);
-    //   const { accessToken, refreshToken: newRefreshToken } = tokens;
+      const tokens = response.data.tokens || response.data;
+      const { accessToken, refreshToken: newRefreshToken } = tokens;
 
-    //   tokenStorage.setTokens(accessToken, newRefreshToken);
-    //   notifyRefreshSubscribers(accessToken);
+      tokenStorage.setTokens(accessToken, newRefreshToken);
 
-    //   if (originalRequest.headers) {
-    //     originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-    //   }
+      // Notify all queued requests waiting for this new token
+      notifyRefreshSubscribers(accessToken);
 
-    //   return apiClient(originalRequest);
-    // } catch (refreshError) {
-    //   rejectRefreshSubscribers();
-    //   tokenStorage.clearTokens();
+      if (originalRequest.headers) {
+        originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+      }
 
-    //   // Only kick user to login page if the failure is an explicit auth error (4xx).
-    //   // If it's a transient server crash (5xx) or timeout, we don't clear their login.
-    //   if (
-    //     axios.isAxiosError(refreshError) &&
-    //     refreshError.response &&
-    //     refreshError.response.status < 500
-    //   ) {
-    //     window.location.href = '/login';
-    //   }
+      return apiClient(originalRequest);
+    } catch (refreshError) {
+      rejectRefreshSubscribers();
+      tokenStorage.clearTokens();
 
-    //   return Promise.reject(refreshError);
-    // } finally {
-    //   isRefreshing = false;
-    // }
+      // Only kick user to login if backend explicitly rejects refresh token (4xx)
+      if (
+        axios.isAxiosError(refreshError) &&
+        refreshError.response &&
+        refreshError.response.status < 500
+      ) {
+        window.location.href = '/login';
+      }
+
+      return Promise.reject(refreshError);
+    } finally {
+      isRefreshing = false;
+    }
   },
 );
 

@@ -23,8 +23,15 @@ import { AuditLogsPage } from './components/AuditLogs';
 import { PurchaseOrdersPage } from './components/PurchaseOrders';
 import StoresPage from './components/Stores';
 import Settings from './components/Settings/Business/Settings';
+import { useAuth } from './services/auth/hooks/useAuth';
+import { SplashScreen } from './common/SplashScreen';
 
 export default function App() {
+  const { isInitializing, isLoading } = useAuth();
+
+  if (isInitializing || isLoading) {
+    return <SplashScreen />; // Prevents child components from firing API calls too early!
+  }
   return (
     <BrowserRouter>
       <Routes>

@@ -1,12 +1,14 @@
 import { useQueryClient, useMutation } from '@tanstack/react-query';
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, useRef, type ReactNode } from 'react';
 import { AxiosError } from 'axios';
 
 import { authApi, type LoginPayload } from '../api/auth.api';
+import axios from 'axios';
 import { tokenStorage } from '../utils/token_storage.util';
 import { AuthContext } from './AuthContext';
 import type { IUser } from '@/interfaces/user.interface';
 import Toast from '@/common/Toast';
+import { API_BASE_URL, ApiTimeOut } from '@/services/api';
 
 interface Props {
   children: ReactNode;
@@ -22,9 +24,8 @@ export function AuthProvider({ children }: Props) {
     () => !!tokenStorage.getRefreshToken(),
   );
   const [user, setUser] = useState<IUser | null>(null);
-  const [isInitializing, setIsInitializing] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
 
-  // 1. STATE MANAGEMENT FOR TOASTS
   const [toast, setToast] = useState<{
     message: string;
     type: 'success' | 'error' | 'info';
@@ -32,57 +33,78 @@ export function AuthProvider({ children }: Props) {
 
   const showToast = (message: string, type: 'success' | 'error' | 'info') => {
     setToast({ message, type });
-    // Auto-dismiss toast after 4 seconds
     setTimeout(() => setToast(null), 4000);
   };
 
-  // Hydrate session on page reload
+  const hasInitializedRef = useRef(false);
+
+  // 1. Hydrate session on page reload (Option B: Refresh returns tokens + user)
   useEffect(() => {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
     const restoreSession = async () => {
       const refreshToken = tokenStorage.getRefreshToken();
 
-      console.log('Restoring session. Refresh token:', refreshToken);
+      if (!refreshToken) {
+        setIsInitializing(false);
+        return;
+      }
 
-      if (refreshToken) {
-        setIsInitializing(true);
-        try {
-          const { tokens, user: refreshedUser } = await authApi.refresh();
-          console.log(
-            'Session restored. New tokens:',
-            tokens,
-            'User:',
-            refreshedUser,
-          );
-          tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
+      try {
+        const response = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
+            },
+            timeout: ApiTimeOut,
+          },
+        );
+
+        // 🌟 Option B Payload: Expecting tokens AND user together
+        const {
+          accessToken,
+          refreshToken: newRefreshToken,
+          user: refreshedUser,
+        } = response.data;
+
+        tokenStorage.setTokens(accessToken, newRefreshToken);
+        setHasAccessToken(true);
+        setHasRefreshToken(true);
+        setUser(refreshedUser); // Instantly hydrates user profile without a secondary /auth/me call
+      } catch (error) {
+        if (error instanceof AxiosError && !error.response) {
           setHasAccessToken(true);
           setHasRefreshToken(true);
-          setUser(refreshedUser);
-        } catch (error) {
-          if (error instanceof AxiosError && !error.response) {
-            console.warn(
-              'Network outage during session restoration. Preserving tokens.',
-            );
-            setHasAccessToken(true);
-            setHasRefreshToken(true);
-            showToast('Network outage. Operating in offline mode.', 'info');
-            setIsInitializing(false);
-          } else {
-            tokenStorage.clearTokens();
-            setHasAccessToken(false);
-            setHasRefreshToken(false);
-            setUser(null);
-            showToast('Session expired. Please log in again.', 'error');
-          }
-        } finally {
-          setIsInitializing(false);
+          showToast('Network outage. Operating in offline mode.', 'info');
+        } else if (
+          error instanceof AxiosError &&
+          (error.response?.status === 401 || error.response?.status === 403)
+        ) {
+          tokenStorage.clearTokens();
+          setHasAccessToken(false);
+          setHasRefreshToken(false);
+          setUser(null);
+          showToast('Session expired. Please log in again.', 'error');
+        } else {
+          setHasAccessToken(true);
+          setHasRefreshToken(true);
+          showToast(
+            'Temporary server error. Some features may be limited.',
+            'info',
+          );
         }
+      } finally {
+        setIsInitializing(false);
       }
     };
 
-    restoreSession();
+    restoreSession().finally(() => setIsInitializing(false));
   }, []);
 
-  // Login handler
+  //  Login handler
   const loginMutation = useMutation({
     mutationFn: (credentials: LoginPayload) => authApi.login(credentials),
     onSuccess: (response) => {
@@ -94,7 +116,7 @@ export function AuthProvider({ children }: Props) {
     },
   });
 
-  // Logout handler
+  //  Logout handler
   const logoutMutation = useMutation({
     mutationFn: () => authApi.logout(),
     onSettled: () => {
@@ -131,23 +153,21 @@ export function AuthProvider({ children }: Props) {
   const logout = async () => {
     await logoutMutation.mutateAsync();
   };
+  const isAuthenticated = !!user || hasAccessToken || hasRefreshToken;
+  const isLoading = loginMutation.isPending || logoutMutation.isPending;
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        isLoading: loginMutation.isPending || logoutMutation.isPending,
-        isAuthenticated:
-          (!!hasAccessToken && (!!user || !navigator.onLine)) ||
-          (hasRefreshToken && (!!user || !navigator.onLine)),
+        isLoading,
+        isAuthenticated,
         isInitializing,
         login,
         logout,
       }}
     >
       {children}
-
-      {/* 2. INJECT CONDITIONAL TOAST AT CONTAINER LEVEL */}
       {toast && (
         <Toast
           message={toast.message}
