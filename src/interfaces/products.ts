@@ -12,7 +12,7 @@ import type { IStock } from './stock.interface';
 import type { IPaginationMeta } from '.';
 import type { ICloudinaryImage } from './cloudImage';
 import type { Dispatch, SetStateAction } from 'react';
-import type { ISupplier } from './supplier';
+import type { IProductSource } from './product_source.interface';
 
 // Interface definitions for incoming query configuration parameters
 export interface IGetAllProductsParams {
@@ -88,7 +88,7 @@ export interface IProduct {
   category_id: string | null;
   business_id: string;
   category?: ICategory | null;
-  suppliers?: ISupplier[];
+  source?: IProductSource;
   purchase_orders?: IPurchaseOrder[];
   business: IBusiness;
   created_at: Date;

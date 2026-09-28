@@ -32,9 +32,9 @@ export const supplierService = {
     return response.data;
   },
 
-  createSupplier: async (
-    supplierData: FormData,
-  ): Promise<IApiResponse<ISupplier>> => {
+  createSupplier: async (supplierData: {}): Promise<
+    IApiResponse<ISupplier>
+  > => {
     const response = await apiClient.post<IApiResponse<ISupplier>>(
       SUPPLIERS_RESOURCE,
       supplierData,

@@ -24,15 +24,20 @@ import {
   Users,
 } from 'lucide-react';
 import { productService } from '../../services/products.service.api';
-import EditProductModal from './modals/EditProduct';
 import AuditLogDetailsModal from '../AuditLogs/AuditLogModal';
 import type { IAuditLog } from '@/interfaces/auditlog';
 import type { IPaginationMeta } from '@/interfaces';
 import type { IProduct } from '@/interfaces/products';
 import LoadingScreen from '@/common/Error/LoadingScreen';
-import DataTable from '@/common/DataTable';
 import type { ISupplier } from '@/interfaces/supplier';
 import type { IPurchaseOrder } from '@/interfaces/purchase_order.interface';
+import { getAllSuppliers } from '@/services/suppliers.service.api';
+import {
+  createProductSource,
+  updateProductSource,
+} from '@/services/product_source.service.api';
+import DataTable from '@/common/DataTable';
+import EditProductModal from './modals/EditProduct';
 
 export default function ProductDetailsPage() {
   const navigate = useNavigate();
@@ -44,6 +49,8 @@ export default function ProductDetailsPage() {
   );
   const [auditPage, setAuditPage] = useState(1);
   const [auditLimit, setAuditLimit] = useState(10);
+  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
+  const [isChangingSupplier, setIsChangingSupplier] = useState(false);
 
   const handleAuditPageChange = (page: number) => {
     setAuditPage(page);
@@ -75,6 +82,7 @@ export default function ProductDetailsPage() {
       totalPages: 1,
     },
   });
+
   const { data, isLoading, isError, error } = useQuery<IProduct>({
     queryKey: ['product', productId],
     queryFn: () => productService.getProductByID(productId!),
@@ -102,6 +110,52 @@ export default function ProductDetailsPage() {
       setIsSubmitting(false);
     },
   });
+
+  const { data: suppliersData, isLoading: isLoadingSuppliers } = useQuery({
+    queryKey: ['suppliers-list'],
+    queryFn: () =>
+      getAllSuppliers({
+        page: 1,
+        limit: 100,
+      }),
+  });
+
+  const suppliers = suppliersData?.suppliers || [];
+
+  const assignedSupplier: ISupplier | undefined =
+    product?.source?.supplier || undefined;
+
+  // Mutation to handle assigning (create) or changing (update) the single supplier
+  const assignOrUpdateSupplierMutation = useMutation({
+    mutationFn: async (supplierId: string) => {
+      // If a source record already exists, update it
+      if (product?.source?.id) {
+        return await updateProductSource(product?.source?.id, {
+          product_id: productId!,
+          supplier_id: supplierId,
+        });
+      }
+
+      // Otherwise, create a new product source relation
+      return await createProductSource({
+        product_id: productId!,
+        supplier_id: supplierId,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['product', productId] });
+      setSelectedSupplierId('');
+      setIsChangingSupplier(false);
+    },
+    onError: (error) => {
+      console.error('Failed to save supplier assignment:', error);
+    },
+  });
+
+  const handleAssignSupplier = () => {
+    if (!selectedSupplierId) return;
+    assignOrUpdateSupplierMutation.mutate(selectedSupplierId);
+  };
 
   useEffect(() => {
     if (activeTab !== 'ledger' || !productId) {
@@ -349,7 +403,7 @@ export default function ProductDetailsPage() {
                           className="aspect-square rounded-lg overflow-hidden bg-slate-100 border border-slate-200"
                         >
                           <img
-                            src={imgObj.url} // Updated from '' to url
+                            src={imgObj.url}
                             alt={`${product.name} ${index + 1}`}
                             className="w-full h-full object-cover"
                           />
@@ -440,217 +494,187 @@ export default function ProductDetailsPage() {
             transition={{ duration: 0.15 }}
             className="space-y-6"
           >
-            {/* Page Header */}
-            <div className="flex flex-col gap-2">
-              <div>
-                <h3 className="text-base font-semibold text-slate-900">
-                  Supply & Procurement
-                </h3>
-                <p className="mt-1 max-w-2xl text-sm text-slate-500">
-                  See where this product is sourced from, review supplier
-                  information, and monitor procurement activity.
-                </p>
-              </div>
+            {/* Section Header */}
+            <div>
+              <h3 className="text-base font-semibold text-slate-900">
+                Supply & Procurement
+              </h3>
+              <p className="mt-0.5 text-sm text-slate-500">
+                Manage the supplier for this product and track procurement
+                history.
+              </p>
             </div>
 
-            {/* Supply Summary */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Suppliers */}
-              <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50 border border-slate-200">
-                    <Building2 className="h-5 w-5 text-slate-600" />
-                  </div>
-
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                    Suppliers
-                  </span>
-                </div>
-
-                <div className="mt-4">
-                  <p className="text-2xl font-bold tracking-tight text-slate-900">
-                    {product.suppliers?.length ?? 0}
-                  </p>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    {product.suppliers?.length
-                      ? 'Suppliers linked to this product'
-                      : 'No suppliers linked yet'}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Main Content */}
+            {/* Main Grid: Supplier Details & Insights */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Suppliers */}
-              <div className="lg:col-span-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-                <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
-                  <div>
-                    <h3 className="text-sm font-semibold text-slate-900">
-                      Suppliers
-                    </h3>
-
-                    <p className="mt-1 text-xs text-slate-500">
-                      Suppliers currently associated with this product
-                    </p>
+              {/* Primary Supplier Card */}
+              <div className="lg:col-span-2 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden flex flex-col">
+                <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
+                  <div className="flex items-center gap-2.5">
+                    <Building2 className="w-4 h-4 text-slate-500" />
+                    <h4 className="text-sm font-semibold text-slate-900">
+                      Assigned Supplier
+                    </h4>
                   </div>
-
-                  {product.suppliers?.length ? (
+                  {assignedSupplier && !isChangingSupplier && (
                     <button
                       type="button"
-                      className="text-xs font-semibold text-slate-700 hover:text-slate-900"
+                      onClick={() => setIsChangingSupplier(true)}
+                      className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 transition-colors cursor-pointer"
                     >
-                      View all
+                      Change Supplier
                     </button>
-                  ) : null}
+                  )}
                 </div>
 
-                {product.suppliers?.length ? (
-                  <div className="divide-y divide-slate-100">
-                    {product.suppliers.map((supplier: ISupplier) => (
-                      <div
-                        key={supplier.id}
-                        className="flex items-center justify-between gap-4 px-6 py-4"
-                      >
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-50 border border-slate-200">
-                            <Building2 className="h-4 w-4 text-slate-600" />
-                          </div>
-
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="truncate text-sm font-semibold text-slate-900">
-                                {supplier.name}
-                              </p>
-                              <p className="truncate text-sm font-semibold text-slate-900">
-                                {supplier.email}
-                              </p>
-                            </div>
-                          </div>
+                <div className="p-6 flex-1 flex flex-col justify-center">
+                  {assignedSupplier && !isChangingSupplier ? (
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-xl border border-slate-100 bg-slate-50/60">
+                      <div className="flex items-center gap-3.5 min-w-0">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 shadow-sm text-slate-700 font-bold">
+                          {assignedSupplier.name.charAt(0)}
+                        </div>
+                        <div className="min-w-0">
+                          <h5 className="text-sm font-bold text-slate-900 truncate">
+                            {assignedSupplier.name}
+                          </h5>
+                          <p className="text-xs text-slate-500 truncate mt-0.5">
+                            {assignedSupplier.email || 'No email provided'}
+                          </p>
+                          {assignedSupplier.phone_number && (
+                            <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                              {assignedSupplier.phone_number}
+                            </p>
+                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="px-6 py-12 text-center">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                      <Building2 className="h-5 w-5 text-slate-400" />
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60 shrink-0">
+                        Active Source
+                      </span>
                     </div>
+                  ) : (
+                    <div className="space-y-4 max-w-lg">
+                      <div>
+                        <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                          {assignedSupplier
+                            ? 'Select New Supplier'
+                            : 'Assign Supplier Vendor'}
+                        </label>
+                        <select
+                          value={selectedSupplierId}
+                          onChange={(e) =>
+                            setSelectedSupplierId(e.target.value)
+                          }
+                          disabled={
+                            isLoadingSuppliers ||
+                            assignOrUpdateSupplierMutation.isPending
+                          }
+                          className="w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-800 shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 cursor-pointer"
+                        >
+                          <option value="">
+                            Choose a supplier from list...
+                          </option>
+                          {suppliers.map((sup) => (
+                            <option key={sup.id} value={sup.id}>
+                              {sup.name} {sup.email ? `(${sup.email})` : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
 
-                    <h4 className="mt-4 text-sm font-semibold text-slate-900">
-                      No suppliers linked yet
-                    </h4>
-
-                    <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-slate-500">
-                      Supplier information will help you understand where this
-                      product is sourced from, compare purchasing options, and
-                      monitor supply risk.
-                    </p>
-
-                    <button
-                      type="button"
-                      className="mt-5 inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Add Supplier
-                    </button>
-                  </div>
-                )}
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        {isChangingSupplier && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsChangingSupplier(false);
+                              setSelectedSupplierId('');
+                            }}
+                            className="px-3.5 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 text-xs font-medium hover:bg-slate-50 transition-colors cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={handleAssignSupplier}
+                          disabled={
+                            !selectedSupplierId ||
+                            assignOrUpdateSupplierMutation.isPending
+                          }
+                          className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 text-xs font-semibold shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          <Plus className="h-3.5 w-3.5" />
+                          {assignOrUpdateSupplierMutation.isPending
+                            ? 'Saving...'
+                            : assignedSupplier
+                              ? 'Update Supplier'
+                              : 'Link Supplier'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Supply Insights */}
-              <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-                <div className="border-b border-slate-100 px-5 py-4">
-                  <h3 className="text-sm font-semibold text-slate-900">
+              <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                <div className="border-b border-slate-100 px-5 py-4 bg-slate-50/50">
+                  <h4 className="text-sm font-semibold text-slate-900">
                     Supply Insights
-                  </h3>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    What management should know about sourcing
-                  </p>
+                  </h4>
                 </div>
-
-                <div className="space-y-4 p-5">
-                  {/* Supplier Coverage */}
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-slate-200">
-                        <Users className="h-4 w-4 text-slate-500" />
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-semibold text-slate-800">
-                          Supplier Coverage
-                        </p>
-
-                        <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          {product.suppliers?.length
-                            ? `${product.suppliers.length} supplier${
-                                product.suppliers.length > 1 ? 's are' : ' is'
-                              } currently available for this product.`
-                            : 'Supplier coverage cannot be assessed until suppliers are linked.'}
-                        </p>
-                      </div>
+                <div className="p-4 space-y-3">
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <Users className="h-4 w-4 text-slate-500 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">
+                        Coverage
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        {assignedSupplier
+                          ? '1 active primary supplier.'
+                          : 'No supplier linked yet.'}
+                      </p>
                     </div>
                   </div>
-
-                  {/* Cost Trend */}
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-slate-200">
-                        <TrendingUp className="h-4 w-4 text-slate-500" />
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-semibold text-slate-800">
-                          Purchase Cost Trend
-                        </p>
-
-                        <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          No purchase history is available yet to identify cost
-                          changes.
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <TrendingUp className="h-4 w-4 text-slate-500 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">
+                        Cost Trend
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        No purchase history recorded.
+                      </p>
                     </div>
                   </div>
-
-                  {/* Supplier Risk */}
-                  <div className="rounded-lg border border-slate-100 bg-slate-50 p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-white border border-slate-200">
-                        <TriangleAlert className="h-4 w-4 text-slate-500" />
-                      </div>
-
-                      <div>
-                        <p className="text-xs font-semibold text-slate-800">
-                          Supply Risk
-                        </p>
-
-                        <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                          Risk assessment will become available once supplier
-                          and purchasing history has been recorded.
-                        </p>
-                      </div>
+                  <div className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100">
+                    <TriangleAlert className="h-4 w-4 text-slate-500 mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold text-slate-800">
+                        Supply Risk
+                      </p>
+                      <p className="text-[11px] text-slate-500 mt-0.5">
+                        Evaluation pending history.
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Procurement History */}
-            <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4">
+            {/* Procurement History Section */}
+            <div className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-100 px-6 py-4 bg-slate-50/50">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900">
+                  <h4 className="text-sm font-semibold text-slate-900">
                     Recent Purchases
-                  </h3>
-
-                  <p className="mt-1 text-xs text-slate-500">
-                    Recent procurement activity for this product
+                  </h4>
+                  <p className="text-xs text-slate-500 mt-0.5">
+                    Recent procurement transactions for this product
                   </p>
                 </div>
-
                 {product.purchase_orders?.length ? (
                   <button
                     type="button"
@@ -658,7 +682,7 @@ export default function ProductDetailsPage() {
                   >
                     View procurement history
                   </button>
-                ) : null}
+                ) : null}{' '}
               </div>
 
               {product.purchase_orders?.length ? (
@@ -668,24 +692,13 @@ export default function ProductDetailsPage() {
                     .map((purchase: IPurchaseOrder) => (
                       <div
                         key={purchase.id}
-                        className="grid grid-cols-2 gap-4 px-6 py-4 sm:grid-cols-5"
+                        className="flex items-center justify-between px-6 py-3.5 text-xs"
                       >
                         <div>
-                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                            Supplier
-                          </p>
-
-                          <p className="mt-1 truncate text-sm font-semibold text-slate-900">
+                          <p className="font-semibold text-slate-900">
                             {purchase.supplier_name || 'Unknown supplier'}
                           </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                            Date
-                          </p>
-
-                          <p className="mt-1 text-sm font-medium text-slate-700">
+                          <p className="text-slate-400 mt-0.5">
                             {purchase.createdAt
                               ? new Date(purchase.createdAt).toLocaleDateString(
                                   undefined,
@@ -698,7 +711,6 @@ export default function ProductDetailsPage() {
                               : '—'}
                           </p>
                         </div>
-
                         <div>
                           <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                             Quantity
@@ -710,7 +722,6 @@ export default function ProductDetailsPage() {
                               : '—'}
                           </p>
                         </div>
-
                         <div>
                           <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                             Unit Cost
@@ -722,7 +733,6 @@ export default function ProductDetailsPage() {
                               : '—'}
                           </p>
                         </div>
-
                         <div>
                           <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
                             Status
@@ -736,18 +746,10 @@ export default function ProductDetailsPage() {
                     ))}
                 </div>
               ) : (
-                <div className="px-6 py-12 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-50 border border-slate-200">
-                    <ReceiptText className="h-5 w-5 text-slate-400" />
-                  </div>
-
-                  <h4 className="mt-4 text-sm font-semibold text-slate-900">
-                    No purchase history yet
-                  </h4>
-
-                  <p className="mx-auto mt-1 max-w-md text-xs leading-relaxed text-slate-500">
-                    Purchase activity will appear here once this product has
-                    been sourced through the procurement process.
+                <div className="py-12 text-center text-slate-400">
+                  <ReceiptText className="w-8 h-8 mx-auto mb-2 stroke-[1.5]" />
+                  <p className="text-xs font-medium">
+                    No purchase history found
                   </p>
                 </div>
               )}
@@ -763,24 +765,20 @@ export default function ProductDetailsPage() {
             exit={{ opacity: 0, y: -5 }}
             className="space-y-4"
           >
-            {/* Section heading */}
             <div className="flex items-start justify-between">
               <div>
                 <div className="flex items-center gap-2">
                   <History className="w-4 h-4 text-slate-500" />
-
                   <h4 className="text-sm font-semibold text-slate-900">
                     Stock & Price Audit Logs
                   </h4>
                 </div>
-
                 <p className="text-xs text-slate-500 mt-1">
                   Historical activity for stock adjustments, price changes, and
                   order allocations.
                 </p>
               </div>
             </div>
-
             {/* Audit table */}
             <DataTable<IAuditLog>
               records={productLedger?.auditLogs ?? []}
@@ -794,7 +792,6 @@ export default function ProductDetailsPage() {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* Edit Product Modal */}
       {isEditModalOpen && (
         <EditProductModal

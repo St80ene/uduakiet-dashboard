@@ -1,24 +1,13 @@
 import type { IPaginationMeta } from '.';
-
-export interface ISupplierRef {
-  id: string;
-  name: string;
-  email?: string;
-  phone?: string;
-}
-
-export interface IProductRef {
-  id: string;
-  name: string;
-  sku?: string;
-}
+import type { IProduct } from './products';
+import type { ISupplier } from './supplier';
 
 export interface IProductSource {
   id: string;
   product_id: string;
   supplier_id: string;
-  supplier?: ISupplierRef;
-  product?: IProductRef;
+  product?: IProduct;
+  supplier: ISupplier;
   created_at: string;
 }
 
