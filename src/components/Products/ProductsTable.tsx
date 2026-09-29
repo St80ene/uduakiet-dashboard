@@ -92,7 +92,6 @@ const ProductTable = ({
       cellClassName:
         'font-mono font-semibold text-emerald-600 text-xs whitespace-nowrap',
       render: (product) => {
-        console.log('product.category', product.category);
         return product.category ? (
           <span className="font-mono text-slate-500 text-xs whitespace-nowrap">
             {product.category.name}

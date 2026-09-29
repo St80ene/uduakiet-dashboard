@@ -28,7 +28,6 @@ export interface ICategory {
 
 export interface IGetCategoryColumnsProps {
   onEdit: (category: ICategory) => void;
-  onDelete: (category: ICategory) => void;
 }
 
 export interface CategoryFormData {

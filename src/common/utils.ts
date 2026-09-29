@@ -1,10 +1,11 @@
 import { UomType, type UomDisplayName } from '@/enum/product';
 
-export const formatCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(amount);
+export const formatCurrency = (amount: number | string): string => {
+  const num = Number(amount) || 0;
+  return num.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 };
 
 export const formatQuantity = (
