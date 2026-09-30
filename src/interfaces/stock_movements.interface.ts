@@ -1,7 +1,6 @@
 import type {
   StockMovementType,
   StockMovementDirection,
-  StockMovementReferenceType,
 } from '@/enum/stock_movement.enum';
 import type { IBusiness } from './business.interface';
 import type { IStock } from './stock.interface';
@@ -58,7 +57,4 @@ export interface StockMovementFormData {
   unit_selling_price?: number | null;
 
   reason?: string | null;
-
-  reference_type?: StockMovementReferenceType | null;
-  reference_id?: string | null;
 }
