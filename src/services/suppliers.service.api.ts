@@ -11,6 +11,12 @@ export interface IUpdateSupplierPayload {
   supplierData: { email?: string; name?: string; phone_number?: string };
 }
 
+export interface ICreateSupplierPayload {
+  email?: string;
+  name?: string;
+  phone_number?: string;
+}
+
 export const supplierService = {
   getAllSuppliers: async (
     params: IBasePaginationParams = {},
@@ -37,7 +43,7 @@ export const supplierService = {
     return response.data;
   },
 
-  createSupplier: async (supplierData) => {
+  createSupplier: async (supplierData: ICreateSupplierPayload) => {
     const response = await apiClient.post<IApiResponse<ISupplier>>(
       SUPPLIERS_RESOURCE,
       supplierData,
