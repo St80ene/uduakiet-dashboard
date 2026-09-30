@@ -17,8 +17,6 @@ export const productSourceService = {
       },
     });
 
-    console.log('PRODUCT_SOURCE_RESOURCE response => ', response.data.data);
-
     return response.data.data;
   },
 
@@ -41,7 +39,7 @@ export const productSourceService = {
       supplier_id: string;
     },
   ) => {
-    const response = await apiClient.put(
+    const response = await apiClient.patch(
       `${PRODUCT_SOURCE_RESOURCE}/${productSourceId}`,
       productSourceData,
     );

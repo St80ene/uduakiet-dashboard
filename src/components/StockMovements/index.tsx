@@ -4,19 +4,15 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
   Download,
-  Plus,
   Search,
   ArrowUpDown,
   Filter,
 } from 'lucide-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 
 import type { IDataTableColumn } from '@/interfaces/data_table';
-import {
-  type IStockMovement,
-  type StockMovementFormData,
-} from '@/interfaces/stock_movements.interface';
+import { type IStockMovement } from '@/interfaces/stock_movements.interface';
 import type { StockMovementsResponse } from '@/types';
 
 import useDebouncedValue from '@/hooks/debounceHook';
@@ -31,7 +27,6 @@ interface IStockMovementRow extends IStockMovement {
 }
 
 export const StockMovementsPage: React.FC = () => {
-  const queryClient = useQueryClient();
   const navigate = useNavigate();
 
   // ---------------------------------------------------------------------------
@@ -77,24 +72,6 @@ export const StockMovementsPage: React.FC = () => {
 
       placeholderData: (previousData) => previousData,
     });
-
-  // ---------------------------------------------------------------------------
-  // Create movement mutation
-  // ---------------------------------------------------------------------------
-  //
-  // The actual Record Movement modal/form can be plugged into this mutation.
-  // ---------------------------------------------------------------------------
-
-  const createMovementMutation = useMutation({
-    mutationFn: (payload: StockMovementFormData) =>
-      stockMovementService.createMovement(payload),
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['stock_movements'],
-      });
-    },
-  });
 
   // ---------------------------------------------------------------------------
   // Pagination handlers
@@ -151,21 +128,6 @@ export const StockMovementsPage: React.FC = () => {
      * Keep this handler ready for the export endpoint.
      */
     console.info('Stock movement export requested');
-  };
-
-  // ---------------------------------------------------------------------------
-  // Record movement
-  // ---------------------------------------------------------------------------
-
-  const handleRecordMovement = () => {
-    /*
-     * Open your RecordMovementModal here.
-     *
-     * Example:
-     *
-     * setIsMovementModalOpen(true);
-     */
-    console.info('Record movement requested');
   };
 
   // ---------------------------------------------------------------------------
@@ -372,24 +334,6 @@ export const StockMovementsPage: React.FC = () => {
           >
             <Download size={14} />
             Export Log
-          </button>
-
-          <button
-            type="button"
-            onClick={handleRecordMovement}
-            disabled={createMovementMutation.isPending}
-            className="
-              flex items-center gap-1.5 rounded-lg
-              bg-sky-600 px-3 py-1.5 text-xs
-              font-semibold text-white
-              hover:bg-sky-500
-              disabled:opacity-50
-              disabled:cursor-not-allowed
-              shadow-2xs transition-colors
-            "
-          >
-            <Plus size={14} />
-            Record Movement
           </button>
         </div>
       </div>

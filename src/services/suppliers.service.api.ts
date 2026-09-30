@@ -6,6 +6,17 @@ import type { ISupplier } from '@/interfaces/supplier';
 
 const SUPPLIERS_RESOURCE = '/suppliers';
 
+export interface IUpdateSupplierPayload {
+  supplierId: string;
+  supplierData: { email?: string; name?: string; phone_number?: string };
+}
+
+export interface ICreateSupplierPayload {
+  email?: string;
+  name?: string;
+  phone_number?: string;
+}
+
 export const supplierService = {
   getAllSuppliers: async (
     params: IBasePaginationParams = {},
@@ -15,7 +26,7 @@ export const supplierService = {
         page: params.page ?? 1,
         limit: params.limit ?? 10,
         ...(params.search && { search: params.search }),
-        ...(params.order && { order: params.order }),
+        ...(params.order && { order: params.order.toUpperCase() }),
       },
     });
 
@@ -32,9 +43,7 @@ export const supplierService = {
     return response.data;
   },
 
-  createSupplier: async (
-    supplierData: FormData,
-  ): Promise<IApiResponse<ISupplier>> => {
+  createSupplier: async (supplierData: ICreateSupplierPayload) => {
     const response = await apiClient.post<IApiResponse<ISupplier>>(
       SUPPLIERS_RESOURCE,
       supplierData,
@@ -43,10 +52,16 @@ export const supplierService = {
     return response.data;
   },
 
-  updateSupplier: async (
-    supplierId: string,
-    supplierData: FormData,
-  ): Promise<IApiResponse<ISupplier>> => {
+  updateSupplier: async ({
+    supplierId,
+    supplierData,
+  }: IUpdateSupplierPayload) => {
+    console.log(
+      'Updating supplier with ID:',
+      supplierId,
+      'Data:',
+      supplierData,
+    ); // Debugging log
     const response = await apiClient.patch<IApiResponse<ISupplier>>(
       `${SUPPLIERS_RESOURCE}/${supplierId}`,
       supplierData,

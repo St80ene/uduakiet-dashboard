@@ -114,10 +114,6 @@ export const CategoriesPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleDeleteCategory = (category: ICategory) => {
-    setCategoryToDelete(category);
-  };
-
   const handleConfirmDelete = async () => {
     if (!categoryToDelete) return;
     await deleteMutation.mutateAsync(categoryToDelete.id);
@@ -266,7 +262,6 @@ export const CategoriesPage = () => {
         records={data?.categories || []}
         columns={getCategoryColumns({
           onEdit: handleOpenEditModal,
-          onDelete: handleDeleteCategory,
         })}
         meta={data?.meta}
         isLoading={isLoading}

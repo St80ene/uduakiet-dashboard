@@ -1,4 +1,4 @@
-import { Edit2, Trash2, Tag, Layers } from 'lucide-react';
+import { Edit2, Tag, Layers } from 'lucide-react';
 import type {
   IGetCategoryColumnsProps,
   ICategory,
@@ -7,7 +7,6 @@ import type { IDataTableColumn } from '@/interfaces/data_table';
 
 export const getCategoryColumns = ({
   onEdit,
-  onDelete,
 }: IGetCategoryColumnsProps): IDataTableColumn<ICategory>[] => [
   {
     key: 'name',
@@ -91,14 +90,6 @@ export const getCategoryColumns = ({
           className="p-1.5 cursor-pointer text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
         >
           <Edit2 className="w-4 h-4" />
-        </button>
-        <button
-          type="button"
-          onClick={() => onDelete(category)}
-          aria-label={`Delete ${category.name} category`}
-          className="p-1.5 cursor-pointer text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
-        >
-          <Trash2 className="w-4 h-4" />
         </button>
       </div>
     ),

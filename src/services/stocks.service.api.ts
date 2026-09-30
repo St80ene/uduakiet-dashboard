@@ -1,6 +1,10 @@
 import type { IBasePaginationParams } from '@/interfaces';
 
 import apiClient from './api';
+import type {
+  ICreateStockPayload,
+  IUpdateStockPayload,
+} from '@/interfaces/stock.interface';
 
 const STOCK_RESOURCE = '/stocks';
 
@@ -29,6 +33,22 @@ export const stockService = {
 
     return response.data;
   },
+
+  createStock: async (stockData: ICreateStockPayload) => {
+    const response = await apiClient.post(STOCK_RESOURCE, stockData);
+
+    return response.data;
+  },
+
+  adjustStock: async (stockData: IUpdateStockPayload) => {
+    const response = await apiClient.patch(
+      `${STOCK_RESOURCE}/adjustment`,
+      stockData,
+    );
+
+    return response.data;
+  },
 };
 
-export const { getAllStocks, getStockByID } = stockService;
+export const { getAllStocks, getStockByID, adjustStock, createStock } =
+  stockService;

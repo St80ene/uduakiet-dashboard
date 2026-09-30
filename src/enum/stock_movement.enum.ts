@@ -12,14 +12,6 @@ export enum StockMovementType {
 }
 
 export enum StockMovementDirection {
-  IN = 'IN',
-  OUT = 'OUT',
-}
-
-export enum StockMovementReferenceType {
-  PURCHASE_ORDER = 'PURCHASE_ORDER',
-  STOCK_ADJUSTMENT = 'STOCK_ADJUSTMENT',
-  STOCK_TRANSFER = 'STOCK_TRANSFER',
-  SALE = 'SALE',
-  STOCK_MOVEMENT = 'STOCK_MOVEMENT',
+  IN = 'INFLOW',
+  OUT = 'OUTFLOW',
 }
