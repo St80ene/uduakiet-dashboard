@@ -25,6 +25,7 @@ import StoresPage from './components/Stores';
 import Settings from './components/Settings/Business/Settings';
 import { useAuth } from './services/auth/hooks/useAuth';
 import { SplashScreen } from './common/SplashScreen';
+import { StockDetailPage } from './components/Stocks/StockContextDetails';
 
 // This gives you the idea of the app and it's screens at a glance
 export default function App() {
@@ -50,6 +51,7 @@ export default function App() {
             <Route path="/products" element={<Products />} />
             <Route path="/products/:productId" element={<ProductDetails />} />
             <Route path="/stocks" element={<StocksPage />} />
+            <Route path="/stocks/:stockId" element={<StockDetailPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
             <Route path="/stock-movements" element={<StockMovementsPage />} />
 

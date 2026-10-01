@@ -139,29 +139,48 @@ export const formatRelativeTime = (date: Date): string => {
  * Example:
  * Friday, August 28, 2026 at 11:25 PM
  */
-export const formatExactDateTime = (date: Date): string => {
-  return new Intl.DateTimeFormat(undefined, {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: 'numeric',
-    minute: '2-digit',
-    hour12: true,
-    timeZoneName: 'short',
-  }).format(date);
+// src/utils/date.ts
+export const formatExactDateTime = (
+  date: Date | string | null | undefined,
+  timeZone?: string,
+): string => {
+  if (!date) return 'Not available';
+
+  const d = new Date(date);
+
+  // Check if date is valid
+  if (isNaN(d.getTime())) return 'Invalid date';
+
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      // Automatically picks up the user's local timezone if none is explicitly passed
+      timeZone: timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }).format(d);
+  } catch (err) {
+    console.error('Failed to format date: ', err);
+    return d.toLocaleString(); // Safe fallback
+  }
 };
 
-// export const copyToClipboard = (
-//   text: string,
-//   label: string,
-//   setToast: ({}) => void,
-// ) => {
-//   navigator.clipboard.writeText(text);
-//   setToast({ message: `Copied ${label} to clipboard!`, type: 'info' });
-//   // setToast({ message: `Copied ${label} to clipboard!`, type: 'info' });
-//   setTimeout(() => setToast(null), 3000);
-// };
+export const copyToClipboard = async (text: string): Promise<boolean> => {
+  try {
+    if (!navigator?.clipboard?.writeText) {
+      console.warn('Clipboard API not supported');
+      return false;
+    }
+
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (err) {
+    console.error('Failed to copy text: ', err);
+    return false;
+  }
+};
 
 function deepEqual(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) {

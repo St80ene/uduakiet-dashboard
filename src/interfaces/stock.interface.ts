@@ -5,6 +5,7 @@ import type {
 import type { IBusiness } from './business.interface';
 import type { IProduct } from './products';
 import type { IStore } from './store.interface';
+import type { IStockMovement } from './stock_movements.interface';
 
 export interface IStock {
   id: string;
@@ -18,6 +19,7 @@ export interface IStock {
   product?: IProduct;
   business?: IBusiness;
   store?: IStore;
+  movements?: IStockMovement[];
 
   created_at: Date;
   updated_at: Date;

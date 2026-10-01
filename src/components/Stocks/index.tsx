@@ -1,11 +1,13 @@
 import { useMemo, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import {
   Package,
   AlertTriangle,
   Store as StoreIcon,
   Edit,
   Layers,
+  Eye,
 } from 'lucide-react';
 
 import type {
@@ -29,6 +31,8 @@ import { CreateStockModal } from './CreateStockModal';
 import { UpdateStockModal } from './UpdateStockModal';
 
 export const StocksPage = () => {
+  const navigate = useNavigate();
+
   // Pagination
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -123,20 +127,23 @@ export const StocksPage = () => {
         header: 'Product',
         width: '25%',
         render: (stock: IStock) => (
-          <div className="flex items-center gap-3">
+          <div
+            onClick={() => navigate(`/stocks/${stock.id}`)}
+            className="flex items-center gap-3 cursor-pointer group"
+          >
             {stock.product?.images?.[0]?.url ? (
               <img
                 src={stock.product.images[0].url}
                 alt={stock.product.name}
-                className="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200"
+                className="w-9 h-9 rounded-lg object-cover shrink-0 border border-slate-200 group-hover:border-blue-400 transition-colors"
               />
             ) : (
-              <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0">
+              <div className="w-9 h-9 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center shrink-0 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
                 <Package className="w-4 h-4" />
               </div>
             )}
             <div className="min-w-0">
-              <div className="font-semibold text-slate-800 line-clamp-1">
+              <div className="font-semibold text-slate-800 group-hover:text-blue-600 transition-colors line-clamp-1">
                 {stock.product?.name || stock.product_id}
               </div>
             </div>
@@ -205,20 +212,30 @@ export const StocksPage = () => {
       {
         key: 'actions',
         header: 'Actions',
-        width: '10%',
+        width: '15%',
         render: (stock: IStock) => (
-          <button
-            onClick={() => setSelectedStockForUpdate(stock)}
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
-            title="Update Stock Count"
-          >
-            <Edit className="w-3.5 h-3.5 text-slate-500" />
-            Edit
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => navigate(`/stocks/${stock.id}`)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+              title="View Stock Details"
+            >
+              <Eye className="w-3.5 h-3.5 text-slate-500" />
+              View
+            </button>
+            <button
+              onClick={() => setSelectedStockForUpdate(stock)}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer shadow-2xs"
+              title="Update Stock Count"
+            >
+              <Edit className="w-3.5 h-3.5 text-slate-500" />
+              Edit
+            </button>
+          </div>
         ),
       },
     ],
-    [],
+    [navigate],
   );
 
   if (isLoading) {
