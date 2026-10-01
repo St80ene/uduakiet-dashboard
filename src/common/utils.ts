@@ -239,3 +239,17 @@ export function getFieldDiffs<T extends object>(
 
   return changes;
 }
+
+export const CalculateTotalValue = (
+  quantity: number,
+  unit_cost_price: number,
+): string => {
+  const item_quantity = Math.abs(Number(quantity ?? 0));
+  const item_unitCost = Number(unit_cost_price ?? 0);
+  const totalValue = item_quantity * item_unitCost;
+
+  return `₦ ${totalValue.toLocaleString('en-NG', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+};

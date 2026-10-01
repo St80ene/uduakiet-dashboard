@@ -54,7 +54,7 @@ const DataTable = <T,>({
           }
         `}
       >
-        <table className="w-full text-left text-sm text-slate-600 border-collapse">
+        <table className="w-full table-fixed text-left text-sm text-slate-600 border-collapse">
           <thead>
             <tr className="bg-slate-50/75 text-slate-500 uppercase text-[11px] font-bold tracking-wider border-b border-slate-200/60 select-none">
               {columns.map((column) => (
@@ -63,7 +63,9 @@ const DataTable = <T,>({
                   className={`px-4 py-3 ${column.headerClassName ?? ''}`}
                   style={{ width: column.width }}
                 >
-                  {column.header}
+                  <div className="min-w-0 overflow-hidden text-ellipsis whitespace-nowrap">
+                    {column.header}
+                  </div>
                 </th>
               ))}
             </tr>
@@ -85,21 +87,40 @@ const DataTable = <T,>({
                   key={getRowKey?.(record, index) ?? index}
                   onClick={() => onSelectRecord?.(record)}
                   className={`
-                    hover:bg-slate-50/80
-                    transition-colors
-                    group
-                    ${onSelectRecord ? 'cursor-pointer' : ''}
-                    ${getRowClassName?.(record) ?? ''}
-                  `}
+            hover:bg-slate-50/80
+            transition-colors
+            group
+            ${onSelectRecord ? 'cursor-pointer' : ''}
+            ${getRowClassName?.(record) ?? ''}
+          `}
                 >
-                  {columns.map((column) => (
-                    <td
-                      key={column.key}
-                      className={`px-4 py-3 ${column.cellClassName ?? ''}`}
-                    >
-                      {column.render(record, index)}
-                    </td>
-                  ))}
+                  {columns.map((column) => {
+                    const content = column.render(record, index);
+
+                    return (
+                      <td
+                        key={column.key}
+                        className={`px-4 py-3 ${column.cellClassName ?? ''}`}
+                      >
+                        {column.truncate ? (
+                          <div
+                            className="
+                      min-w-0
+                      max-w-full
+                      overflow-hidden
+                      text-ellipsis
+                      whitespace-nowrap
+                    "
+                            title={column.getTitle?.(record)}
+                          >
+                            {content}
+                          </div>
+                        ) : (
+                          content
+                        )}
+                      </td>
+                    );
+                  })}
                 </tr>
               ))
             )}

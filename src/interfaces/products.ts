@@ -60,15 +60,7 @@ export interface IProductTableProps {
 }
 export interface IProductsWithMeta {
   products: IProduct[];
-  meta: {
-    totalItems: number;
-    itemCount: number;
-    itemsPerPage: number;
-    totalPages: number;
-    currentPage: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+  meta: IPaginationMeta;
 }
 export class IProductStatusUpdateDto {
   status!: ProductStatus;

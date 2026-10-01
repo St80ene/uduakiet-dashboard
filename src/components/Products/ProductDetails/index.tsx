@@ -67,7 +67,6 @@ export default function ProductDetailsPage() {
       currentPage: 1,
       hasNextPage: false,
       hasPreviousPage: false,
-      itemCount: 1,
       itemsPerPage: 10,
       totalItems: 1,
       totalPages: 1,

@@ -12,7 +12,7 @@ export interface IProductSource {
 }
 
 export interface ProductSourcesResponse {
-  productSources: IProductSource[];
+  product_sources: IProductSource[];
   meta: IPaginationMeta;
 }
 
