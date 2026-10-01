@@ -3,7 +3,7 @@ import type { IPaginationMeta } from '.';
 
 export interface IDataTableColumn<T> {
   /**
-   * Unique key for the column.
+   * Unique identifier for the column.
    */
   key: string;
 
@@ -13,24 +13,37 @@ export interface IDataTableColumn<T> {
   header: ReactNode;
 
   /**
-   * Renders the cell content for a record.
+   * Renders the cell content.
    */
   render: (record: T, index: number) => ReactNode;
 
   /**
-   * Optional fixed column width.
+   * Optional column width.
+   *
+   * Used by the table when `table-fixed` layout is enabled.
    */
-  width?: string;
+  width?: string | number;
 
   /**
-   * Optional custom table cell class.
+   * Optional classes applied to the table header.
+   */
+  headerClassName?: string;
+
+  /**
+   * Optional classes applied to table cells.
    */
   cellClassName?: string;
 
   /**
-   * Optional custom table header class.
+   * Truncates overflowing cell content to a single line.
    */
-  headerClassName?: string;
+  truncate?: boolean;
+
+  /**
+   * Returns the full text shown when the truncated
+   * cell is hovered.
+   */
+  getTitle?: (record: T) => string | undefined;
 }
 
 export interface IDataTableProps<T> {

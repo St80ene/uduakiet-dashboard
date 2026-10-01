@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   ArrowLeftRight,
   ArrowDownLeft,
@@ -16,11 +16,15 @@ import { type IStockMovement } from '@/interfaces/stock_movements.interface';
 import type { StockMovementsResponse } from '@/types';
 
 import useDebouncedValue from '@/hooks/debounceHook';
-import { stockMovementService } from '@/services/stock_movements.service.api';
 import LoadingScreen from '@/common/Error/LoadingScreen';
 import { ErrorPage } from '@/common/Error/ErrorPage';
 import DataTable from '@/common/DataTable';
-import { StockMovementType } from '@/enum/stock_movement.enum';
+import {
+  StockMovementDirection,
+  StockMovementType,
+} from '@/enum/stock_movement.enum';
+import { getAllStockMovements } from '@/services/stock_movements.service.api';
+import { CalculateTotalValue, formatExactDateTime } from '@/common/utils';
 
 interface IStockMovementRow extends IStockMovement {
   product_name?: string;
@@ -34,7 +38,7 @@ export const StockMovementsPage: React.FC = () => {
   // ---------------------------------------------------------------------------
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(5);
 
   // ---------------------------------------------------------------------------
   // Search & sort state
@@ -50,28 +54,43 @@ export const StockMovementsPage: React.FC = () => {
   // Query
   // ---------------------------------------------------------------------------
 
-  const { data, isLoading, isError, error, isPlaceholderData, refetch } =
-    useQuery<StockMovementsResponse>({
-      queryKey: [
-        'stock_movements',
-        {
-          page,
-          limit,
-          search: debouncedSearch,
-          order: sortOrder,
-        },
-      ],
+  const {
+    data: stockMovementsData,
+    isLoading,
+    isError,
+    error,
+    isPlaceholderData,
+    refetch,
+  } = useQuery<StockMovementsResponse>({
+    queryKey: [
+      'stock_movements',
+      {
+        page,
+        limit,
+        search: debouncedSearch,
+        order: sortOrder,
+      },
+    ],
 
-      queryFn: () =>
-        stockMovementService.getAllStockMovements({
-          page,
-          limit,
-          search: debouncedSearch,
-          order: sortOrder,
-        }),
+    queryFn: () =>
+      getAllStockMovements({
+        page,
+        limit,
+        search: debouncedSearch,
+        order: sortOrder,
+      }),
 
-      placeholderData: (previousData) => previousData,
-    });
+    placeholderData: (previousData) => previousData,
+  });
+
+  useEffect(() => {
+    console.log('limit', limit);
+    console.log('page', page);
+    console.log('debouncedSearch', debouncedSearch);
+    console.log('sortOrder', sortOrder);
+  }, [page, limit, debouncedSearch, sortOrder]);
+
+  const stock_movements = stockMovementsData?.stock_movements ?? [];
 
   // ---------------------------------------------------------------------------
   // Pagination handlers
@@ -138,6 +157,13 @@ export const StockMovementsPage: React.FC = () => {
     {
       key: 'type',
       header: 'Type',
+      width: '14%',
+      truncate: true,
+      getTitle: (item) =>
+        item.type
+          ?.replace(/_/g, ' ')
+          .toLowerCase()
+          .replace(/\b\w/g, (char) => char.toUpperCase()) ?? '—',
       render: (item) => {
         const type = item.type;
 
@@ -149,21 +175,31 @@ export const StockMovementsPage: React.FC = () => {
           type === StockMovementType.RETURN_OUT ||
           type === StockMovementType.SALE;
 
+        const label =
+          type
+            ?.replace(/_/g, ' ')
+            .toLowerCase()
+            .replace(/\b\w/g, (char) => char.toUpperCase()) || '—';
+
         return (
           <span
-            className={`inline-flex items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-bold ${
+            className={`inline-flex max-w-full items-center gap-1 rounded border px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${
               isInbound
-                ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
                 : isOutbound
-                  ? 'bg-sky-50 border-sky-200 text-sky-700'
-                  : 'bg-amber-50 border-amber-200 text-amber-700'
+                  ? 'border-sky-200 bg-sky-50 text-sky-700'
+                  : 'border-amber-200 bg-amber-50 text-amber-700'
             }`}
           >
-            {isInbound && <ArrowDownLeft size={10} />}
-            {isOutbound && <ArrowUpRight size={10} />}
-            {!isInbound && !isOutbound && <ArrowLeftRight size={10} />}
+            {isInbound && <ArrowDownLeft size={10} className="shrink-0" />}
 
-            {type}
+            {isOutbound && <ArrowUpRight size={10} className="shrink-0" />}
+
+            {!isInbound && !isOutbound && (
+              <ArrowLeftRight size={10} className="shrink-0" />
+            )}
+
+            <span className="truncate">{label}</span>
           </span>
         );
       },
@@ -172,9 +208,12 @@ export const StockMovementsPage: React.FC = () => {
     {
       key: 'product_name',
       header: 'Product',
+      width: '18%',
+      truncate: true,
+      getTitle: (item) => item.stock?.product?.name ?? '—',
       render: (item) => (
         <span className="font-semibold text-slate-800">
-          {item.product_name ?? '—'}
+          {item.stock?.product?.name ?? '—'}
         </span>
       ),
     },
@@ -182,34 +221,45 @@ export const StockMovementsPage: React.FC = () => {
     {
       key: 'reason',
       header: 'Reason',
+      width: '18%',
+      truncate: true,
+      getTitle: (item) => item.reason?.trim() || '—',
       render: (item) => (
-        <span className="text-slate-500">{item.reason || '—'}</span>
+        <span className="text-slate-500">{item.reason?.trim() || '—'}</span>
       ),
     },
 
     {
       key: 'quantity',
       header: 'Quantity',
+      width: '10%',
       render: (item) => {
-        /*
-         * If your IStockMovement has `direction`, use it to determine
-         * whether the quantity should be displayed as + or -.
-         *
-         * This supports the current quantity representation as well.
-         */
-        const quantity = Number(item.quantity ?? 0);
+        const quantity = Math.abs(Number(item.quantity ?? 0));
+
+        const isInbound = item.direction === StockMovementDirection.IN;
+
+        const isOutbound = item.direction === StockMovementDirection.OUT;
+
+        const displayQuantity =
+          quantity === 0
+            ? '0'
+            : isInbound
+              ? `+${quantity}`
+              : isOutbound
+                ? `-${quantity}`
+                : `${quantity}`;
 
         return (
           <span
-            className={`font-bold ${
-              quantity > 0
+            className={`whitespace-nowrap font-bold ${
+              isInbound
                 ? 'text-emerald-600'
-                : quantity < 0
+                : isOutbound
                   ? 'text-rose-600'
                   : 'text-slate-500'
             }`}
           >
-            {quantity > 0 ? `+${quantity}` : quantity}
+            {displayQuantity}
           </span>
         );
       },
@@ -218,37 +268,49 @@ export const StockMovementsPage: React.FC = () => {
     {
       key: 'unit_cost_price',
       header: 'Unit Cost',
-      render: (item) =>
-        `₦${Number(item.unit_cost_price ?? 0).toLocaleString('en-NG', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
+      width: '12%',
+      render: (item) => (
+        <span className="whitespace-nowrap">
+          ₦
+          {Number(item.unit_cost_price ?? 0).toLocaleString('en-NG', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </span>
+      ),
     },
 
     {
       key: 'unit_selling_price',
       header: 'Unit Selling',
-      render: (item) =>
-        `₦${Number(item.unit_selling_price ?? 0).toLocaleString('en-NG', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`,
+      width: '12%',
+      render: (item) => (
+        <span className="whitespace-nowrap">
+          ₦
+          {Number(item.unit_selling_price ?? 0).toLocaleString('en-NG', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
+        </span>
+      ),
     },
 
     {
       key: 'total_value',
       header: 'Total Value',
-      render: (item) => {
-        const quantity = Math.abs(Number(item.quantity ?? 0));
-        const unitCost = Number(item.unit_cost_price ?? 0);
+      width: '14%',
+      truncate: true,
+      getTitle: ({ quantity, unit_cost_price }) =>
+        CalculateTotalValue(quantity ?? 0, unit_cost_price ?? 0),
 
+      render: ({ quantity, unit_cost_price }) => {
         return (
-          <span className="font-semibold text-slate-700">
+          <span className="whitespace-nowrap font-semibold text-slate-700">
             ₦
-            {(quantity * unitCost).toLocaleString('en-NG', {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 2,
-            })}
+            {CalculateTotalValue(quantity ?? 0, unit_cost_price ?? 0).replace(
+              '₦ ',
+              '',
+            )}
           </span>
         );
       },
@@ -257,16 +319,24 @@ export const StockMovementsPage: React.FC = () => {
     {
       key: 'created_at',
       header: 'Date',
-      render: (item) => (
-        <span className="text-slate-400">
-          {item.created_at
-            ? new Date(item.created_at).toLocaleString('en-NG', {
-                dateStyle: 'medium',
-                timeStyle: 'short',
-              })
-            : '—'}
-        </span>
-      ),
+      width: '14%',
+      truncate: true,
+      getTitle: ({ created_at }) =>
+        created_at ? formatExactDateTime(created_at) : '—',
+      render: ({ created_at }) => {
+        const formattedDate = created_at
+          ? formatExactDateTime(created_at)
+          : '—';
+
+        return (
+          <span
+            className="whitespace-nowrap text-slate-400"
+            title={formattedDate}
+          >
+            {formattedDate}
+          </span>
+        );
+      },
     },
   ];
 
@@ -343,9 +413,9 @@ export const StockMovementsPage: React.FC = () => {
       {/* ------------------------------------------------------------------ */}
 
       <DataTable<IStockMovementRow>
-        records={(data?.stock_movements ?? []) as IStockMovementRow[]}
+        records={stock_movements as IStockMovementRow[]}
         columns={columns}
-        meta={data?.meta}
+        meta={stockMovementsData?.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
         getRowKey={(record: IStockMovementRow) => record.id}

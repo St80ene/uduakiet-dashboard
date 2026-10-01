@@ -64,6 +64,7 @@ export default function AddProductModal({
     description: '',
     category_id: '',
     cost_price: '0.00',
+    default_reorder_point: 5,
     selling_price: '0.00',
     uom_type: UomType.UNIT,
     uom_base_name: UomBaseName.PCS,
@@ -178,6 +179,13 @@ export default function AddProductModal({
       submitPayload.append('category_id', formData.category_id);
     }
 
+    if (
+      Number(formData.default_reorder_point) < 0 ||
+      !Number.isInteger(Number(formData.default_reorder_point))
+    ) {
+      errors.default_reorder_point = 'Reorder point must be a whole number';
+    }
+
     submitPayload.append('cost_price', formData.cost_price);
 
     submitPayload.append('selling_price', formData.selling_price);
@@ -187,6 +195,11 @@ export default function AddProductModal({
     submitPayload.append('uom_base_name', formData.uom_base_name);
 
     submitPayload.append('uom_display_name', formData.uom_display_name);
+
+    submitPayload.append(
+      'default_reorder_point',
+      String(formData.default_reorder_point),
+    );
 
     formData.images.forEach((file) => {
       submitPayload.append('images', file);
@@ -442,6 +455,32 @@ export default function AddProductModal({
           {fieldErrors.selling_price && (
             <p className="text-[11px] text-rose-600 mt-1 font-medium">
               {fieldErrors.selling_price}
+            </p>
+          )}
+        </div>
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Default Reorder Point
+          </label>
+
+          <input
+            type="number"
+            name="default_reorder_point"
+            min="0"
+            step="1"
+            value={formData.default_reorder_point}
+            onChange={handleInputChange}
+            placeholder="5"
+            className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden transition-all ${
+              fieldErrors.default_reorder_point
+                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
+                : 'border-slate-200 focus:border-blue-500 focus:bg-white'
+            }`}
+          />
+
+          {fieldErrors.default_reorder_point && (
+            <p className="text-[11px] text-rose-600 mt-1 font-medium">
+              {fieldErrors.default_reorder_point}
             </p>
           )}
         </div>

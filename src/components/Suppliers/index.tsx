@@ -208,10 +208,10 @@ export const SuppliersPage = () => {
       <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Suppliers
+            Product Suppliers
           </h1>
           <p className="mt-0.5 text-sm text-slate-500">
-            Manage vendors and product procurement channels.
+            Manage vendors and product procurement channels. Your Supply Chain.
           </p>
         </div>
 

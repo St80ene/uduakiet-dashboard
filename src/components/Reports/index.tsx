@@ -162,7 +162,6 @@ export const ReportsPage: React.FC = () => {
 
   const paginationMeta: IPaginationMeta = {
     currentPage,
-    itemCount: filteredStores.length,
     itemsPerPage: pageSize,
     totalItems: filteredStores.length,
     totalPages: Math.ceil(filteredStores.length / pageSize) || 1,

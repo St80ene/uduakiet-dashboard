@@ -31,7 +31,7 @@ export const stockService = {
   getStockByID: async (stockId: string) => {
     const response = await apiClient.get(`${STOCK_RESOURCE}/${stockId}`);
 
-    return response.data;
+    return response.data.data;
   },
 
   createStock: async (stockData: ICreateStockPayload) => {

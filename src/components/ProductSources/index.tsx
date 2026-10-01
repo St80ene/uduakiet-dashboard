@@ -338,7 +338,7 @@ export const ProductSources: React.FC = () => {
 
       {/* Data Table */}
       <DataTable<ProductSourceRow>
-        records={(data?.productSources ?? []) as ProductSourceRow[]}
+        records={(data?.product_sources ?? []) as ProductSourceRow[]}
         columns={columns}
         meta={data?.meta}
         isLoading={isLoading}

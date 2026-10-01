@@ -238,7 +238,7 @@ export const PurchaseOrdersPage: React.FC = () => {
         <div>
           <h1 className="flex items-center gap-2 text-xl font-bold text-slate-900">
             <ShoppingCart className="text-sky-600" size={24} />
-            Purchase Orders
+            Supply Purchase Orders
           </h1>
 
           <p className="mt-1 text-xs text-slate-500">

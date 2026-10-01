@@ -130,7 +130,7 @@ const StoresPage = () => {
             <Building2 className="h-4 w-4 text-gray-400" />
 
             <span className="text-sm text-gray-600 dark:text-gray-300">
-              {store.business_id}
+              {store.business?.display_name || 'No business'}
             </span>
           </div>
         ),
@@ -153,12 +153,12 @@ const StoresPage = () => {
       {
         key: 'actions',
         header: 'Actions',
-        render: (store: IStore) => (
+        render: () => (
           <div className="flex items-center gap-1">
             <button
               type="button"
               title="View store"
-              onClick={() => navigate(`/stores/${store.id}`)}
+              // onClick={() => navigate(`/stores/${store.id}`)}
               className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <Eye className="h-4 w-4" />
@@ -167,7 +167,7 @@ const StoresPage = () => {
             <button
               type="button"
               title="Edit store"
-              onClick={() => navigate(`/stores/${store.id}/edit`)}
+              // onClick={() => navigate(`/stores/${store.id}/edit`)}
               className="rounded-lg p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <Edit className="h-4 w-4" />
@@ -187,7 +187,7 @@ const StoresPage = () => {
         ),
       },
     ],
-    [navigate, handleSortChange],
+    [handleSortChange],
   );
 
   if (isLoading) {

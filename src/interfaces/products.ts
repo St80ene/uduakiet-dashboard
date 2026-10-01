@@ -39,6 +39,7 @@ export interface ICreateProductFormData {
   uom_type: UomType;
   uom_base_name: UomBaseName;
   uom_display_name: UomDisplayName;
+  default_reorder_point: number;
   images: File[];
 }
 
@@ -59,15 +60,7 @@ export interface IProductTableProps {
 }
 export interface IProductsWithMeta {
   products: IProduct[];
-  meta: {
-    totalItems: number;
-    itemCount: number;
-    itemsPerPage: number;
-    totalPages: number;
-    currentPage: number;
-    hasNextPage: boolean;
-    hasPreviousPage: boolean;
-  };
+  meta: IPaginationMeta;
 }
 export class IProductStatusUpdateDto {
   status!: ProductStatus;
@@ -89,6 +82,7 @@ export interface IProduct {
   business_id: string;
   category?: ICategory | null;
   source?: IProductSource;
+  default_reorder_point: number;
   purchase_orders?: IPurchaseOrder[];
   business: IBusiness;
   created_at: Date;
