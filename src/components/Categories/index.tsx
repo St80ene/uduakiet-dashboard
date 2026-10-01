@@ -187,7 +187,7 @@ export const CategoriesPage = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-            Inventory Categories
+            Product Categories
           </h1>
           <p className="text-sm text-slate-500 mt-1">
             Organize products, manage catalog hierarchies, and track product
@@ -234,7 +234,7 @@ export const CategoriesPage = () => {
           </div>
           <div>
             <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Total Linked Products
+              Products in Category
             </p>
             <p className="text-xl font-bold text-slate-900 mt-0.5">
               {totalProductsCount}

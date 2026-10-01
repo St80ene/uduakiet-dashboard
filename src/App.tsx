@@ -26,6 +26,7 @@ import Settings from './components/Settings/Business/Settings';
 import { useAuth } from './services/auth/hooks/useAuth';
 import { SplashScreen } from './common/SplashScreen';
 
+// This gives you the idea of the app and it's screens at a glance
 export default function App() {
   const { isInitializing, isLoading } = useAuth();
 
