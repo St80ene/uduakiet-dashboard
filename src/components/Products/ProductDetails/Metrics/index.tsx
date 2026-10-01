@@ -25,6 +25,10 @@ function Metrics({
           <p className="text-xs font-medium text-slate-500">Stock Quantity</p>
           <p className="text-xl font-bold text-slate-900 mt-0.5">
             <span className="text-xs text-slate-400 font-normal">
+              {product.stocks?.reduce(
+                (acc, stock) => acc + stock.current_quantity,
+                0,
+              ) ?? 0}{' '}
               {product.uom_display_name}
             </span>
           </p>

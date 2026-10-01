@@ -77,6 +77,7 @@ export default function EditProductModal({
     category_id: product.category_id || product.category?.id || '',
     cost_price: String(product.cost_price ?? '0.00'),
     selling_price: String(product.selling_price ?? '0.00'),
+    default_reorder_point: Number(product.default_reorder_point ?? 5),
     uom_type: product.uom_type,
     uom_base_name: product.uom_base_name,
     uom_display_name: product.uom_display_name,
@@ -184,6 +185,13 @@ export default function EditProductModal({
       errors.cost_price = 'Cost price cannot be negative';
     }
 
+    if (
+      Number(formData.default_reorder_point) < 0 ||
+      !Number.isInteger(Number(formData.default_reorder_point))
+    ) {
+      errors.default_reorder_point = 'Reorder point must be a whole number';
+    }
+
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
       return;
@@ -212,6 +220,12 @@ export default function EditProductModal({
       'category_id',
       formData.category_id,
       product.category_id || product.category?.id,
+    );
+
+    appendIfChanged(
+      'default_reorder_point',
+      String(formData.default_reorder_point),
+      product.default_reorder_point,
     );
 
     appendIfChanged('cost_price', formData.cost_price, product.cost_price);
@@ -517,6 +531,32 @@ export default function EditProductModal({
           {fieldErrors.cost_price && (
             <p className="text-[11px] text-rose-600 mt-1 font-medium">
               {fieldErrors.cost_price}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+            Default Reorder Point
+          </label>
+
+          <input
+            type="number"
+            name="default_reorder_point"
+            min="0"
+            step="1"
+            value={formData.default_reorder_point}
+            onChange={handleInputChange}
+            className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden transition-all ${
+              fieldErrors.default_reorder_point
+                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
+                : 'border-slate-200 focus:border-blue-500 focus:bg-white'
+            }`}
+          />
+
+          {fieldErrors.default_reorder_point && (
+            <p className="text-[11px] text-rose-600 mt-1 font-medium">
+              {fieldErrors.default_reorder_point}
             </p>
           )}
         </div>
