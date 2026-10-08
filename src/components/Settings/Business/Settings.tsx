@@ -40,7 +40,7 @@ const DEFAULT_BUSINESS: IBusiness = {
   timezone: '',
   locale: '',
   settings: {
-    themeColor: '',
+    theme_color: '',
     enableNotifications: false,
     enableMultiBranch: false,
     lowStockThreshold: 10,

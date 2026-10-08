@@ -26,6 +26,8 @@ import Settings from './components/Settings/Business/Settings';
 import { useAuth } from './services/auth/hooks/useAuth';
 import { SplashScreen } from './common/SplashScreen';
 import { StockDetailPage } from './components/Stocks/StockContextDetails';
+import { FeedPage } from './pages/FeedPage';
+import { PublishPage } from './pages/PublishPage';
 
 // This gives you the idea of the app and it's screens at a glance
 export default function App() {
@@ -46,6 +48,11 @@ export default function App() {
             {/* Overview */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/reports" element={<ReportsPage />} />
+            <Route
+              path="/notices/feeds"
+              element={<FeedPage searchTerm={''} />}
+            />
+            <Route path="/notices/publish" element={<PublishPage />} />
 
             {/* Inventory */}
             <Route path="/products" element={<Products />} />

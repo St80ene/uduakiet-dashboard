@@ -26,7 +26,7 @@ export const SuppliersPage = () => {
   // Pagination State
   // ---------------------------------------------------------------------------
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');

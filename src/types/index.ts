@@ -36,10 +36,7 @@ export type UsersResponse = PaginatedResponse<IUser, 'users'>;
 export type StoresResponse = PaginatedResponse<IStore, 'stores'>;
 export type SuppliersResponse = PaginatedResponse<ISupplier, 'suppliers'>;
 export type StocksResponse = PaginatedResponse<IStock, 'stocks'>;
-export type PurchaseOrdersResponse = PaginatedResponse<
-  IPurchaseOrder,
-  'purchase_orders'
->;
+
 export type StockMovementsResponse = PaginatedResponse<
   IStockMovement,
   'stock_movements'

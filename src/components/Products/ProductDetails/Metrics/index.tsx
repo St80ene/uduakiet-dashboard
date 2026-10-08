@@ -4,12 +4,12 @@ import { Box, DollarSign, Tag, TrendingUp } from 'lucide-react';
 
 function Metrics({
   product,
-  profitMargin,
-  marginPercentage,
+  // profitMargin,
+  // marginPercentage,
 }: {
   product: Partial<IProduct>;
-  profitMargin: number;
-  marginPercentage: string;
+  // profitMargin: number;
+  // marginPercentage: string;
 }) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -35,6 +35,7 @@ function Metrics({
         </div>
       </motion.div>
 
+      {}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -47,7 +48,7 @@ function Metrics({
         <div>
           <p className="text-xs font-medium text-slate-500">Cost Price</p>
           <p className="text-xl font-bold text-slate-900 mt-0.5">
-            ${Number(product.cost_price).toFixed(2)}
+            ${product.sku}
           </p>
           <p className="text-xs text-slate-400 mt-0.5">Base procurement cost</p>
         </div>
@@ -80,7 +81,7 @@ function Metrics({
         <div className="p-3 bg-emerald-50 text-emerald-600 rounded-lg">
           <TrendingUp className="w-6 h-6" />
         </div>
-        <div>
+        {/* <div>
           <p className="text-xs font-medium text-slate-500">Gross Margin</p>
           <p className="text-xl font-bold text-emerald-600 mt-0.5">
             ${profitMargin.toFixed(2)}{' '}
@@ -89,7 +90,7 @@ function Metrics({
             </span>
           </p>
           <p className="text-xs text-slate-400 mt-0.5">Unit profit yield</p>
-        </div>
+        </div> */}
       </motion.div>
     </div>
   );

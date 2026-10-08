@@ -23,7 +23,7 @@ export const AuditLogsPage: React.FC = () => {
   // ---------------------------------------------------------------------------
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(7);
+  const [limit, setLimit] = useState(6);
 
   // ---------------------------------------------------------------------------
   // Search & Sort state

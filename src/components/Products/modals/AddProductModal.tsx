@@ -63,7 +63,7 @@ export default function AddProductModal({
     name: '',
     description: '',
     category_id: '',
-    cost_price: '0.00',
+    sku: '',
     default_reorder_point: 5,
     selling_price: '0.00',
     uom_type: UomType.UNIT,
@@ -158,8 +158,8 @@ export default function AddProductModal({
       errors.selling_price = 'Valid selling price required';
     }
 
-    if (formData.cost_price && Number(formData.cost_price) < 0) {
-      errors.cost_price = 'Cost price cannot be negative';
+    if (!formData.sku.trim()) {
+      errors.sku = 'SKU is required';
     }
 
     if (Object.keys(errors).length > 0) {
@@ -186,7 +186,7 @@ export default function AddProductModal({
       errors.default_reorder_point = 'Reorder point must be a whole number';
     }
 
-    submitPayload.append('cost_price', formData.cost_price);
+    submitPayload.append('sku', formData.sku);
 
     submitPayload.append('selling_price', formData.selling_price);
 
@@ -412,22 +412,22 @@ export default function AddProductModal({
 
           <input
             type="number"
-            name="cost_price"
+            name="sku"
             step="0.01"
             min="0"
-            value={formData.cost_price}
+            value={formData.sku}
             onChange={handleInputChange}
             placeholder="0.00"
             className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden transition-all ${
-              fieldErrors.cost_price
+              fieldErrors.sku
                 ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
                 : 'border-slate-200 focus:border-blue-500 focus:bg-white'
             }`}
           />
 
-          {fieldErrors.cost_price && (
+          {fieldErrors.sku && (
             <p className="text-[11px] text-rose-600 mt-1 font-medium">
-              {fieldErrors.cost_price}
+              {fieldErrors.sku}
             </p>
           )}
         </div>

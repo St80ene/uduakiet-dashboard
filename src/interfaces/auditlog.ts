@@ -4,9 +4,9 @@ export interface IAuditLog {
   id: string;
   action: string;
   entity: string;
-  entityId: string;
+  entity_id: string;
   created_at: Date;
-  userId: string | null;
+  user_id: string | null;
   metadata: {
     productName?: string;
     created_at?: string;

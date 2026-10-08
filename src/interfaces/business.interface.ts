@@ -12,13 +12,14 @@ export enum BusinessStatus {
 }
 
 export interface IBusinessSettings {
-  themeColor?: string | undefined;
+  theme_color?: string | undefined;
   enableNotifications?: boolean;
   enableMultiBranch?: boolean;
   lowStockThreshold?: number;
   enableReceiptQR?: boolean;
   receiptFooterText?: string;
   defaultTaxRate?: number;
+  [key: string]: unknown;
 }
 
 export interface IToastProps {

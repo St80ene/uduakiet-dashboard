@@ -7,6 +7,9 @@ export interface IProductSource {
   product_id: string;
   supplier_id: string;
   product?: IProduct;
+  cost_price: number;
+  supplier_sku?: string;
+  estimated_lead_time_days?: number;
   supplier: ISupplier;
   created_at: string;
 }

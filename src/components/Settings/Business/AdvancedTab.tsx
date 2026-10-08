@@ -51,15 +51,15 @@ const AdvancedTab: FC<{
               <button
                 key={color.hex}
                 type="button"
-                onClick={() => handleNestedChange('themeColor', color.hex)}
+                onClick={() => handleNestedChange('theme_color', color.hex)}
                 className={`w-9 h-9 cursor-pointer rounded-xl flex items-center justify-center transition-all ${
-                  formData.settings?.themeColor === color.hex
+                  formData.settings?.theme_color === color.hex
                     ? 'ring-2 ring-white scale-110 shadow-lg'
                     : 'opacity-70 hover:opacity-100'
                 }`}
                 style={{ backgroundColor: color.hex }}
               >
-                {formData.settings?.themeColor === color.hex && (
+                {formData.settings?.theme_color === color.hex && (
                   <Check size={16} className="text-slate-950 stroke-[3]" />
                 )}
               </button>

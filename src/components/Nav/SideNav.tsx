@@ -1,22 +1,33 @@
-import React, { useMemo, useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { Loader2, LogOut } from 'lucide-react';
+import React, { useCallback, useMemo, useState } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { Megaphone } from 'lucide-react';
 
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { UserRole } from '@/enum/role';
 
 import { NAV_SECTIONS, type NavItem } from './NavItems';
 import type { ViewPermission } from '@/enum/view_permission.enum';
-import { ROLE_CONFIG } from '@/common/role_config';
 import { UduaKietLogo } from '@/common/AppLogo';
+import { NavFooter } from './NavFooter';
+import { NavSections, type NavSectionsProps } from './NavSections';
+import { useNotice } from '@/services/auth/context/NoticeContext';
 
 export const SideNav: React.FC = () => {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const navigate = useNavigate();
   const { logout, user } = useAuth();
 
+  const { notices, currentUserId } = useNotice();
+  const location = useLocation();
+
   const currentRole = user?.role?.name ?? UserRole.CASHIER;
   const isSuperAdmin = currentRole === UserRole.SUPER_ADMIN;
+
+  const pendingNoticeCount = notices.filter(
+    (n) =>
+      n.requiresAcknowledgment &&
+      !n.acknowledgedUserIds.includes(currentUserId),
+  ).length;
 
   const userPermissions = useMemo(
     () =>
@@ -28,36 +39,33 @@ export const SideNav: React.FC = () => {
     [user?.role?.rolePermissions],
   );
 
-  const hasViewPermission = (permission: ViewPermission): boolean => {
-    if (isSuperAdmin) return true;
-    return userPermissions.has(permission);
-  };
+  const hasViewPermission = useCallback(
+    (permission: ViewPermission): boolean => {
+      if (isSuperAdmin) return true;
 
-  const canAccessNavItem = (item: NavItem): boolean => {
-    if (!item.permissions || item.permissions.length === 0) return true;
-    if (item.permissionMode === 'any')
-      return item.permissions.some(hasViewPermission);
-    return item.permissions.every(hasViewPermission);
-  };
+      return userPermissions.has(permission);
+    },
+    [isSuperAdmin, userPermissions],
+  );
 
-  const visibleSections = useMemo(
+  const canAccessNavItem = useCallback(
+    (item: NavItem): boolean => {
+      if (!item.permissions || item.permissions.length === 0) return true;
+      if (item.permissionMode === 'any')
+        return item.permissions.some(hasViewPermission);
+      return item.permissions.every(hasViewPermission);
+    },
+    [hasViewPermission],
+  );
+
+  const visibleSections: NavSectionsProps[] = useMemo(
     () =>
       NAV_SECTIONS.map((section) => ({
         ...section,
         items: section.items.filter(canAccessNavItem),
       })).filter((section) => section.items.length > 0),
-    [userPermissions, isSuperAdmin],
+    [canAccessNavItem],
   );
-
-  const roleStyle = ROLE_CONFIG[currentRole] ?? {
-    label: 'Admin',
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-950/20',
-    border: 'border-cyan-500/30',
-  };
-
-  const RoleIcon = roleStyle.icon;
-  const displayName = user?.first_name || 'Account';
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -101,101 +109,49 @@ export const SideNav: React.FC = () => {
         </div>
 
         {/* NAVIGATION SECTIONS */}
-        <nav aria-label="Sidebar" className="space-y-3.5 p-2.5">
-          {visibleSections.map((section) => (
-            <div key={section.label}>
-              {/* Section heading */}
-              <div className="mb-1 px-2">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-600">
-                  {section.label}
-                </p>
-              </div>
+        <NavSections visibleSections={visibleSections} />
 
-              {/* Navigation items */}
-              <div className="space-y-0.5">
-                {section.items.map((item) => {
-                  const Icon = item.icon;
-
-                  return (
-                    <NavLink
-                      key={item.to}
-                      to={item.to}
-                      className={({ isActive }) =>
-                        [
-                          'flex items-center justify-between',
-                          'rounded-md',
-                          'px-2.5 py-1.5',
-                          'text-xs font-medium',
-                          'transition-all duration-150',
-                          'focus:outline-none focus:ring-1 focus:ring-cyan-500',
-
-                          isActive
-                            ? 'border border-cyan-500/30 bg-cyan-950/40 text-cyan-400'
-                            : 'text-slate-400 hover:bg-slate-900/80 hover:text-slate-200',
-                        ].join(' ')
-                      }
-                    >
-                      <div className="flex items-center gap-2.5">
-                        <Icon size={16} className="shrink-0" />
-                        <span className="truncate">{item.label}</span>
-                      </div>
-
-                      {item.badge !== undefined && (
-                        <span className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-1.5 py-0.2 text-[9px] font-bold text-cyan-400">
-                          {item.badge}
-                        </span>
-                      )}
-                    </NavLink>
-                  );
-                })}
-              </div>
+        {/* =====================================================
+            NOTICE BOARD QUICK LINK SECTION
+        ====================================================== */}
+        <div className="px-3 py-3 mt-2 border-t border-slate-900/80">
+          <Link
+            to="/notices/feeds"
+            className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors group ${
+              location.pathname.startsWith('/notices')
+                ? 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-300'
+                : 'bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 text-slate-300'
+            }`}
+          >
+            <div className="flex items-center gap-2.5">
+              <Megaphone className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
+              <span className="text-xs font-semibold">Notice Board</span>
             </div>
-          ))}
-        </nav>
+            {pendingNoticeCount > 0 && (
+              <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold animate-pulse">
+                {pendingNoticeCount}
+              </span>
+            )}
+          </Link>
+          {/* NEW: Publish Notice Button */}
+          <Link
+            to="/notices/publish"
+            className={`flex items-center gap-2.5 px-3 py-3 mt-3 rounded-lg transition-colors text-xs font-medium ${
+              location.pathname === '/notices/publish'
+                ? 'bg-indigo-600 text-white'
+                : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
+            }`}
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
+            <span>Publish Announcement</span>
+          </Link>
+        </div>
       </div>
 
       {/* =====================================================
           BOTTOM SECTION
       ====================================================== */}
-      <div className="space-y-1.5 border-t border-slate-800 p-2.5 bg-slate-950 shrink-0">
-        <div className="group flex items-center justify-between rounded-lg border border-slate-800/80 bg-slate-900/30 p-2 text-slate-300 transition-all hover:border-slate-700 hover:bg-slate-900 focus:outline-none focus:ring-1 focus:ring-cyan-500">
-          <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-slate-800 bg-slate-900 text-cyan-400">
-              <RoleIcon size={14} />
-            </div>
-
-            <div className="overflow-hidden">
-              <p className="truncate text-xs font-semibold text-slate-200 group-hover:text-white">
-                {displayName}
-              </p>
-              <p className="truncate text-[10px] text-slate-500">
-                {roleStyle.label}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* SIGN OUT BUTTON */}
-        <button
-          type="button"
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          className="
-            flex w-full cursor-pointer items-center justify-center gap-2
-            rounded-lg border border-red-500/20 bg-red-950/10
-            px-2.5 py-1.5 text-xs font-medium text-red-400
-            transition-colors hover:bg-red-900/30 hover:text-red-200
-            disabled:cursor-not-allowed disabled:opacity-50
-          "
-        >
-          {isLoggingOut ? (
-            <Loader2 size={13} className="animate-spin" />
-          ) : (
-            <LogOut size={13} />
-          )}
-          <span>{isLoggingOut ? 'Signing out...' : 'Sign out'}</span>
-        </button>
-      </div>
+      <NavFooter handleLogout={handleLogout} isLoggingOut={isLoggingOut} />
     </aside>
   );
 };

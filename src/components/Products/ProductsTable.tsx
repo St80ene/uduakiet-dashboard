@@ -74,12 +74,6 @@ const ProductTable = ({
       },
     },
     {
-      key: 'cost',
-      header: 'Cost',
-      cellClassName: 'font-mono text-slate-500 text-xs whitespace-nowrap',
-      render: (product) => formatCurrency(Number(product.cost_price)),
-    },
-    {
       key: 'sellingPrice',
       header: 'Selling Price',
       cellClassName:

@@ -33,7 +33,7 @@ export const CategoriesPage = () => {
 
   // Pagination state
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(7);
+  const [limit, setLimit] = useState(6);
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState('');

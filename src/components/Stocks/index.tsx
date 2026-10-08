@@ -35,7 +35,7 @@ export const StocksPage = () => {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
 
   // Search & sort
   const [searchQuery, setSearchQuery] = useState('');

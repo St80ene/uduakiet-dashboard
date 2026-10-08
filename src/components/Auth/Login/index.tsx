@@ -61,8 +61,16 @@ export default function Login() {
 
   const { login, isAuthenticated, isLoading } = useAuth();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // For testing purposes, you can use the following credentials to log in:
+  /**
+   * superadmin.ohs@uduakiet.com,
+   * admin.ohs@uduakiet.com,
+   * manager.ohs@uduakiet.com,
+   * cashier.ohs@uduakiet.com,
+   * Test@123!#
+   */
+  const [email, setEmail] = useState('superadmin.ams@uduakiet.com');
+  const [password, setPassword] = useState('Test@123!#');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');

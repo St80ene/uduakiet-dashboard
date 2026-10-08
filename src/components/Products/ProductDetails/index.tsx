@@ -202,12 +202,6 @@ export default function ProductDetailsPage() {
     );
   }
 
-  const profitMargin = product.selling_price - product.cost_price;
-  const marginPercentage =
-    product.selling_price > 0
-      ? ((profitMargin / product.selling_price) * 100).toFixed(1)
-      : '0';
-
   return (
     <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
       {/* Header Bar */}
@@ -256,8 +250,8 @@ export default function ProductDetailsPage() {
 
       <Metrics
         product={product}
-        profitMargin={profitMargin}
-        marginPercentage={marginPercentage}
+        // profitMargin={profitMargin}
+        // marginPercentage={marginPercentage}
       />
 
       {/* Navigation Tabs */}

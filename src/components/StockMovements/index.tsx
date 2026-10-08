@@ -38,7 +38,7 @@ export const StockMovementsPage: React.FC = () => {
   // ---------------------------------------------------------------------------
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(5);
+  const [limit, setLimit] = useState(6);
 
   // ---------------------------------------------------------------------------
   // Search & sort state
@@ -82,13 +82,6 @@ export const StockMovementsPage: React.FC = () => {
 
     placeholderData: (previousData) => previousData,
   });
-
-  useEffect(() => {
-    console.log('limit', limit);
-    console.log('page', page);
-    console.log('debouncedSearch', debouncedSearch);
-    console.log('sortOrder', sortOrder);
-  }, [page, limit, debouncedSearch, sortOrder]);
 
   const stock_movements = stockMovementsData?.stock_movements ?? [];
 
