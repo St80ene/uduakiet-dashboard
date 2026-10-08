@@ -149,15 +149,6 @@ export const SuppliersPage = () => {
       ),
     },
     {
-      key: 'purchaseOrdersCount',
-      header: 'Purchase Orders',
-      render: (supplier: ISupplier) => (
-        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-          {supplier.purchaseOrdersCount ?? 0} Orders
-        </span>
-      ),
-    },
-    {
       key: 'actions',
       header: <span className="sr-only">Actions</span>,
       cellClassName: 'text-right',

@@ -99,14 +99,14 @@ const formatAuditValue = (value: unknown): string => {
 };
 
 const AuditChanges = ({
-  oldValue,
-  newValue,
+  old_value,
+  new_value,
 }: {
-  oldValue: Record<string, unknown> | null;
-  newValue: Record<string, unknown> | null;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
 }) => {
-  const oldData = oldValue ?? {};
-  const newData = newValue ?? {};
+  const oldData = old_value ?? {};
+  const newData = new_value ?? {};
 
   const fields = Array.from(
     new Set([...Object.keys(oldData), ...Object.keys(newData)]),
@@ -194,7 +194,7 @@ export const AuditEventInspector = ({
   const ActionIcon = ACTION_ICONS[selectedLog.action] ?? Activity;
 
   const hasChanges =
-    selectedLog.oldValue !== null || selectedLog.newValue !== null;
+    selectedLog.old_value !== null || selectedLog.new_value !== null;
 
   return (
     <div className="bg-white border border-slate-200/80 rounded-xl p-4 space-y-4 shadow-2xs h-fit">
@@ -246,7 +246,7 @@ export const AuditEventInspector = ({
             <p className="font-medium text-slate-700">{selectedLog.entity}</p>
 
             <p className="text-[10px] text-slate-400 mt-1 break-all">
-              Reference: {selectedLog.entityId}
+              Reference: {selectedLog.entity_id}
             </p>
           </div>
         </div>
@@ -261,8 +261,8 @@ export const AuditEventInspector = ({
           {hasChanges ? (
             <div className="rounded-lg border border-slate-200 overflow-hidden">
               <AuditChanges
-                oldValue={selectedLog.oldValue}
-                newValue={selectedLog.newValue}
+                old_value={selectedLog.old_value}
+                new_value={selectedLog.new_value}
               />
             </div>
           ) : (

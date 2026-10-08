@@ -7,14 +7,14 @@ export const getAuditLogColumns = (
   {
     key: 'date',
     header: 'Date',
-    render: (log) => (
+    render: ({ created_at }) => (
       <div>
         <div className="text-xs font-medium text-slate-700">
-          {new Date(log.created_at).toLocaleDateString()}
+          {new Date(created_at).toLocaleDateString()}
         </div>
 
         <div className="text-[10px] text-slate-400 mt-0.5">
-          {new Date(log.created_at).toLocaleTimeString([], {
+          {new Date(created_at).toLocaleTimeString([], {
             hour: '2-digit',
             minute: '2-digit',
           })}
@@ -26,7 +26,7 @@ export const getAuditLogColumns = (
   {
     key: 'action',
     header: 'Action',
-    render: (log) => {
+    render: ({ action }) => {
       const actionStyles: Record<string, string> = {
         CREATE: 'bg-emerald-50 text-emerald-700 border-emerald-200',
         UPDATE: 'bg-blue-50 text-blue-700 border-blue-200',
@@ -46,12 +46,12 @@ export const getAuditLogColumns = (
             uppercase
             tracking-wide
             ${
-              actionStyles[log.action] ??
+              actionStyles[action] ??
               'bg-slate-50 text-slate-600 border-slate-200'
             }
           `}
         >
-          {log.action}
+          {action}
         </span>
       );
     },
@@ -60,23 +60,23 @@ export const getAuditLogColumns = (
   {
     key: 'entity',
     header: 'Entity',
-    render: (log) => (
-      <span className="text-xs font-medium text-slate-700">{log.entity}</span>
+    render: ({ entity }) => (
+      <span className="text-xs font-medium text-slate-700">{entity}</span>
     ),
   },
 
   {
     key: 'reason',
     header: 'Activity',
-    render: (log) => (
+    render: ({ user_id, metadata }) => (
       <div className="max-w-[280px]">
         <p className="text-xs text-slate-700 truncate">
-          {log.metadata?.reason ?? 'No reason provided'}
+          {metadata?.reason ?? 'No reason provided'}
         </p>
 
-        {log?.userId ? (
+        {user_id ? (
           <p className="text-[10px] text-slate-400 mt-0.5">
-            User: {log?.userId?.substring(0, 8)}
+            User: {user_id?.substring(0, 8)}
           </p>
         ) : (
           <p className="text-[10px] text-slate-400 mt-0.5">

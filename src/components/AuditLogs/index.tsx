@@ -170,7 +170,7 @@ export const AuditLogsPage: React.FC = () => {
         {/* ---------------------------------------------------------------- */}
         <div className="lg:col-span-2">
           <DataTable<IAuditLog>
-            records={data?.auditLogs ?? []}
+            records={data?.audit_logs ?? []}
             columns={columns}
             meta={data?.meta}
             isLoading={isLoading}

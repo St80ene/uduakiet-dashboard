@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
 
+export interface IAuditMetaData {
+  reason: string;
+  [key: string]: unknown;
+}
 export interface IAuditLog {
   id: string;
   action: string;
@@ -7,13 +11,9 @@ export interface IAuditLog {
   entity_id: string;
   created_at: Date;
   user_id: string | null;
-  metadata: {
-    productName?: string;
-    created_at?: string;
-    reason?: string;
-  };
-  oldValue: Record<string, unknown> | null;
-  newValue: Record<string, unknown> | null;
+  metadata: IAuditMetaData;
+  old_value: Record<string, unknown> | null;
+  new_value: Record<string, unknown> | null;
 }
 
 export interface IAuditLogDetailsModalProps {
@@ -30,8 +30,8 @@ export interface InfoCardProps {
 
 export interface IChangeItemProps {
   field: string;
-  oldValue: unknown;
-  newValue: unknown;
+  old_value: unknown;
+  new_value: unknown;
 }
 
 export interface IValueBoxProps {
