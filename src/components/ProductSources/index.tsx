@@ -43,7 +43,7 @@ export const ProductSources: React.FC = () => {
   // Pagination State
   // ---------------------------------------------------------------------------
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
 
   // ---------------------------------------------------------------------------
   // Search & Sort State

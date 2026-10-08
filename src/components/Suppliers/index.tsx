@@ -26,7 +26,7 @@ export const SuppliersPage = () => {
   // Pagination State
   // ---------------------------------------------------------------------------
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
   const [searchQuery, setSearchQuery] = useState('');
 
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
@@ -146,15 +146,6 @@ export const SuppliersPage = () => {
             <span>{supplier.email || 'N/A'}</span>
           </div>
         </div>
-      ),
-    },
-    {
-      key: 'purchaseOrdersCount',
-      header: 'Purchase Orders',
-      render: (supplier: ISupplier) => (
-        <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
-          {supplier.purchaseOrdersCount ?? 0} Orders
-        </span>
       ),
     },
     {

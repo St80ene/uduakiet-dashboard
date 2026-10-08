@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { X, Truck, Info, Mail, Phone } from 'lucide-react';
 import type { AxiosError } from 'axios';
-import type { ISupplier } from '@/interfaces/supplier';
 import { useCreateSupplier } from '@/hooks/useSuppliers.hook';
+import type { ICreateSupplierPayload } from '@/services/suppliers.service.api';
 
 interface CreateSupplierModalProps {
   onClose: () => void;
@@ -10,18 +10,8 @@ interface CreateSupplierModalProps {
 
 export const CreateSupplierModal = ({ onClose }: CreateSupplierModalProps) => {
   const { mutate, isPending, error } = useCreateSupplier();
-  
-  const handleCreateSubmit = (
-    data: Omit<
-      ISupplier,
-      | 'id'
-      | 'created_at'
-      | 'updated_at'
-      | 'productSourcesCount'
-      | 'purchaseOrdersCount'
-      | 'business_id'
-    >,
-  ) => {
+
+  const handleCreateSubmit = (data: ICreateSupplierPayload) => {
     mutate(data, {
       onSuccess: () => onClose(),
     });

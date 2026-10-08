@@ -26,24 +26,27 @@ export const formatQuantity = (
 };
 
 export const getChangedFields = (
-  oldValue: Record<string, unknown> | null,
-  newValue: Record<string, unknown> | null,
+  old_value: Record<string, unknown> | null,
+  new_value: Record<string, unknown> | null,
 ) => {
-  if (!oldValue || !newValue) {
+  if (!old_value || !new_value) {
     return [];
   }
 
-  const fields = new Set([...Object.keys(oldValue), ...Object.keys(newValue)]);
+  const fields = new Set([
+    ...Object.keys(old_value),
+    ...Object.keys(new_value),
+  ]);
 
   return Array.from(fields)
     .filter(
       (field) =>
-        JSON.stringify(oldValue[field]) !== JSON.stringify(newValue[field]),
+        JSON.stringify(old_value[field]) !== JSON.stringify(new_value[field]),
     )
     .map((field) => ({
       field,
-      oldValue: oldValue[field],
-      newValue: newValue[field],
+      old_value: old_value[field],
+      new_value: new_value[field],
     }));
 };
 

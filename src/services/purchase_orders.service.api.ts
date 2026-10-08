@@ -6,9 +6,7 @@ import type { IPurchaseOrdersResponse } from '@/types';
 const PURCHASE_ORDERS_RESOURCE = '/purchase-orders';
 
 export const purchaseOrderService = {
-  getAllPurchaseOrders: async (
-    params: IBasePaginationParams = {},
-  ): Promise<IApiResponse<IPurchaseOrdersResponse>> => {
+  getAllPurchaseOrders: async (params: IBasePaginationParams = {}) => {
     const response = await apiClient.get<IApiResponse<IPurchaseOrdersResponse>>(
       PURCHASE_ORDERS_RESOURCE,
       {
@@ -21,7 +19,7 @@ export const purchaseOrderService = {
       },
     );
 
-    return response.data;
+    return response.data.data;
   },
 
   getPurchaseOrderByID: async (

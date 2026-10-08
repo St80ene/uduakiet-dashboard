@@ -230,63 +230,61 @@ function ProductRelationships({
 
         {purchase_orders?.length ? (
           <div className="divide-y divide-slate-100">
-            {purchase_orders
-              .slice(0, 5)
-              .map((purchase: IPurchaseOrder) => (
-                <div
-                  key={purchase.id}
-                  className="flex items-center justify-between px-6 py-3.5 text-xs"
-                >
-                  <div>
-                    <p className="font-semibold text-slate-900">
-                      {purchase.supplier_name || 'Unknown supplier'}
-                    </p>
-                    <p className="text-slate-400 mt-0.5">
-                      {purchase.createdAt
-                        ? new Date(purchase.createdAt).toLocaleDateString(
-                            undefined,
-                            {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            },
-                          )
-                        : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                      Quantity
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {purchase.items?.[0]?.quantity_requested
-                        ? purchase.items[0].quantity_requested.toLocaleString()
-                        : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                      Unit Cost
-                    </p>
-
-                    <p className="mt-1 text-sm font-semibold text-slate-900">
-                      {purchase.items?.[0]?.estimated_unit_cost
-                        ? `₦${Number(purchase.items[0].estimated_unit_cost).toLocaleString()}`
-                        : '—'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
-                      Status
-                    </p>
-
-                    <span className="mt-1 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold text-slate-600">
-                      {purchase.status || 'Recorded'}
-                    </span>
-                  </div>
+            {purchase_orders.slice(0, 5).map((purchase: IPurchaseOrder) => (
+              <div
+                key={purchase.id}
+                className="flex items-center justify-between px-6 py-3.5 text-xs"
+              >
+                <div>
+                  <p className="font-semibold text-slate-900">
+                    {purchase.supplier_name || 'Unknown supplier'}
+                  </p>
+                  <p className="text-slate-400 mt-0.5">
+                    {purchase.created_at
+                      ? new Date(purchase.created_at).toLocaleDateString(
+                          undefined,
+                          {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          },
+                        )
+                      : '—'}
+                  </p>
                 </div>
-              ))}
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    Quantity
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                    {/* {purchase.items?.[0]?.quantity_requested
+                        ? purchase.items[0].quantity_requested.toLocaleString()
+                        : '—'} */}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    Unit Cost
+                  </p>
+
+                  <p className="mt-1 text-sm font-semibold text-slate-900">
+                    {/* {purchase.items?.[0]?.estimated_unit_cost
+                      ? `₦${Number(purchase.items[0].estimated_unit_cost).toLocaleString()}`
+                      : '—'} */}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-medium uppercase tracking-wider text-slate-400">
+                    Status
+                  </p>
+
+                  <span className="mt-1 inline-flex rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1 text-[10px] font-bold text-slate-600">
+                    {purchase.status || 'Recorded'}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="py-12 text-center text-slate-400">

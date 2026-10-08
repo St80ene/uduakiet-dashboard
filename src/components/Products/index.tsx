@@ -19,7 +19,7 @@ export const Products: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(7);
+  const [limit, setLimit] = useState(6);
   const [search, setSearch] = useState('');
 
   const debouncedSearch = useDebouncedValue(search.trim(), 350);

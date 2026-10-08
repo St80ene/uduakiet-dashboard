@@ -10,24 +10,15 @@ import {
   Eye,
 } from 'lucide-react';
 
-import type {
-  IStock,
-  ICreateStockPayload,
-  IUpdateStockPayload,
-} from '@/interfaces/stock.interface';
+import type { IStock, IUpdateStockPayload } from '@/interfaces/stock.interface';
 import type { StocksResponse } from '@/types';
 import useDebouncedValue from '@/hooks/debounceHook';
 
-import {
-  adjustStock,
-  createStock,
-  getAllStocks,
-} from '@/services/stocks.service.api';
+import { adjustStock, getAllStocks } from '@/services/stocks.service.api';
 import LoadingScreen from '@/common/Error/LoadingScreen';
 import { ErrorPage } from '@/common/Error/ErrorPage';
 import DataTable from '@/common/DataTable';
 import { StocksHeader } from './StocksHeader';
-import { CreateStockModal } from './CreateStockModal';
 import { UpdateStockModal } from './UpdateStockModal';
 
 export const StocksPage = () => {
@@ -35,7 +26,7 @@ export const StocksPage = () => {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
 
   // Search & sort
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,7 +34,6 @@ export const StocksPage = () => {
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
 
   // Modal States
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedStockForUpdate, setSelectedStockForUpdate] =
     useState<IStock | null>(null);
 
@@ -73,19 +63,6 @@ export const StocksPage = () => {
         }),
       placeholderData: (previousData) => previousData,
     });
-
-  // Create stock mutation hook
-  const {
-    mutate: createStockMutation,
-    isPending: isCreating,
-    error: createError,
-  } = useMutation({
-    mutationFn: (payload: ICreateStockPayload) => createStock(payload),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stocks'] });
-      setIsCreateModalOpen(false);
-    },
-  });
 
   // Update stock mutation hook
   const {
@@ -272,7 +249,6 @@ export const StocksPage = () => {
         }}
         sortOrder={sortOrder}
         onToggleSortOrder={toggleSortOrder}
-        onOpenCreateModal={() => setIsCreateModalOpen(true)}
       />
 
       {/* Stock DataTable */}
@@ -292,16 +268,6 @@ export const StocksPage = () => {
             'Current inventory balances will appear here when stock is available.',
         }}
       />
-
-      {/* Create Stock Modal */}
-      {isCreateModalOpen && (
-        <CreateStockModal
-          onClose={() => setIsCreateModalOpen(false)}
-          onSubmit={(payload) => createStockMutation(payload)}
-          isPending={isCreating}
-          error={createError}
-        />
-      )}
 
       {/* Update Stock Modal */}
       {selectedStockForUpdate && (

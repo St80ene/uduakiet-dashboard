@@ -25,7 +25,7 @@ import DataTable from '@/common/DataTable';
 export const UsersPage = () => {
   // Pagination state
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(7);
+  const [limit, setLimit] = useState(6);
 
   // Search & sort state
   const [searchQuery, setSearchQuery] = useState('');

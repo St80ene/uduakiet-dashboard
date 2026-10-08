@@ -32,7 +32,10 @@ const AuditLogModal: FC<IAuditLogDetailsModalProps> = ({
     return null;
   }
 
-  const changedFields = getChangedFields(auditLog.oldValue, auditLog.newValue);
+  const changedFields = getChangedFields(
+    auditLog.old_value,
+    auditLog.new_value,
+  );
 
   const date = new Date(String(auditLog.created_at));
 
@@ -90,9 +93,9 @@ const AuditLogModal: FC<IAuditLogDetailsModalProps> = ({
             {auditLog.action}
           </span>
 
-          <h4 className="mt-3 text-sm font-semibold text-slate-900">
+          {/* <h4 className="mt-3 text-sm font-semibold text-slate-900">
             {auditLog.metadata?.productName ?? 'Product activity'}
-          </h4>
+          </h4> */}
 
           <p className="text-xs text-slate-500 mt-1 leading-relaxed">
             {auditLog.metadata?.reason ?? 'Product information was updated.'}
@@ -123,7 +126,9 @@ const AuditLogModal: FC<IAuditLogDetailsModalProps> = ({
           <InfoCard
             icon={<User className="w-3.5 h-3.5" />}
             label="Performed by"
-            value={auditLog.userId ? auditLog.userId.substring(0, 8) : 'System'}
+            value={
+              auditLog.user_id ? auditLog.user_id.substring(0, 8) : 'System'
+            }
           />
 
           <InfoCard
@@ -155,8 +160,8 @@ const AuditLogModal: FC<IAuditLogDetailsModalProps> = ({
                 <ChangeItem
                   key={change.field}
                   field={change.field}
-                  oldValue={change.oldValue}
-                  newValue={change.newValue}
+                  old_value={change.old_value}
+                  new_value={change.new_value}
                 />
               ))}
             </div>
@@ -208,7 +213,7 @@ const InfoCard: FC<InfoCardProps> = ({ icon, label, value }) => (
   </div>
 );
 
-const ChangeItem: FC<IChangeItemProps> = ({ field, oldValue, newValue }) => {
+const ChangeItem: FC<IChangeItemProps> = ({ field, old_value, new_value }) => {
   return (
     <div className="rounded-xl border border-slate-200 overflow-hidden">
       <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
@@ -218,11 +223,11 @@ const ChangeItem: FC<IChangeItemProps> = ({ field, oldValue, newValue }) => {
       </div>
 
       <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3 p-4">
-        <ValueBox label="Before" value={formatValue(oldValue)} />
+        <ValueBox label="Before" value={formatValue(old_value)} />
 
         <ArrowRight className="w-4 h-4 text-slate-300 mt-5" />
 
-        <ValueBox label="After" value={formatValue(newValue)} isNew />
+        <ValueBox label="After" value={formatValue(new_value)} isNew />
       </div>
     </div>
   );

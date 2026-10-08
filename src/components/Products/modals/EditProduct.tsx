@@ -75,7 +75,6 @@ export default function EditProductModal({
     name: product.name || '',
     description: product.description || '',
     category_id: product.category_id || product.category?.id || '',
-    cost_price: String(product.cost_price ?? '0.00'),
     selling_price: String(product.selling_price ?? '0.00'),
     default_reorder_point: Number(product.default_reorder_point ?? 5),
     uom_type: product.uom_type,
@@ -181,10 +180,6 @@ export default function EditProductModal({
       errors.selling_price = 'Valid selling price required';
     }
 
-    if (formData.cost_price && Number(formData.cost_price) < 0) {
-      errors.cost_price = 'Cost price cannot be negative';
-    }
-
     if (
       Number(formData.default_reorder_point) < 0 ||
       !Number.isInteger(Number(formData.default_reorder_point))
@@ -227,8 +222,6 @@ export default function EditProductModal({
       String(formData.default_reorder_point),
       product.default_reorder_point,
     );
-
-    appendIfChanged('cost_price', formData.cost_price, product.cost_price);
 
     appendIfChanged(
       'selling_price',
@@ -509,32 +502,6 @@ export default function EditProductModal({
 
       {/* Pricing */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-            Cost Price (₦)
-          </label>
-
-          <input
-            type="number"
-            name="cost_price"
-            step="0.01"
-            min="0"
-            value={formData.cost_price}
-            onChange={handleInputChange}
-            className={`w-full bg-slate-50 border rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden transition-all ${
-              fieldErrors.cost_price
-                ? 'border-rose-400 bg-rose-50/20 focus:border-rose-500'
-                : 'border-slate-200 focus:border-blue-500 focus:bg-white'
-            }`}
-          />
-
-          {fieldErrors.cost_price && (
-            <p className="text-[11px] text-rose-600 mt-1 font-medium">
-              {fieldErrors.cost_price}
-            </p>
-          )}
-        </div>
-
         <div>
           <label className="block text-xs font-semibold text-slate-700 mb-1.5">
             Default Reorder Point

@@ -3,7 +3,6 @@ import {
   ShoppingCart,
   Plus,
   Truck,
-  Eye,
   Search,
   ArrowUpDown,
   ArrowLeftRight,
@@ -13,7 +12,6 @@ import { useQuery } from '@tanstack/react-query';
 import {
   PurchaseOrderStatus,
   type IPurchaseOrder,
-  type IPurchaseOrderItem,
 } from '@/interfaces/purchase_order.interface';
 import type { IDataTableColumn } from '@/interfaces/data_table';
 
@@ -27,7 +25,7 @@ export const PurchaseOrdersPage: React.FC = () => {
   const [selectedPoId, setSelectedPoId] = useState<string | null>(null);
 
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
@@ -67,7 +65,7 @@ export const PurchaseOrdersPage: React.FC = () => {
     return <ErrorPage message="Failed to load purchase orders" />;
   }
 
-  const orders = purchaseOrdersData.data?.purchase_orders ?? [];
+  const orders = purchaseOrdersData.purchase_orders ?? [];
 
   const handlePageChange = (nextPage: number) => {
     setPage(nextPage);
@@ -126,110 +124,109 @@ export const PurchaseOrdersPage: React.FC = () => {
       timeStyle: 'short',
     }).format(date);
   };
-
   const poColumns: IDataTableColumn<IPurchaseOrder>[] = [
     {
       key: 'po_number',
       header: 'PO Number',
-      render: (po) => (
-        <span className="font-mono font-bold text-sky-600">{po.po_number}</span>
+      render: ({ po_number }) => (
+        <span className="font-mono font-bold text-sky-600">{po_number}</span>
       ),
     },
     {
       key: 'supplier_name',
       header: 'Supplier',
-      render: (po) => (
+      render: ({ supplier_name }) => (
         <span className="flex items-center gap-1.5 font-medium text-slate-800">
           <Truck size={13} className="text-slate-400" />
-          {po.supplier_name}
+          {supplier_name}
         </span>
       ),
     },
     {
       key: 'status',
       header: 'Status',
-      render: (po) => (
+      render: ({ status }) => (
         <span
           className={`rounded border px-2 py-0.5 text-[10px] font-bold ${getStatusBadge(
-            po.status,
+            status,
           )}`}
         >
-          {po.status}
+          {status}
         </span>
       ),
     },
     {
       key: 'total_estimated_cost',
       header: 'Est. Total Cost',
-      render: (po) => (
+      render: ({ total_estimated_cost }) => (
         <span className="font-bold text-slate-900">
-          {formatCurrency(po.total_estimated_cost)}
+          {formatCurrency(total_estimated_cost)}
         </span>
       ),
     },
     {
       key: 'items_count',
       header: 'Items',
-      render: (po) => `${po.items?.length ?? 0} item(s)`,
+      render: ({ items_count }) => `${items_count ?? 0} item(s)`, // Updated to use backend items_count
     },
     {
       key: 'created_at',
       header: 'Created Date',
-      render: (po) => (
+      render: ({ created_at }) => (
         <span className="text-slate-500">
-          {formatDate(po.created_at.toString())}
+          {formatDate(created_at.toString())}
         </span>
       ),
     },
   ];
 
-  const itemColumns: IDataTableColumn<IPurchaseOrderItem>[] = [
-    {
-      key: 'product_id',
-      header: 'Product ID',
-      render: (item) => (
-        <span className="font-mono text-slate-500">{item.product_id}</span>
-      ),
-    },
-    {
-      key: 'product_name',
-      header: 'Product Name',
-      render: (item) => (
-        <span className="text-slate-800">{item.product_name}</span>
-      ),
-    },
-    {
-      key: 'quantity_requested',
-      header: 'Qty Requested',
-      render: (item) => (
-        <span className="font-semibold text-slate-900">
-          {item.quantity_requested}
-        </span>
-      ),
-    },
-    {
-      key: 'estimated_unit_cost',
-      header: 'Est. Unit Cost',
-      render: (item) => (
-        <span className="text-slate-700">
-          {formatCurrency(item.estimated_unit_cost)}
-        </span>
-      ),
-    },
-    {
-      key: 'line_total',
-      header: 'Line Total',
-      render: (item) => (
-        <span className="font-semibold text-sky-600">
-          {formatCurrency(item.quantity_requested * item.estimated_unit_cost)}
-        </span>
-      ),
-    },
-  ];
+  // const itemColumns: IDataTableColumn<IPurchaseOrderItem>[] = [
+  //   {
+  //     key: 'product_id',
+  //     header: 'Product ID',
+  //     render: (item) => (
+  //       <span className="font-mono text-slate-500">{item.product_id}</span>
+  //     ),
+  //   },
+  //   {
+  //     key: 'product_name',
+  //     header: 'Product Name',
+  //     render: (item) => (
+  //       <span className="text-slate-800">{item.product_name}</span>
+  //     ),
+  //   },
+  //   {
+  //     key: 'quantity_requested',
+  //     header: 'Qty Requested',
+  //     render: (item) => (
+  //       <span className="font-semibold text-slate-900">
+  //         {item.quantity_requested}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     key: 'estimated_unit_cost',
+  //     header: 'Est. Unit Cost',
+  //     render: (item) => (
+  //       <span className="text-slate-700">
+  //         {formatCurrency(item.estimated_unit_cost)}
+  //       </span>
+  //     ),
+  //   },
+  //   {
+  //     key: 'line_total',
+  //     header: 'Line Total',
+  //     render: (item) => (
+  //       <span className="font-semibold text-sky-600">
+  //         {formatCurrency(item.quantity_requested * item.estimated_unit_cost)}
+  //       </span>
+  //     ),
+  //   },
+  // ];
 
-  const selectedOrder = orders.find(
-    (order: IPurchaseOrder) => order.id === selectedPoId,
-  );
+  // const selectedOrder = orders.find(
+  //   (order: IPurchaseOrder) => order.id === selectedPoId,
+  // );
 
   return (
     <div className="space-y-6 p-6">
@@ -258,11 +255,9 @@ export const PurchaseOrdersPage: React.FC = () => {
 
       {/* Purchase Orders Table */}
       <DataTable<IPurchaseOrder>
-        records={
-          purchaseOrdersData.data?.purchase_orders ?? ([] as IPurchaseOrder[])
-        }
+        records={orders}
         columns={poColumns}
-        meta={purchaseOrdersData.data?.meta}
+        meta={purchaseOrdersData.meta}
         isLoading={isLoading}
         isPlaceholderData={isPlaceholderData}
         getRowKey={(record: IPurchaseOrder) => record.id}
@@ -312,7 +307,7 @@ export const PurchaseOrdersPage: React.FC = () => {
       />
 
       {/* Selected PO Items */}
-      {selectedOrder && (
+      {/* {selectedOrder && (
         <div className="space-y-3 rounded-xl border border-slate-200/80 bg-white p-4 shadow-xs">
           <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500">
             <Eye size={14} className="text-sky-600" />
@@ -325,7 +320,7 @@ export const PurchaseOrdersPage: React.FC = () => {
             getRowKey={(record: IPurchaseOrderItem) => record.id}
           />
         </div>
-      )}
+      )} */}
     </div>
   );
 };

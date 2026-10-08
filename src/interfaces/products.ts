@@ -34,7 +34,7 @@ export interface ICreateProductFormData {
   name: string;
   description: string;
   category_id: string;
-  cost_price: string;
+  sku: string;
   selling_price: string;
   uom_type: UomType;
   uom_base_name: UomBaseName;
@@ -71,7 +71,7 @@ export interface IProduct {
   name: string;
   description?: string | null;
   images: ICloudinaryImage[];
-  cost_price: number;
+  sku: string;
   selling_price: number;
   uom_type: UomType;
   uom_base_name: UomBaseName;

@@ -1,4 +1,4 @@
-import { Plus, Search, Filter, ArrowUpDown } from 'lucide-react';
+import { Search, Filter, ArrowUpDown } from 'lucide-react';
 
 interface StocksHeaderProps {
   totalStocks: number;
@@ -8,7 +8,6 @@ interface StocksHeaderProps {
   onSortChange: (value: string) => void;
   sortOrder: 'ASC' | 'DESC';
   onToggleSortOrder: () => void;
-  onOpenCreateModal: () => void;
 }
 
 export const StocksHeader = ({
@@ -19,7 +18,6 @@ export const StocksHeader = ({
   onSortChange,
   sortOrder,
   onToggleSortOrder,
-  onOpenCreateModal,
 }: StocksHeaderProps) => {
   return (
     <div className="space-y-6">
@@ -33,14 +31,6 @@ export const StocksHeader = ({
             Monitor current stock balances across your stores.
           </p>
         </div>
-
-        <button
-          onClick={onOpenCreateModal}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors cursor-pointer shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          Initialize Stock
-        </button>
       </div>
 
       {/* Overview Cards */}

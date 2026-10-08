@@ -14,18 +14,20 @@ export interface IPurchaseOrderItem {
   product_id: string;
   product_name: string;
   quantity_requested: number;
+  quantity_received: number;
   estimated_unit_cost: number;
+  total_cost: number;
 }
 
 export interface IPurchaseOrder {
   id: string;
   po_number: string;
   supplier_name: string;
+
   status: PurchaseOrderStatus;
   total_estimated_cost: number;
-  createdAt: string;
-  items: IPurchaseOrderItem[];
-  created_at: Date;
-  updated_at: Date;
-  deleted_at: Date | null;
+  items_count?: number; // Added for the list view count
+
+  approved_by_id?: string;
+  created_at: string | Date;
 }

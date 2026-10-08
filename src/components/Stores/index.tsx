@@ -27,7 +27,7 @@ const StoresPage = () => {
   const [selectedSort, setSelectedSort] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(6);
 
   const debouncedSearch = useDebouncedValue(searchQuery, 500);
 
