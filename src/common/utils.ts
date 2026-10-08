@@ -33,7 +33,10 @@ export const getChangedFields = (
     return [];
   }
 
-  const fields = new Set([...Object.keys(old_value), ...Object.keys(newValue)]);
+  const fields = new Set([
+    ...Object.keys(old_value),
+    ...Object.keys(new_value),
+  ]);
 
   return Array.from(fields)
     .filter(
