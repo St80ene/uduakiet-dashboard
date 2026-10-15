@@ -1,22 +1,18 @@
-import React, { useCallback, useMemo, useState } from 'react';
-import { useLocation, useNavigate, Link } from 'react-router-dom';
-import { Megaphone } from 'lucide-react';
+import React, { useCallback, useMemo } from 'react';
+import { useLocation, Link } from 'react-router-dom';
+import { Megaphone, Plus, Search } from 'lucide-react';
 
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { UserRole } from '@/enum/role';
+import { UserPermission } from '@/enum/user_permission.enum'; // Updated import
 
-import { NAV_SECTIONS, type NavItem } from './NavItems';
-import type { ViewPermission } from '@/enum/view_permission.enum';
+import { NAV_SECTIONS, type NavItem, type NavSection } from './NavItems';
 import { UduaKietLogo } from '@/common/AppLogo';
-import { NavFooter } from './NavFooter';
-import { NavSections, type NavSectionsProps } from './NavSections';
+import { NavSections } from './NavSections';
 import { useNotice } from '@/services/auth/context/NoticeContext';
 
 export const SideNav: React.FC = () => {
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const navigate = useNavigate();
-  const { logout, user } = useAuth();
-
+  const { user } = useAuth();
   const { notices, currentUserId } = useNotice();
   const location = useLocation();
 
@@ -31,18 +27,18 @@ export const SideNav: React.FC = () => {
 
   const userPermissions = useMemo(
     () =>
-      new Set(
+      new Set<UserPermission>(
         user?.role?.rolePermissions?.map(
-          (role_permission) => role_permission.permission.name,
+          (role_permission) =>
+            role_permission.permission.name as UserPermission,
         ) ?? [],
       ),
     [user?.role?.rolePermissions],
   );
 
-  const hasViewPermission = useCallback(
-    (permission: ViewPermission): boolean => {
+  const hasPermission = useCallback(
+    (permission: UserPermission): boolean => {
       if (isSuperAdmin) return true;
-
       return userPermissions.has(permission);
     },
     [isSuperAdmin, userPermissions],
@@ -51,14 +47,15 @@ export const SideNav: React.FC = () => {
   const canAccessNavItem = useCallback(
     (item: NavItem): boolean => {
       if (!item.permissions || item.permissions.length === 0) return true;
-      if (item.permissionMode === 'any')
-        return item.permissions.some(hasViewPermission);
-      return item.permissions.every(hasViewPermission);
+      if (item.permissionMode === 'any') {
+        return item.permissions.some(hasPermission);
+      }
+      return item.permissions.every(hasPermission);
     },
-    [hasViewPermission],
+    [hasPermission],
   );
 
-  const visibleSections: NavSectionsProps[] = useMemo(
+  const visibleSections: NavSection[] = useMemo(
     () =>
       NAV_SECTIONS.map((section) => ({
         ...section,
@@ -67,91 +64,101 @@ export const SideNav: React.FC = () => {
     [canAccessNavItem],
   );
 
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-    setIsLoggingOut(true);
-    try {
-      await logout();
-      navigate('/login', { replace: true });
-    } catch (error) {
-      console.error('Logout failed:', error);
-      setIsLoggingOut(false);
-    }
-  };
-
   return (
     <aside
       aria-label="Main Navigation"
       className="
         flex h-full w-64 shrink-0
-        select-none flex-col
-        justify-between
-        border-r border-slate-800
-        bg-slate-950
-        text-slate-400
+        select-none flex-col justify-between
+        border-r border-slate-200/70
+        bg-[#F7F6F0]
+        text-slate-700
+        px-3 py-4 overflow-hidden
       "
     >
-      {/* =====================================================
-          TOP SECTION
-      ====================================================== */}
-      <div className="flex-1 min-h-0 overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-800">
-        {/* APP LOGO */}
-        <div className="sticky top-0 z-10 flex items-center gap-3 border-b border-slate-800 bg-slate-950 p-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400">
-            <UduaKietLogo className="w-4 h-4" />
+      {/* ================= TOP SECTION: BRAND & NAVIGATION ================= */}
+      <div className="space-y-4">
+        {/* LOGO */}
+        <div className="flex items-center gap-3 px-2 py-1">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-lime-400 shadow-sm">
+            <UduaKietLogo className="w-5 h-5" />
           </div>
           <div>
-            <span className="font-bold tracking-wide text-white text-sm">
+            <span className="font-bold tracking-tight text-slate-900 text-base">
               UduaKiet
             </span>
-            <p className="text-[10px] text-slate-500">Inventory System</p>
+            <p className="text-[10px] text-slate-500 font-medium">
+              Inventory System
+            </p>
           </div>
         </div>
 
-        {/* NAVIGATION SECTIONS */}
-        <NavSections visibleSections={visibleSections} />
-
-        {/* =====================================================
-            NOTICE BOARD QUICK LINK SECTION
-        ====================================================== */}
-        <div className="px-3 py-3 mt-2 border-t border-slate-900/80">
-          <Link
-            to="/notices/feeds"
-            className={`flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors group ${
-              location.pathname.startsWith('/notices')
-                ? 'bg-indigo-600/20 border border-indigo-500/30 text-indigo-300'
-                : 'bg-slate-900/60 hover:bg-slate-900 border border-slate-800/80 text-slate-300'
-            }`}
-          >
-            <div className="flex items-center gap-2.5">
-              <Megaphone className="w-4 h-4 text-indigo-400 group-hover:scale-110 transition-transform" />
-              <span className="text-xs font-semibold">Notice Board</span>
-            </div>
-            {pendingNoticeCount > 0 && (
-              <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold animate-pulse">
-                {pendingNoticeCount}
-              </span>
-            )}
-          </Link>
-          {/* NEW: Publish Notice Button */}
-          <Link
-            to="/notices/publish"
-            className={`flex items-center gap-2.5 px-3 py-3 mt-3 rounded-lg transition-colors text-xs font-medium ${
-              location.pathname === '/notices/publish'
-                ? 'bg-indigo-600 text-white'
-                : 'text-slate-400 hover:bg-slate-900 hover:text-slate-200'
-            }`}
-          >
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-400" />
-            <span>Publish Announcement</span>
-          </Link>
+        {/* SEARCH */}
+        <div className="relative px-1">
+          <Search className="w-3.5 h-3.5 absolute left-3.5 top-2.5 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search inventory..."
+            className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200/80 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all shadow-2xs"
+          />
         </div>
+
+        {/* COLLAPSIBLE PAGE CATEGORIES */}
+        <NavSections visibleSections={visibleSections} />
       </div>
 
-      {/* =====================================================
-          BOTTOM SECTION
-      ====================================================== */}
-      <NavFooter handleLogout={handleLogout} isLoggingOut={isLoggingOut} />
+      {/* ================= BOTTOM SECTION: ANNOUNCEMENTS & USER ================= */}
+      <div className="pt-2 border-t border-slate-200/60 space-y-1 px-1">
+        {/* NOTICE BOARD FULL FEED LINK */}
+        <Link
+          to="/notices/feeds"
+          className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold ${
+            location.pathname.startsWith('/notices')
+              ? 'bg-[#EBEBE2] text-slate-900'
+              : 'text-slate-600 hover:bg-[#EBEBE2]/70 hover:text-slate-900'
+          }`}
+        >
+          <div className="flex items-center gap-2.5">
+            <Megaphone className="w-3.5 h-3.5 text-slate-500" />
+            <span>Notice Board</span>
+          </div>
+          {pendingNoticeCount > 0 && (
+            <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+              {pendingNoticeCount}
+            </span>
+          )}
+        </Link>
+
+        {/* PUBLISH ANNOUNCEMENT ACTION (Super Admin or Authorized) */}
+        {isSuperAdmin && (
+          <Link
+            to="/notices/publish"
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-colors text-[11px] font-medium ${
+              location.pathname === '/notices/publish'
+                ? 'bg-[#EBEBE2] text-slate-900 font-bold'
+                : 'text-slate-500 hover:text-slate-900 hover:bg-[#EBEBE2]/40'
+            }`}
+          >
+            <Plus className="w-3.5 h-3.5 text-slate-400" />
+            <span>Publish Announcement</span>
+          </Link>
+        )}
+
+        {/* USER PROFILE INFO */}
+        <div className="pt-2 mt-1 border-t border-slate-200/60 flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
+            {user?.first_name ?? 'U'}
+          </div>
+          <div className="text-left min-w-0">
+            <p className="text-xs font-bold text-slate-900 truncate">
+              {user?.first_name ?? 'Account'}
+            </p>
+            <p className="text-[10px] text-slate-500 capitalize truncate">
+              {currentRole.toLowerCase()}
+            </p>
+          </div>
+        </div>
+      </div>
     </aside>
   );
 };

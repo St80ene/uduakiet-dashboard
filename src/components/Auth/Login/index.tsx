@@ -69,7 +69,7 @@ export default function Login() {
    * cashier.ohs@uduakiet.com,
    * Test@123!#
    */
-  const [email, setEmail] = useState('superadmin.ams@uduakiet.com');
+  const [email, setEmail] = useState('cashier.ams@uduakiet.com');
   const [password, setPassword] = useState('Test@123!#');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
