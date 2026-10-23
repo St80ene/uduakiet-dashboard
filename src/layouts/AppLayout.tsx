@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Bell, Sparkles, LogOut, X, Puzzle, ArrowRight } from 'lucide-react';
+import { Bell, Sparkles, LogOut, X } from 'lucide-react';
 
 import { SideNav } from '../components/Nav/SideNav';
 import { useAuth } from '@/services/auth/hooks/useAuth';
@@ -9,7 +9,7 @@ import { useUnreadCount } from '@/hooks/useNotification.hook';
 
 export default function AppLayout() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  // const [setIsAiModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ export default function AppLayout() {
             </div>
 
             <button
-              onClick={() => setIsAiModalOpen(true)}
+              // onClick={() => setIsAiModalOpen(true)}
               className="flex items-center gap-2 px-3 py-1 rounded-full bg-lime-300 hover:bg-lime-400 text-slate-900 border border-slate-900/10 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-slate-900" />
