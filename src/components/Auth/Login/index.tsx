@@ -24,6 +24,7 @@ import { MicrosoftIcon } from './icons/Microsoft';
 import { AppleIcon } from './icons/Apple';
 import { UduaKietLogo } from '@/common/AppLogo';
 import SplashScreen from '@/common/SplashScreen';
+import { useUnreadCount } from '@/hooks/useNotification.hook';
 
 const chartData = [35, 50, 42, 68, 55, 75, 62, 88, 72, 94, 82, 100];
 
@@ -58,8 +59,8 @@ const itemVariants = {
 export default function Login() {
   const navigate = useNavigate();
   const shouldReduceMotion = useReducedMotion();
-
   const { login, isAuthenticated, isLoading } = useAuth();
+  const { data: unreadCount } = useUnreadCount(isAuthenticated);
 
   // For testing purposes, you can use the following credentials to log in:
   /**
@@ -69,7 +70,7 @@ export default function Login() {
    * cashier.ohs@uduakiet.com,
    * Test@123!#
    */
-  const [email, setEmail] = useState('cashier.ams@uduakiet.com');
+  const [email, setEmail] = useState('manager.ams@uduakiet.com');
   const [password, setPassword] = useState('Test@123!#');
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -212,7 +213,10 @@ export default function Login() {
                 transition={{ duration: 0.45 }}
                 className="mb-5 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/5 px-3.5 py-1 text-[11px] font-medium text-cyan-300 backdrop-blur-md"
               >
-                <Activity size={12} className="animate-pulse text-cyan-400" />
+                <Activity
+                  size={unreadCount}
+                  className="animate-pulse text-cyan-400"
+                />
                 Live store tracking is active
               </motion.div>
 
