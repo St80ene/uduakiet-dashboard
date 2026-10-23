@@ -1,12 +1,12 @@
 import type { LucideIcon } from 'lucide-react';
-import { ViewPermission } from '@/enum/view_permission.enum';
+import { UserPermission } from '@/enum/user_permission.enum';
 import {
   ArrowLeftRight,
   BarChart3,
   Boxes,
   FileText,
   LayoutDashboard,
-  Link,
+  Link as LinkIcon,
   Package,
   Settings,
   ShoppingCart,
@@ -22,7 +22,7 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   badge?: string | number;
-  permissions?: ViewPermission[];
+  permissions?: UserPermission[]; // Updated type
   permissionMode?: 'all' | 'any';
 }
 
@@ -42,13 +42,13 @@ export const NAV_SECTIONS: NavSection[] = [
         to: '/dashboard',
         label: 'Dashboard',
         icon: LayoutDashboard,
-        permissions: [ViewPermission.DASHBOARD_VIEW],
+        permissions: [UserPermission.DASHBOARD_VIEW],
       },
       {
         to: '/reports',
         label: 'Reports',
         icon: BarChart3,
-        permissions: [ViewPermission.REPORTS_VIEW],
+        permissions: [UserPermission.REPORT_VIEW],
       },
     ],
   },
@@ -63,25 +63,25 @@ export const NAV_SECTIONS: NavSection[] = [
         to: '/products',
         label: 'Products',
         icon: Package,
-        permissions: [ViewPermission.PRODUCTS_VIEW],
+        permissions: [UserPermission.PRODUCT_READ],
       },
       {
         to: '/stocks',
         label: 'Stocks',
         icon: Boxes,
-        permissions: [ViewPermission.STOCKS_VIEW],
+        permissions: [UserPermission.STOCK_READ],
       },
       {
         to: '/categories',
         label: 'Categories',
         icon: Tags,
-        permissions: [ViewPermission.CATEGORIES_VIEW],
+        permissions: [UserPermission.CATEGORY_READ],
       },
       {
         to: '/stock-movements',
         label: 'Stock Movements',
         icon: ArrowLeftRight,
-        permissions: [ViewPermission.STOCK_MOVEMENTS_VIEW],
+        permissions: [UserPermission.STOCK_MOVEMENT_READ],
       },
     ],
   },
@@ -96,19 +96,19 @@ export const NAV_SECTIONS: NavSection[] = [
         to: '/purchase-orders',
         label: 'Purchase Orders',
         icon: ShoppingCart,
-        permissions: [ViewPermission.PURCHASE_ORDERS_VIEW],
+        permissions: [UserPermission.PURCHASE_READ],
       },
       {
         to: '/suppliers',
         label: 'Suppliers',
         icon: Truck,
-        permissions: [ViewPermission.SUPPLIERS_VIEW],
+        permissions: [UserPermission.SUPPLIER_READ],
       },
       {
         to: '/product-sources',
         label: 'Product Sources',
-        icon: Link,
-        permissions: [ViewPermission.PRODUCT_SOURCES_VIEW],
+        icon: LinkIcon,
+        permissions: [UserPermission.PRODUCT_SOURCE_READ],
       },
     ],
   },
@@ -123,19 +123,20 @@ export const NAV_SECTIONS: NavSection[] = [
         to: '/stores',
         label: 'Stores',
         icon: Store,
-        permissions: [ViewPermission.STORES_VIEW],
+        permissions: [UserPermission.STORE_READ],
       },
       {
         to: '/users',
         label: 'Users',
         icon: Users,
-        permissions: [ViewPermission.USERS_VIEW],
+        permissions: [UserPermission.USER_READ, UserPermission.ROLE_READ],
+        permissionMode: 'any',
       },
       {
         to: '/audit-logs',
         label: 'Audit Logs',
         icon: FileText,
-        permissions: [ViewPermission.AUDIT_LOGS_VIEW],
+        permissions: [UserPermission.AUDIT_LOG_READ],
       },
     ],
   },
@@ -150,13 +151,13 @@ export const NAV_SECTIONS: NavSection[] = [
         to: '/settings/business',
         label: 'Business',
         icon: Settings,
-        permissions: [ViewPermission.BUSINESS_VIEW],
+        permissions: [UserPermission.BUSINESS_SETTINGS_READ],
       },
       {
         to: '/settings/profile',
         label: 'Profile',
         icon: UserCircle,
-        permissions: [ViewPermission.PROFILE_VIEW],
+        // No permission required for personal profile view
       },
     ],
   },

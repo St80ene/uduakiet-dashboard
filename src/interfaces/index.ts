@@ -25,6 +25,7 @@ export interface IBasePaginationParams {
   limit?: number;
   search?: string;
   order?: 'ASC' | 'DESC';
+  cursor?: string;
   [key: string]: unknown;
 }
 
