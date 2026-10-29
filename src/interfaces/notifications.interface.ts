@@ -1,3 +1,16 @@
+export interface LowStockEvent {
+  event_id: string;
+  business_id: string;
+  store_id: string;
+  product_id: string;
+  current_quantity: number;
+  reorder_point: number;
+  is_out_of_stock: boolean;
+  occurred_at: Date;
+  product_name: string;
+  store_name: string;
+}
+
 export interface INotification {
   id: string;
   business_id: string;
@@ -8,6 +21,6 @@ export interface INotification {
   title: string;
   message: string;
   is_read?: boolean;
-  data?: Record<string, unknown> | null;
+  data: LowStockEvent;
   created_at: Date | string;
 }

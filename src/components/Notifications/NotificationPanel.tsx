@@ -1,28 +1,35 @@
 import React, { useMemo, useState, type UIEvent } from 'react';
 import {
-  CheckCircle2,
   Inbox,
-  ArrowUpRight,
   Package,
   ShoppingCart,
   TrendingDown,
   Info,
   Loader2,
+  ChevronRight,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   useInfiniteNotifications,
   useMarkAllNotificationsAsRead,
   useMarkNotificationAsRead,
-  useUnreadCount,
 } from '@/hooks/useNotification.hook';
 import type { INotification } from '@/interfaces/notifications.interface';
 
-export const NotificationPanel: React.FC = () => {
+interface NotificationPanelProps {
+  unreadCount: number;
+  loadLatestCount: (isMounted: boolean) => void;
+}
+
+export const NotificationPanel: React.FC<NotificationPanelProps> = ({
+  unreadCount,
+  loadLatestCount,
+}) => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'unread' | 'all'>('unread');
 
   // Determine if we should filter by unread in the API call
-  const isReadFilter = activeTab === 'unread' ? false : undefined;
+  const is_read_filter = activeTab === 'unread' ? false : undefined;
 
   // 1. Fetch infinite notifications using cursor-based pagination
   const {
@@ -33,12 +40,9 @@ export const NotificationPanel: React.FC = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = useInfiniteNotifications(isReadFilter);
+  } = useInfiniteNotifications(is_read_filter);
 
-  // 2. Fetch total unread count for badge display
-  const { data: unreadCount = 0 } = useUnreadCount();
-
-  // 3. Mutations for marking items as read
+  // 2. Mutations for marking items as read
   const markOneMutation = useMarkNotificationAsRead();
   const markAllMutation = useMarkAllNotificationsAsRead();
 
@@ -67,23 +71,31 @@ export const NotificationPanel: React.FC = () => {
       return;
     }
     markOneMutation.mutate(id);
+    loadLatestCount(true);
+  };
+
+  const handleUserAction = (id: string) => {
+    handleMarkAsRead(id);
+    loadLatestCount(true);
+    navigate('/purchase-orders', { replace: true });
   };
 
   // Mark all notifications as read
   const handleMarkAllAsRead = () => {
     if (markAllMutation.isPending) return;
     markAllMutation.mutate();
+    loadLatestCount(true);
   };
 
   // Resolve badge icon and styling
   const getEventBadge = (type: string) => {
     const lower = (type || '').toLowerCase();
 
-    if (lower.includes('stock') || lower.includes('inventory')) {
+    if (lower.includes('stock.low_detected')) {
       return {
         icon: TrendingDown,
         badgeClass: 'bg-amber-100 text-amber-700',
-        label: 'Stock Alert',
+        label: 'Low Stock Alert',
       };
     }
 
@@ -150,7 +162,7 @@ export const NotificationPanel: React.FC = () => {
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            All ({notifications.length})
+            All ({is_read_filter === undefined && `${notifications.length}`})
           </button>
         </div>
       </div>
@@ -201,6 +213,8 @@ export const NotificationPanel: React.FC = () => {
               const badge = getEventBadge(item.type);
               const BadgeIcon = badge.icon;
 
+              const store_name: string = item.data?.store_name || 'Global';
+
               const isProcessing =
                 markOneMutation.isPending &&
                 markOneMutation.variables === item.id;
@@ -243,21 +257,11 @@ export const NotificationPanel: React.FC = () => {
                   </div>
 
                   <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-100">
-                    {item.data?.link ? (
-                      <Link
-                        to={item.data.link}
-                        className="text-[11px] font-bold text-slate-800 hover:text-slate-900 flex items-center gap-1"
-                      >
-                        <span>View item</span>
-                        <ArrowUpRight className="w-3 h-3 text-slate-400" />
-                      </Link>
-                    ) : (
-                      <span className="text-[10px] text-slate-400">
-                        Store: {item.store_id || 'Global'}
-                      </span>
-                    )}
+                    <span className="text-[10px] text-slate-400">
+                      Store: {store_name}
+                    </span>
 
-                    {!item.is_read && (
+                    {/* {!item.is_read && (
                       <button
                         onClick={() => handleMarkAsRead(item.id)}
                         disabled={isProcessing || markAllMutation.isPending}
@@ -266,7 +270,16 @@ export const NotificationPanel: React.FC = () => {
                         <CheckCircle2 className="w-3 h-3" />
                         <span>{isProcessing ? 'Saving...' : 'Done'}</span>
                       </button>
-                    )}
+                    )} */}
+                    <button
+                      onClick={() => handleUserAction(item.id)}
+                      disabled={isProcessing || markAllMutation.isPending}
+                      className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
+                    >
+                      {/* <CheckCircle2 className="w-3 h-3" /> */}
+                      <span>Go to Purchase Order</span>
+                      <ChevronRight className="w-3 h-3" />
+                    </button>
                   </div>
                 </div>
               );

@@ -16,11 +16,7 @@ export interface NotificationsResponse {
 export interface INotificationPaginationParams {
   cursor?: string; // ID of the last item from the previous page
   limit?: number; // Number of items per batch (default 20)
-  isRead?: boolean;
-}
-
-export interface UnreadCountResponse {
-  unreadCount: number;
+  is_read?: boolean;
 }
 
 export const notificationsService = {
@@ -34,7 +30,7 @@ export const notificationsService = {
       params: {
         cursor: params.cursor, // Sent only if defined
         limit: params.limit ?? 20,
-        isRead: params.isRead,
+        is_read: params.is_read,
       },
     });
 
@@ -44,8 +40,8 @@ export const notificationsService = {
   /**
    * Get total unread count for current user
    */
-  getUnreadCount: async (): Promise<IApiResponse<UnreadCountResponse>> => {
-    const response = await apiClient.get<IApiResponse<UnreadCountResponse>>(
+  getUnreadCount: async () => {
+    const response = await apiClient.get(
       `${NOTIFICATIONS_RESOURCE}/unread-count`,
     );
 
