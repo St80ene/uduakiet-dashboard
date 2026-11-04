@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import {
   Boxes,
   Download,
@@ -37,9 +37,9 @@ import type { ISupplier } from '@/interfaces/supplier';
 interface ProductSourceRow extends IProductSource {
   product_name?: string;
   supplier_name?: string;
-  is_primary?: boolean;
+  is_primary: boolean;
   supplier_sku?: string;
-  cost_price?: number;
+  cost_price: number;
   estimated_lead_time_days?: number;
 }
 
@@ -83,7 +83,7 @@ export const ProductSources: React.FC = () => {
 
   // Unified form input change handler
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
 
