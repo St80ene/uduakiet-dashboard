@@ -1,6 +1,5 @@
+import type { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
 import React, { useState } from 'react';
-
-type PurchaseOrderStatus = 'DRAFT' | 'APPROVED' | 'RECEIVED' | 'CANCELLED';
 
 interface PurchaseOrder {
   id: string;

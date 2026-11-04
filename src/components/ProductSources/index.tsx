@@ -10,6 +10,10 @@ import {
   Edit2,
   X,
   Loader2,
+  CheckCircle2,
+  Tag,
+  Clock,
+  DollarSign,
 } from 'lucide-react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -33,7 +37,20 @@ import type { ISupplier } from '@/interfaces/supplier';
 interface ProductSourceRow extends IProductSource {
   product_name?: string;
   supplier_name?: string;
+  is_primary?: boolean;
+  supplier_sku?: string;
+  cost_price?: number;
+  estimated_lead_time_days?: number;
 }
+
+const initialFormState = {
+  product_id: '',
+  supplier_id: '',
+  supplier_sku: '',
+  cost_price: '',
+  estimated_lead_time_days: '',
+  is_primary: false,
+};
 
 export const ProductSources: React.FC = () => {
   const queryClient = useQueryClient();
@@ -51,19 +68,32 @@ export const ProductSources: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSort, setSelectedSort] = useState('created_at');
   const [sortOrder, setSortOrder] = useState<'ASC' | 'DESC'>('DESC');
-  const [isSubmitting] = useState<true | false>(false);
+  const [isSubmitting] = useState<boolean>(false);
 
   const debouncedSearch = useDebouncedValue(searchQuery.trim(), 350);
 
   // ---------------------------------------------------------------------------
-  // Modal State
+  // Modal & Consolidated Form State
   // ---------------------------------------------------------------------------
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSource, setEditingSource] = useState<IProductSource | null>(
     null,
   );
-  const [productIdInput, setProductIdInput] = useState('');
-  const [supplierIdInput, setSupplierIdInput] = useState('');
+  const [formData, setFormData] = useState(initialFormState);
+
+  // Unified form input change handler
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+      const { checked } = e.target as HTMLInputElement;
+      setFormData((prev) => ({ ...prev, [name]: checked }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
 
   // ---------------------------------------------------------------------------
   // Query
@@ -109,12 +139,19 @@ export const ProductSources: React.FC = () => {
 
   const suppliers = suppliersData?.suppliers || [];
   const products = productsData?.products || [];
+
   // ---------------------------------------------------------------------------
   // Mutations
   // ---------------------------------------------------------------------------
   const createMutation = useMutation({
-    mutationFn: (formData: { product_id: string; supplier_id: string }) =>
-      productSourceService.createProductSource(formData),
+    mutationFn: (payload: {
+      product_id: string;
+      supplier_id: string;
+      supplier_sku?: string;
+      cost_price: number;
+      estimated_lead_time_days?: number;
+      is_primary: boolean;
+    }) => productSourceService.createProductSource(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product_sources'] });
       closeModal();
@@ -124,14 +161,18 @@ export const ProductSources: React.FC = () => {
   const updateMutation = useMutation({
     mutationFn: ({
       id,
-      formData,
+      payload,
     }: {
       id: string;
-      formData: {
+      payload: {
         product_id: string;
         supplier_id: string;
+        supplier_sku?: string;
+        cost_price: number;
+        estimated_lead_time_days?: number;
+        is_primary: boolean;
       };
-    }) => productSourceService.updateProductSource(id, formData),
+    }) => productSourceService.updateProductSource(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['product_sources'] });
       closeModal();
@@ -165,46 +206,104 @@ export const ProductSources: React.FC = () => {
 
   const handleOpenCreateModal = () => {
     setEditingSource(null);
-    setProductIdInput('');
-    setSupplierIdInput('');
+    setFormData(initialFormState);
     setIsModalOpen(true);
   };
 
-  const handleOpenEditModal = (source: IProductSource) => {
+  const handleOpenEditModal = (source: ProductSourceRow) => {
     setEditingSource(source);
-    setProductIdInput(source.product_id || '');
-    setSupplierIdInput(source.supplier_id || '');
+    setFormData({
+      product_id: source.product_id || '',
+      supplier_id: source.supplier_id || '',
+      supplier_sku: source.supplier_sku || '',
+      cost_price: source.cost_price?.toString() || '',
+      estimated_lead_time_days:
+        source.estimated_lead_time_days?.toString() || '',
+      is_primary: Boolean(source.is_primary),
+    });
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingSource(null);
-    setProductIdInput('');
-    setSupplierIdInput('');
+    setFormData(initialFormState);
   };
 
   const handleSubmitModal = (e: React.FormEvent) => {
     e.preventDefault();
 
+    const payload = {
+      product_id: formData.product_id,
+      supplier_id: formData.supplier_id,
+      supplier_sku: formData.supplier_sku.trim() || undefined,
+      cost_price: Number(formData.cost_price),
+      estimated_lead_time_days: formData.estimated_lead_time_days
+        ? Number(formData.estimated_lead_time_days)
+        : undefined,
+      is_primary: formData.is_primary,
+    };
+
     if (editingSource) {
       updateMutation.mutate({
         id: editingSource.id,
-        formData: {
-          product_id: productIdInput,
-          supplier_id: supplierIdInput,
-        },
+        payload,
       });
     } else {
-      createMutation.mutate({
-        product_id: productIdInput,
-        supplier_id: supplierIdInput,
-      });
+      createMutation.mutate(payload);
     }
   };
 
+  // ---------------------------------------------------------------------------
+  // Functional CSV Export Handler
+  // ---------------------------------------------------------------------------
   const handleExport = () => {
-    console.info('Product source mapping export requested');
+    const records = (data?.product_sources ?? []) as ProductSourceRow[];
+    if (records.length === 0) {
+      return;
+    }
+
+    const headers = [
+      'Product ID',
+      'Product Name',
+      'Supplier ID',
+      'Supplier Name',
+      'Supplier SKU',
+      'Cost Price',
+      'Lead Time (Days)',
+      'Is Primary',
+      'Linked Date',
+    ];
+
+    const rows = records.map((item) => [
+      item.product_id || '',
+      `"${(item.product?.name ?? item.product_name ?? '').replace(/"/g, '""')}"`,
+      item.supplier_id || '',
+      `"${(item.supplier?.name ?? item.supplier_name ?? '').replace(/"/g, '""')}"`,
+      `"${(item.supplier_sku || '').replace(/"/g, '""')}"`,
+      item.cost_price ?? 0,
+      item.estimated_lead_time_days ?? '',
+      item.is_primary ? 'Yes' : 'No',
+      item.created_at ? new Date(item.created_at).toISOString() : '',
+    ]);
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map((row) => row.join(',')),
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute(
+      'download',
+      `product_sources_${new Date().toISOString().split('T')[0]}.csv`,
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   // ---------------------------------------------------------------------------
@@ -230,18 +329,46 @@ export const ProductSources: React.FC = () => {
     },
     {
       key: 'supplier_name',
-      header: 'Supplier Source',
+      header: 'Supplier & SKU',
       render: (item) => (
         <div className="flex items-center gap-2">
           <Truck className="w-4 h-4 text-sky-500 shrink-0" />
           <div className="flex flex-col">
-            <span className="font-medium text-slate-700">
-              {item.supplier?.name ?? item.supplier_name ?? '—'}
-            </span>
-            <span className="text-[10px] text-slate-400 font-mono">
-              ID: {item.supplier_id}
+            <div className="flex items-center gap-1.5">
+              <span className="font-medium text-slate-700">
+                {item.supplier?.name ?? item.supplier_name ?? '—'}
+              </span>
+              {item.is_primary && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-full">
+                  <CheckCircle2 size={10} />
+                  Primary
+                </span>
+              )}
+            </div>
+            <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
+              <Tag size={10} /> {item.supplier_sku || 'No Supplier SKU'}
             </span>
           </div>
+        </div>
+      ),
+    },
+    {
+      key: 'cost_price',
+      header: 'Cost & Lead Time',
+      render: (item) => (
+        <div className="flex flex-col text-xs">
+          <span className="font-semibold text-slate-800 flex items-center">
+            <DollarSign size={12} className="text-emerald-600" />
+            {Number(item.cost_price || 0).toLocaleString('en-NG', {
+              minimumFractionDigits: 2,
+            })}
+          </span>
+          <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+            <Clock size={11} className="text-amber-500" />
+            {item.estimated_lead_time_days
+              ? `${item.estimated_lead_time_days} days lead time`
+              : 'Lead time not set'}
+          </span>
         </div>
       ),
     },
@@ -276,15 +403,12 @@ export const ProductSources: React.FC = () => {
   ];
 
   // ---------------------------------------------------------------------------
-  // Loading State
+  // Loading & Error States
   // ---------------------------------------------------------------------------
   if (isLoading) {
     return <LoadingScreen label="Fetching product source linkages..." />;
   }
 
-  // ---------------------------------------------------------------------------
-  // Error State
-  // ---------------------------------------------------------------------------
   if (isError) {
     return (
       <ErrorPage
@@ -311,7 +435,7 @@ export const ProductSources: React.FC = () => {
           </h1>
           <p className="text-xs text-slate-500 mt-1">
             Manage procurement provenance mapping linking catalog items to
-            registered primary suppliers.
+            registered suppliers with cost structures and primary status.
           </p>
         </div>
 
@@ -396,15 +520,15 @@ export const ProductSources: React.FC = () => {
         }
       />
 
-      {/* Create/Edit Modal */}
+      {/* Create/Edit Modal with Consolidated State */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden border border-slate-200">
+          <div className="bg-white rounded-xl shadow-xl max-w-lg w-full overflow-hidden border border-slate-200">
             <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50">
               <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <Boxes size={16} className="text-cyan-600" />
                 {editingSource
-                  ? 'Edit Product Source'
+                  ? 'Edit Product Source Mapping'
                   : 'Link New Product Source'}
               </h2>
               <button
@@ -416,19 +540,20 @@ export const ProductSources: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmitModal} className="p-4 space-y-4">
+              {/* Product Select */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Product
+                  Product <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="product_id"
-                  value={productIdInput}
-                  onChange={(e) => setProductIdInput(e.target.value)}
+                  required
+                  value={formData.product_id}
+                  onChange={handleInputChange}
                   disabled={isLoadingProducts || isSubmitting}
                   className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all cursor-pointer disabled:opacity-50"
                 >
                   <option value="">Select a Product...</option>
-
                   {products.map((product: IProduct) => (
                     <option key={product.id} value={product.id}>
                       {product.name}
@@ -437,19 +562,20 @@ export const ProductSources: React.FC = () => {
                 </select>
               </div>
 
+              {/* Supplier Select */}
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Supplier
+                  Supplier <span className="text-red-500">*</span>
                 </label>
                 <select
                   name="supplier_id"
-                  value={supplierIdInput}
-                  onChange={(e) => setSupplierIdInput(e.target.value)}
+                  required
+                  value={formData.supplier_id}
+                  onChange={handleInputChange}
                   disabled={isLoadingSuppliers || isSubmitting}
                   className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all cursor-pointer disabled:opacity-50"
                 >
                   <option value="">Select a Supplier...</option>
-
                   {suppliers.map((supplier: ISupplier) => (
                     <option key={supplier.id} value={supplier.id}>
                       {supplier.name}
@@ -458,7 +584,82 @@ export const ProductSources: React.FC = () => {
                 </select>
               </div>
 
-              <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
+              {/* Two Column Grid for Cost Price & Supplier SKU */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Cost Price (₦) <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    required
+                    name="cost_price"
+                    placeholder="0.00"
+                    value={formData.cost_price}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    Supplier SKU
+                  </label>
+                  <input
+                    type="text"
+                    name="supplier_sku"
+                    placeholder="e.g. SUP-SKU-123"
+                    value={formData.supplier_sku}
+                    onChange={handleInputChange}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Estimated Lead Time Days */}
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  Estimated Lead Time (Days)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  name="estimated_lead_time_days"
+                  placeholder="e.g. 5"
+                  value={formData.estimated_lead_time_days}
+                  onChange={handleInputChange}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-800 focus:outline-hidden focus:border-blue-500 focus:bg-white transition-all"
+                />
+              </div>
+
+              {/* Is Primary Checkbox */}
+              <div className="flex items-center gap-2 pt-1 bg-slate-50 p-3 rounded-lg border border-slate-200/60">
+                <input
+                  type="checkbox"
+                  id="is_primary"
+                  name="is_primary"
+                  checked={formData.is_primary}
+                  onChange={handleInputChange}
+                  className="w-4 h-4 text-cyan-600 border-slate-300 rounded focus:ring-cyan-500 cursor-pointer"
+                />
+                <label
+                  htmlFor="is_primary"
+                  className="text-xs font-medium text-slate-700 cursor-pointer select-none flex flex-col"
+                >
+                  <span className="font-semibold text-slate-900">
+                    Set as Primary Supplier
+                  </span>
+                  <span className="text-[11px] text-slate-500">
+                    Makes this supplier the default primary source for
+                    purchasing.
+                  </span>
+                </label>
+              </div>
+
+              {/* Modal Actions */}
+              <div className="flex justify-end gap-2 pt-3 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={closeModal}
@@ -471,7 +672,7 @@ export const ProductSources: React.FC = () => {
                   disabled={
                     createMutation.isPending || updateMutation.isPending
                   }
-                  className="flex cursor-pointer items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-50"
+                  className="flex cursor-pointer items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-cyan-600 hover:bg-cyan-500 rounded-lg transition-colors disabled:opacity-50"
                 >
                   {(createMutation.isPending || updateMutation.isPending) && (
                     <Loader2 size={12} className="animate-spin" />

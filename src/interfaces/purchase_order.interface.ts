@@ -1,12 +1,4 @@
-export enum PurchaseOrderStatus {
-  DRAFT = 'DRAFT',
-  PENDING = 'PENDING',
-  APPROVED = 'APPROVED',
-  RECEIVED = 'RECEIVED',
-  CANCELLED = 'CANCELLED',
-  PENDING_APPROVAL = 'PENDING_APPROVAL',
-  SENT_TO_SUPPLIER = 'SENT_TO_SUPPLIER',
-}
+import type { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
 
 export interface IPurchaseOrderItem {
   id: string;
@@ -17,6 +9,16 @@ export interface IPurchaseOrderItem {
   quantity_received: number;
   estimated_unit_cost: number;
   total_cost: number;
+}
+
+export interface CreatePoItemDto {
+  product_id: string;
+
+  quantity_requested: number; // e.g., 1500 for 1.5kg
+
+  cost_price?: number; // e.g., 1500 for 1.5kg
+
+  estimated_unit_cost?: number;
 }
 
 export interface IPurchaseOrder {
@@ -30,4 +32,8 @@ export interface IPurchaseOrder {
 
   approved_by_id?: string;
   created_at: string | Date;
+}
+
+export interface ICreatePurchaseOrderFormData {
+  items: CreatePoItemDto[];
 }

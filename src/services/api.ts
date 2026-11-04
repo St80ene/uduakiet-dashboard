@@ -1,16 +1,17 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { tokenStorage } from './auth/utils/token_storage.util';
+import { toast } from 'react-toastify';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BACKEND_URL;
 
-export const ApiTimeOut: number = 10000; // 10-second default timeout to catch slow networks gracefully
+export const ApiTimeOut: number = 10000; // 10-second default timeout
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: ApiTimeOut,
 });
 
-// 1. SINGLE REQUEST INTERCEPTOR
+// 1. REQUEST INTERCEPTOR
 apiClient.interceptors.request.use((config) => {
   const accessToken = tokenStorage.getAccessToken();
 
@@ -18,7 +19,6 @@ apiClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
 
-  // Automatically handle FormData content type
   if (config.data instanceof FormData && config.headers) {
     config.headers.setContentType('multipart/form-data');
   }
@@ -48,37 +48,44 @@ apiClient.interceptors.response.use(
   (response) => response,
 
   async (error: AxiosError) => {
+    const status = error.response?.status;
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
 
-    // A. HANDLE NETWORK OUTAGE / SLOW TIMEOUTS
+    // A. HANDLE NETWORK OUTAGE / SLOW TIMEOUTS GLOBALLY
     if (!error.response) {
-      console.warn(
-        'Network outage or timeout detected. Skipping token refresh.',
+      toast.error(
+        'Network outage or timeout detected. Please check your connection.',
       );
       return Promise.reject(error);
     }
 
-    // B. BYPASS NON-401 ERRORS & PREVENT INFINITE RETRY LOOPS
-    if (error.response.status !== 401 || originalRequest?._retry) {
+    // B. HANDLE 403 FORBIDDEN GLOBALLY
+    if (status === 403) {
+      toast.error(
+        'Access Denied: You do not have permission to perform this action.',
+      );
       return Promise.reject(error);
     }
 
+    // C. PASS NON-401 ERRORS STRAIGHT TO THE COMPONENT (400, 404, 422, 500, etc.)
+    if (status !== 401 || originalRequest?._retry) {
+      return Promise.reject(error);
+    }
+
+    // --- D. TOKEN REFRESH FLOW (Only for 401 Unauthorized) ---
     originalRequest._retry = true;
     const refreshToken = tokenStorage.getRefreshToken();
 
-    // C. NO REFRESH TOKEN FOUND
     if (!refreshToken) {
       tokenStorage.clearTokens();
       window.location.href = '/login';
       return Promise.reject(error);
     }
 
-    // D. QUEUE CONCURRENT REQUESTS ON SLOW NETWORKS
     if (isRefreshing) {
       return new Promise((resolve, reject) => {
-        // 1. Subscribe with both success and failure handlers
         subscribeToRefresh((newAccessToken) => {
           if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -86,8 +93,6 @@ apiClient.interceptors.response.use(
           resolve(apiClient(originalRequest));
         });
 
-        // 2. Fail-safe timeout: If the refresh process takes longer than 20 seconds,
-        // force-reject the queued requests so components don't freeze forever.
         setTimeout(() => {
           reject(new Error('Token refresh queue timeout'));
         }, 20000);
@@ -97,7 +102,6 @@ apiClient.interceptors.response.use(
     isRefreshing = true;
 
     try {
-      // E. EXECUTING REFRESH
       const response = await axios.post(
         `${API_BASE_URL}/auth/refresh`,
         {},
@@ -113,8 +117,6 @@ apiClient.interceptors.response.use(
       const { accessToken, refreshToken: newRefreshToken } = tokens;
 
       tokenStorage.setTokens(accessToken, newRefreshToken);
-
-      // Notify all queued requests waiting for this new token
       notifyRefreshSubscribers(accessToken);
 
       if (originalRequest.headers) {
@@ -126,7 +128,6 @@ apiClient.interceptors.response.use(
       rejectRefreshSubscribers();
       tokenStorage.clearTokens();
 
-      // Only kick user to login if backend explicitly rejects refresh token (4xx)
       if (
         axios.isAxiosError(refreshError) &&
         refreshError.response &&

@@ -11,6 +11,7 @@ export interface IProductSource {
   supplier_sku?: string;
   estimated_lead_time_days?: number;
   supplier: ISupplier;
+  is_primary: boolean;
   created_at: string;
 }
 

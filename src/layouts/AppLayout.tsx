@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Sparkles, LogOut, X } from 'lucide-react';
-
+import { ToastContainer } from 'react-toastify';
 import { SideNav } from '../components/Nav/SideNav';
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { NotificationPanel } from '@/components/Notifications/NotificationPanel';
@@ -92,10 +92,6 @@ export default function AppLayout() {
     };
   }, []); // Empty dependency array ensures listeners are only attached once
 
-  useEffect(() => {
-    console.log('unread count', unreadCount);
-  }, [unreadCount]);
-
   const handleLogout = async () => {
     if (isLoggingOut) return;
 
@@ -114,6 +110,7 @@ export default function AppLayout() {
     <div className="flex h-screen bg-[#F7F6F0] text-slate-800 font-sans overflow-hidden antialiased">
       {/* 1. Navigation Sidebar */}
       <SideNav />
+      <ToastContainer />
 
       {/* 2. Main Workspace Container */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-slate-200/60">

@@ -1,5 +1,8 @@
 import type { IApiResponse, IBasePaginationParams } from '@/interfaces';
-import type { IPurchaseOrder } from '@/interfaces/purchase_order.interface';
+import type {
+  ICreatePurchaseOrderFormData,
+  IPurchaseOrder,
+} from '@/interfaces/purchase_order.interface';
 import apiClient from './api';
 import type { IPurchaseOrdersResponse } from '@/types';
 
@@ -33,11 +36,12 @@ export const purchaseOrderService = {
   },
 
   createPurchaseOrder: async (
-    purchaseOrderData: FormData,
-  ): Promise<IApiResponse<IPurchaseOrdersResponse>> => {
-    const response = await apiClient.post<
-      IApiResponse<IPurchaseOrdersResponse>
-    >(PURCHASE_ORDERS_RESOURCE, purchaseOrderData);
+    purchaseOrderData: ICreatePurchaseOrderFormData,
+  ) => {
+    const response = await apiClient.post(
+      PURCHASE_ORDERS_RESOURCE,
+      purchaseOrderData,
+    );
 
     return response.data;
   },

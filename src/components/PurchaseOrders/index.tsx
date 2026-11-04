@@ -7,22 +7,36 @@ import {
   ArrowUpDown,
   ArrowLeftRight,
 } from 'lucide-react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
-  PurchaseOrderStatus,
+  type ICreatePurchaseOrderFormData,
   type IPurchaseOrder,
 } from '@/interfaces/purchase_order.interface';
 import type { IDataTableColumn } from '@/interfaces/data_table';
 
 import useDebouncedValue from '@/hooks/debounceHook';
-import { getAllPurchaseOrders } from '@/services/purchase_orders.service.api';
+import {
+  createPurchaseOrder,
+  getAllPurchaseOrders,
+} from '@/services/purchase_orders.service.api';
 import LoadingScreen from '@/common/Error/LoadingScreen';
 import { ErrorPage } from '@/common/Error/ErrorPage';
 import DataTable from '@/common/DataTable';
-
+import AddPurchaseOrderModal from './AddPurchaseOrderModal';
+import { toast } from 'react-toastify';
+import type { AxiosError } from 'axios';
+import {
+  formatCurrency,
+  formatRelativeTime,
+  getStatusBadge,
+} from '@/common/utils';
 export const PurchaseOrdersPage: React.FC = () => {
+  const queryClient = useQueryClient();
+
   const [selectedPoId, setSelectedPoId] = useState<string | null>(null);
+  const [modal, setModal] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(6);
@@ -57,6 +71,31 @@ export const PurchaseOrdersPage: React.FC = () => {
     placeholderData: (previousData) => previousData,
   });
 
+  // TanStack Mutation for creating the purchase order with error handling
+  const createPurchaseOrderMutation = useMutation({
+    mutationFn: async (data: ICreatePurchaseOrderFormData) => {
+      setIsSubmitting(true);
+      return await createPurchaseOrder(data);
+    },
+    onSuccess: (response) => {
+      toast.success(
+        response?.message || 'Purchase order created successfully.',
+      );
+      queryClient.invalidateQueries({
+        queryKey: ['purchase_orders_list'],
+      });
+      setIsSubmitting(false);
+    },
+    onError: (error: AxiosError<{ message: string | string[] }>) => {
+      // Extract backend error message if available from Axios response
+      const errorMessage = (error as AxiosError<{ message: string | string[] }>)
+        ?.response?.data?.message;
+      toast.error(errorMessage);
+      setIsSubmitting(false);
+      return Promise.reject(error); // Rethrow the error to propagate it to the caller
+    },
+  });
+
   if (isLoading && !purchaseOrdersData) {
     return <LoadingScreen />;
   }
@@ -86,44 +125,6 @@ export const PurchaseOrdersPage: React.FC = () => {
     setPage(1);
   };
 
-  const getStatusBadge = (status: PurchaseOrderStatus) => {
-    switch (status) {
-      case PurchaseOrderStatus.PENDING_APPROVAL:
-      case PurchaseOrderStatus.PENDING:
-        return 'bg-amber-50 border-amber-200 text-amber-700';
-
-      case PurchaseOrderStatus.APPROVED:
-      case PurchaseOrderStatus.SENT_TO_SUPPLIER:
-        return 'bg-sky-50 border-sky-200 text-sky-700';
-
-      case PurchaseOrderStatus.RECEIVED:
-        return 'bg-emerald-50 border-emerald-200 text-emerald-700';
-
-      default:
-        return 'bg-slate-100 border-slate-200 text-slate-600';
-    }
-  };
-
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 2,
-    }).format(value);
-  };
-
-  const formatDate = (value: string) => {
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-      return value;
-    }
-
-    return new Intl.DateTimeFormat('en-NG', {
-      dateStyle: 'medium',
-      timeStyle: 'short',
-    }).format(date);
-  };
   const poColumns: IDataTableColumn<IPurchaseOrder>[] = [
     {
       key: 'po_number',
@@ -174,59 +175,13 @@ export const PurchaseOrdersPage: React.FC = () => {
       header: 'Created Date',
       render: ({ created_at }) => (
         <span className="text-slate-500">
-          {formatDate(created_at.toString())}
+          {formatRelativeTime(new Date(created_at))}
         </span>
       ),
     },
   ];
 
-  // const itemColumns: IDataTableColumn<IPurchaseOrderItem>[] = [
-  //   {
-  //     key: 'product_id',
-  //     header: 'Product ID',
-  //     render: (item) => (
-  //       <span className="font-mono text-slate-500">{item.product_id}</span>
-  //     ),
-  //   },
-  //   {
-  //     key: 'product_name',
-  //     header: 'Product Name',
-  //     render: (item) => (
-  //       <span className="text-slate-800">{item.product_name}</span>
-  //     ),
-  //   },
-  //   {
-  //     key: 'quantity_requested',
-  //     header: 'Qty Requested',
-  //     render: (item) => (
-  //       <span className="font-semibold text-slate-900">
-  //         {item.quantity_requested}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     key: 'estimated_unit_cost',
-  //     header: 'Est. Unit Cost',
-  //     render: (item) => (
-  //       <span className="text-slate-700">
-  //         {formatCurrency(item.estimated_unit_cost)}
-  //       </span>
-  //     ),
-  //   },
-  //   {
-  //     key: 'line_total',
-  //     header: 'Line Total',
-  //     render: (item) => (
-  //       <span className="font-semibold text-sky-600">
-  //         {formatCurrency(item.quantity_requested * item.estimated_unit_cost)}
-  //       </span>
-  //     ),
-  //   },
-  // ];
-
-  // const selectedOrder = orders.find(
-  //   (order: IPurchaseOrder) => order.id === selectedPoId,
-  // );
+  const toggleModal = () => setModal(!modal);
 
   return (
     <div className="space-y-6 p-6">
@@ -246,12 +201,23 @@ export const PurchaseOrdersPage: React.FC = () => {
 
         <button
           type="button"
-          className="flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-sky-500"
+          onClick={toggleModal} // onclick event to open the create modal
+          className="cursor-pointer flex items-center gap-1.5 rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white shadow-2xs hover:bg-sky-500"
         >
           <Plus size={14} />
           Create Purchase Order
         </button>
       </div>
+      {modal && (
+        <AddPurchaseOrderModal
+          isSubmitting={isSubmitting}
+          setIsModalOpen={setModal}
+          onSubmit={async (data) => {
+            console.log('Form data submitted:', data);
+            await createPurchaseOrderMutation.mutateAsync(data);
+          }}
+        />
+      )}
 
       {/* Purchase Orders Table */}
       <DataTable<IPurchaseOrder>

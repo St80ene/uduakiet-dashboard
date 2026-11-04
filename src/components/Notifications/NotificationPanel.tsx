@@ -127,10 +127,6 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
       {/* 1. FILTER TABS & BULK ACTIONS */}
       <div className="space-y-3 shrink-0">
         <div className="flex items-center justify-between">
-          <h4 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-            Activity Stream
-          </h4>
-
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllAsRead}
@@ -273,12 +269,21 @@ export const NotificationPanel: React.FC<NotificationPanelProps> = ({
                     )} */}
                     <button
                       onClick={() => handleUserAction(item.id)}
-                      disabled={isProcessing || markAllMutation.isPending}
+                      disabled={
+                        item.is_read ||
+                        isProcessing ||
+                        markAllMutation.isPending
+                      }
                       className="text-[11px] font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 cursor-pointer disabled:opacity-50"
                     >
-                      {/* <CheckCircle2 className="w-3 h-3" /> */}
-                      <span>Go to Purchase Order</span>
-                      <ChevronRight className="w-3 h-3" />
+                      <span>
+                        {item.is_read
+                          ? 'Read'
+                          : isProcessing
+                            ? 'Saving...'
+                            : 'Go to Purchase Order'}
+                      </span>
+                      {!item.is_read && <ChevronRight className="w-3 h-3" />}
                     </button>
                   </div>
                 </div>
