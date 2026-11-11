@@ -81,7 +81,7 @@ export const purchaseOrderService = {
     purchaseOrderId: string,
     payload: IReceivePurchaseOrderPayload,
   ) => {
-    const response = await apiClient.patch(
+    const response = await apiClient.post(
       `${PURCHASE_ORDERS_RESOURCE}/${purchaseOrderId}/receive`,
       payload,
     );

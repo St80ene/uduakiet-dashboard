@@ -11,8 +11,15 @@ export interface IPurchaseOrderItem {
   quantity_requested: number;
   quantity_received: number;
   estimated_unit_cost: number;
-  supplier: ISupplier | null; // Added to include supplier details
+  // Added to include supplier details
   total_cost: number;
+}
+
+export interface IReceivePurchaseOrderPayload {
+  items: {
+    item_id: string;
+    quantity_received: number;
+  }[];
 }
 
 export interface CreatePoItemDto {
@@ -28,6 +35,7 @@ export interface CreatePoItemDto {
 export interface IPurchaseOrder {
   id: string;
   po_number: string;
+  supplier: ISupplier | null;
   supplier_name: string;
   supplier_id?: string | null;
   business_id: string;
@@ -38,6 +46,8 @@ export interface IPurchaseOrder {
   approved_by?: IUser | null;
   created_at: string | Date;
   items: IPurchaseOrderItem[];
+  store_id?: string | null;
+  created_by: IUser | null;
 }
 
 export interface ICreatePurchaseOrderFormData {

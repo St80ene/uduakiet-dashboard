@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, type ReactNode } from 'react';
 import {
   ShoppingCart,
   Plus,
@@ -270,7 +270,6 @@ export const PurchaseOrdersPage: React.FC = () => {
           return rejectPurchaseOrder(order.id, { reason });
 
         case 'send':
-          console.log('markPurchaseOrderAsSent', order.id);
           return markPurchaseOrderAsSent(order.id);
 
         case 'cancel':
@@ -550,7 +549,7 @@ export const PurchaseOrdersPage: React.FC = () => {
 
         const actionButton = (
           label: string,
-          icon: React.ReactNode,
+          icon: ReactNode,
           onClick: () => void,
           color: string,
         ) => (

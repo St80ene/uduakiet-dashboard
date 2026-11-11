@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft,
   ShoppingCart,
@@ -10,7 +10,10 @@ import {
   Boxes,
   DollarSign,
   FileText,
+  PackageCheck,
+  Loader2,
 } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 import LoadingScreen from '@/common/Error/LoadingScreen';
 import { ErrorPage } from '@/common/Error/ErrorPage';
@@ -22,13 +25,20 @@ import {
   formatRelativeTime,
   getStatusBadge,
 } from '@/common/utils';
-import { getPurchaseOrderByID } from '@/services/purchase_orders.service.api';
+import {
+  getPurchaseOrderByID,
+  receivePurchaseOrder,
+} from '@/services/purchase_orders.service.api';
+import { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
 
 export const PurchaseOrderDetailPage: React.FC = () => {
   const { poId } = useParams<{ poId: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  // Fetch single purchase order by ID
+  const [isConfirmingReceipt, setIsConfirmingReceipt] = useState(false);
+
+  // Fetch purchase order
   const {
     data: purchase_order,
     isLoading,
@@ -39,6 +49,52 @@ export const PurchaseOrderDetailPage: React.FC = () => {
     queryFn: () => getPurchaseOrderByID(poId as string),
     enabled: Boolean(poId),
   });
+
+  // Receive purchase order
+  const receiveMutation = useMutation({
+    mutationFn: (payload: {
+      items: {
+        item_id: string;
+        quantity_received: number;
+      }[];
+    }) => receivePurchaseOrder(poId as string, payload),
+
+    onSuccess: (response) => {
+      toast.success(
+        response?.message || 'Purchase order received successfully.',
+      );
+
+      setIsConfirmingReceipt(false);
+
+      queryClient.invalidateQueries({
+        queryKey: ['purchase_order', poId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ['purchase_orders'],
+      });
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message || 'Unable to receive this purchase order.');
+    },
+  });
+
+  const handleReceivePurchaseOrder = () => {
+    if (!purchase_order?.items?.length) {
+      toast.error('This purchase order has no items to receive.');
+      return;
+    }
+
+    const payload = {
+      items: purchase_order.items.map((item) => ({
+        item_id: item.id,
+        quantity_received: item.quantity_requested,
+      })),
+    };
+
+    receiveMutation.mutate(payload);
+  };
 
   if (isLoading) {
     return <LoadingScreen label="Loading purchase order details..." />;
@@ -57,6 +113,9 @@ export const PurchaseOrderDetailPage: React.FC = () => {
       />
     );
   }
+
+  const canReceive =
+    purchase_order.status === PurchaseOrderStatus.SENT_TO_SUPPLIER;
 
   // Line items table columns
   const itemColumns: IDataTableColumn<IPurchaseOrderItem>[] = [
@@ -108,14 +167,15 @@ export const PurchaseOrderDetailPage: React.FC = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6 min-h-screen bg-slate-50/50">
-      {/* Top Bar with Back Button */}
+      {/* Top Bar */}
       <div className="flex items-center justify-between border-b border-slate-200 pb-4">
         <button
           type="button"
           onClick={() => navigate('/purchase-orders')}
           className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3 py-1.5 rounded-lg shadow-2xs transition-colors cursor-pointer"
         >
-          <ArrowLeft size={14} /> Back to Purchase Orders
+          <ArrowLeft size={14} />
+          Back to Purchase Orders
         </button>
 
         <span
@@ -150,9 +210,7 @@ export const PurchaseOrderDetailPage: React.FC = () => {
               <DollarSign size={16} className="text-emerald-600" />
               {Number(purchase_order.total_estimated_cost || 0).toLocaleString(
                 'en-NG',
-                {
-                  minimumFractionDigits: 2,
-                },
+                { minimumFractionDigits: 2 },
               )}
             </span>
           </div>
@@ -218,11 +276,90 @@ export const PurchaseOrderDetailPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Receive Purchase Order */}
+      {canReceive && (
+        <div className="rounded-xl border border-sky-200 bg-sky-50/70 p-5 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="rounded-lg bg-white p-2 text-sky-600">
+              <PackageCheck size={20} />
+            </div>
+
+            <div className="flex-1">
+              <h3 className="text-sm font-bold text-slate-900">
+                Receive Purchase Order
+              </h3>
+              <p className="text-xs text-slate-600 mt-1">
+                Confirm that the supplier has delivered all the items listed
+                below. Receiving this order will update your inventory.
+              </p>
+            </div>
+          </div>
+
+          {!isConfirmingReceipt ? (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsConfirmingReceipt(true)}
+                className="flex items-center gap-2 rounded-lg bg-sky-600 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-700 transition-colors cursor-pointer"
+              >
+                <PackageCheck size={15} />
+                Receive Goods
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-lg border border-sky-200 bg-white p-4 space-y-3">
+              <p className="text-sm font-semibold text-slate-800">
+                Are you sure you have received all the goods?
+              </p>
+
+              <p className="text-xs text-slate-500">
+                This will record the full requested quantity for all{' '}
+                {purchase_order.items?.length ?? 0} items and update your
+                inventory. This action cannot be reversed through this purchase
+                order.
+              </p>
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  disabled={receiveMutation.isPending}
+                  onClick={() => setIsConfirmingReceipt(false)}
+                  className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer disabled:opacity-50"
+                >
+                  Go Back
+                </button>
+
+                <button
+                  type="button"
+                  disabled={
+                    receiveMutation.isPending || !purchase_order.items?.length
+                  }
+                  onClick={handleReceivePurchaseOrder}
+                  className="flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-700 cursor-pointer disabled:opacity-50"
+                >
+                  {receiveMutation.isPending ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Receiving...
+                    </>
+                  ) : (
+                    <>
+                      <PackageCheck size={14} />
+                      Confirm Goods Received
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Line Items Section */}
       <div className="space-y-3">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-          <Boxes size={14} className="text-sky-600" /> Order Line Items (
-          {purchase_order.items?.length || 0})
+          <Boxes size={14} className="text-sky-600" />
+          Order Line Items ({purchase_order.items?.length || 0})
         </h3>
 
         <DataTable<IPurchaseOrderItem>
