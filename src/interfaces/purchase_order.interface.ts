@@ -1,13 +1,17 @@
 import type { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
+import type { IProduct } from './products';
+import type { ISupplier } from './supplier';
+import type { IUser } from './user.interface';
 
 export interface IPurchaseOrderItem {
   id: string;
   purchase_order_id: string;
   product_id: string;
-  product_name: string;
+  product: IProduct | null; // Added to include product details
   quantity_requested: number;
   quantity_received: number;
   estimated_unit_cost: number;
+  supplier: ISupplier | null; // Added to include supplier details
   total_cost: number;
 }
 
@@ -25,15 +29,21 @@ export interface IPurchaseOrder {
   id: string;
   po_number: string;
   supplier_name: string;
-
+  supplier_id?: string | null;
+  business_id: string;
   status: PurchaseOrderStatus;
   total_estimated_cost: number;
   items_count?: number; // Added for the list view count
-
   approved_by_id?: string;
+  approved_by?: IUser | null;
   created_at: string | Date;
+  items: IPurchaseOrderItem[];
 }
 
 export interface ICreatePurchaseOrderFormData {
+  items: CreatePoItemDto[];
+}
+
+export interface IUpdatePurchaseOrderFormData {
   items: CreatePoItemDto[];
 }

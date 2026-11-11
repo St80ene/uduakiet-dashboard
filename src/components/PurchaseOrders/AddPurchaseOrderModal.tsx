@@ -172,7 +172,7 @@ export default function AddPurchaseOrderModal({
     });
   };
 
-  const handleFormSubmit = async (data: ICreatePurchaseOrderFormData) => {
+  const handleFormSubmit = (data: ICreatePurchaseOrderFormData) => {
     if (!data.items.length) {
       setItemError(
         'Add at least one line item to generate the purchase order.',
@@ -180,7 +180,7 @@ export default function AddPurchaseOrderModal({
       return;
     }
 
-    await onSubmit(data);
+    onSubmit(data);
     setIsModalOpen(false);
   };
 
