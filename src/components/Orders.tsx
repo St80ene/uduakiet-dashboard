@@ -1,4 +1,4 @@
-import type { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
+import { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
 import React, { useState } from 'react';
 
 interface PurchaseOrder {
@@ -15,21 +15,21 @@ const initialPurchaseOrders: PurchaseOrder[] = [
     po_number: 'PO-2026-001',
     supplier_name: 'Global Packaging Ltd.',
     total_estimated_cost: 1250.5,
-    status: 'DRAFT',
+    status: PurchaseOrderStatus.DRAFT,
   },
   {
     id: 'po-002',
     po_number: 'PO-2026-002',
     supplier_name: 'Prime Retail Supplies',
     total_estimated_cost: 840.0,
-    status: 'APPROVED',
+    status: PurchaseOrderStatus.APPROVED,
   },
   {
     id: 'po-003',
     po_number: 'PO-2026-003',
     supplier_name: 'Industrial Distribution Co.',
     total_estimated_cost: 2340.75,
-    status: 'RECEIVED',
+    status: PurchaseOrderStatus.RECEIVED,
   },
 ];
 
@@ -41,7 +41,9 @@ export const Orders: React.FC = () => {
   const approveOrder = (orderId: string) => {
     setPurchaseOrders((previousOrders) =>
       previousOrders.map((order) =>
-        order.id === orderId ? { ...order, status: 'APPROVED' } : order,
+        order.id === orderId
+          ? { ...order, status: PurchaseOrderStatus.APPROVED }
+          : order,
       ),
     );
   };
@@ -49,14 +51,16 @@ export const Orders: React.FC = () => {
   const receiveOrder = (orderId: string) => {
     setPurchaseOrders((previousOrders) =>
       previousOrders.map((order) =>
-        order.id === orderId ? { ...order, status: 'RECEIVED' } : order,
+        order.id === orderId
+          ? { ...order, status: PurchaseOrderStatus.RECEIVED }
+          : order,
       ),
     );
   };
 
   const getStatusAction = (po: PurchaseOrder) => {
     switch (po.status) {
-      case 'DRAFT':
+      case PurchaseOrderStatus.DRAFT:
         return (
           <button
             type="button"
@@ -67,7 +71,7 @@ export const Orders: React.FC = () => {
           </button>
         );
 
-      case 'APPROVED':
+      case PurchaseOrderStatus.APPROVED:
         return (
           <button
             type="button"
@@ -78,14 +82,14 @@ export const Orders: React.FC = () => {
           </button>
         );
 
-      case 'RECEIVED':
+      case PurchaseOrderStatus.RECEIVED:
         return (
           <span className="text-xs text-slate-400 font-medium italic">
             Settled & Verified
           </span>
         );
 
-      case 'CANCELLED':
+      case PurchaseOrderStatus.CANCELLED:
         return (
           <span className="text-xs text-rose-500 font-medium italic">
             Cancelled
@@ -99,16 +103,16 @@ export const Orders: React.FC = () => {
 
   const getStatusClassName = (status: PurchaseOrderStatus) => {
     switch (status) {
-      case 'DRAFT':
+      case PurchaseOrderStatus.DRAFT:
         return 'bg-slate-50 border-slate-200 text-slate-500';
 
-      case 'APPROVED':
+      case PurchaseOrderStatus.APPROVED:
         return 'bg-blue-50 border-blue-200 text-blue-700';
 
-      case 'RECEIVED':
+      case PurchaseOrderStatus.RECEIVED:
         return 'bg-emerald-50 border-emerald-200 text-emerald-700';
 
-      case 'CANCELLED':
+      case PurchaseOrderStatus.CANCELLED:
         return 'bg-rose-50 border-rose-200 text-rose-700';
     }
   };
