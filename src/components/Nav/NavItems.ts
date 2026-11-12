@@ -1,5 +1,6 @@
 import type { LucideIcon } from 'lucide-react';
 import { UserPermission } from '@/enum/user_permission.enum';
+
 import {
   ArrowLeftRight,
   BarChart3,
@@ -22,7 +23,7 @@ export interface NavItem {
   label: string;
   icon: LucideIcon;
   badge?: string | number;
-  permissions?: UserPermission[]; // Updated type
+  permissions?: UserPermission[];
   permissionMode?: 'all' | 'any';
 }
 
@@ -32,9 +33,6 @@ export interface NavSection {
 }
 
 export const NAV_SECTIONS: NavSection[] = [
-  /**
-   * OVERVIEW & ANALYTICS
-   */
   {
     label: 'Overview',
     items: [
@@ -52,10 +50,6 @@ export const NAV_SECTIONS: NavSection[] = [
       },
     ],
   },
-
-  /**
-   * INVENTORY & STOCKS
-   */
   {
     label: 'Inventory',
     items: [
@@ -85,10 +79,6 @@ export const NAV_SECTIONS: NavSection[] = [
       },
     ],
   },
-
-  /**
-   * PROCUREMENT
-   */
   {
     label: 'Procurement',
     items: [
@@ -112,10 +102,6 @@ export const NAV_SECTIONS: NavSection[] = [
       },
     ],
   },
-
-  /**
-   * ADMINISTRATION & AUDITS
-   */
   {
     label: 'Administration',
     items: [
@@ -140,10 +126,6 @@ export const NAV_SECTIONS: NavSection[] = [
       },
     ],
   },
-
-  /**
-   * SETTINGS
-   */
   {
     label: 'Settings',
     items: [

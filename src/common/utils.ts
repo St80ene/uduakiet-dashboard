@@ -1,4 +1,5 @@
 import { UomType, type UomDisplayName } from '@/enum/product';
+import { PurchaseOrderStatus } from '@/enum/purchase_order.enum';
 
 export const formatCurrency = (amount: number | string): string => {
   const num = Number(amount) || 0;
@@ -255,4 +256,21 @@ export const CalculateTotalValue = (
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
+};
+
+export const getStatusBadge = (status: PurchaseOrderStatus) => {
+  switch (status) {
+    case PurchaseOrderStatus.PENDING_APPROVAL:
+      return 'bg-amber-50 border-amber-200 text-amber-700';
+
+    case PurchaseOrderStatus.APPROVED:
+    case PurchaseOrderStatus.SENT_TO_SUPPLIER:
+      return 'bg-sky-50 border-sky-200 text-sky-700';
+
+    case PurchaseOrderStatus.RECEIVED:
+      return 'bg-emerald-50 border-emerald-200 text-emerald-700';
+
+    default:
+      return 'bg-slate-100 border-slate-200 text-slate-600';
+  }
 };

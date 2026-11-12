@@ -1,23 +1,96 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
-import { Bell, Sparkles, LogOut, X } from 'lucide-react';
-
+import { Sparkles, LogOut, X } from 'lucide-react';
+import { ToastContainer } from 'react-toastify';
 import { SideNav } from '../components/Nav/SideNav';
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { NotificationPanel } from '@/components/Notifications/NotificationPanel';
-import { useUnreadCount } from '@/hooks/useNotification.hook';
+import NotificationBell from '@/components/Notifications/NotificationBell';
+import { tokenStorage } from '@/services/auth/utils/token_storage.util';
+import { socket } from '@/services/socket.io';
+import { play_notification_sound } from '@/services/auth/utils/play_notification_sound';
+import { getUnreadCount } from '@/services/notifications.service';
 
 export default function AppLayout() {
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isNotificationOpen, setIsNotificationOpen] = useState<boolean>(false);
   // const [setIsAiModalOpen] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
+
+  const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const navigate = useNavigate();
   const { logout } = useAuth();
 
-  // Shared TanStack Query cache used by NotificationPanel.
-  const { data: pendingNoticeCount = 0, isPending: isUnreadCountLoading } =
-    useUnreadCount();
+  const accessToken = tokenStorage.getAccessToken();
+
+  const loadLatestCount = async (isMounted: boolean) => {
+    try {
+      if (isMounted) {
+        const response = await getUnreadCount();
+
+        if (response.data) {
+          const unread_count = Number(response?.data?.unread_count);
+
+          setUnreadCount(unread_count);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch notification count:', error);
+    }
+  };
+
+  useEffect(() => {
+    if (!accessToken) socket.disconnect();
+
+    socket.auth = { token: accessToken };
+
+    socket.connect();
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [accessToken]);
+
+  useEffect(() => {
+    let isMounted = true; // Prevents updating state if component unmounts mid-fetch
+
+    // 1. Function to fetch the absolute latest count from the backend
+
+    // Run immediately on mount
+
+    async function fetchData() {
+      await loadLatestCount(isMounted);
+    }
+    fetchData();
+
+    // 2. Re-fetch from API whenever the tab becomes visible again
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        loadLatestCount(isMounted);
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // 3. Listen to live emitted events while the tab is actively open
+    const handleNotificationEvent = ({
+      unread_count,
+    }: {
+      unread_count: number;
+    }) => {
+      if (isMounted) {
+        setUnreadCount(unread_count);
+        play_notification_sound();
+      }
+    };
+    socket.on('notification:new', handleNotificationEvent);
+
+    // 4. Cleanup all listeners and flags on unmount
+    return () => {
+      isMounted = false;
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      socket.off('notification:new', handleNotificationEvent);
+    };
+  }, []); // Empty dependency array ensures listeners are only attached once
 
   const handleLogout = async () => {
     if (isLoggingOut) return;
@@ -37,6 +110,7 @@ export default function AppLayout() {
     <div className="flex h-screen bg-[#F7F6F0] text-slate-800 font-sans overflow-hidden antialiased">
       {/* 1. Navigation Sidebar */}
       <SideNav />
+      <ToastContainer />
 
       {/* 2. Main Workspace Container */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden border-r border-slate-200/60">
@@ -77,19 +151,12 @@ export default function AppLayout() {
               aria-label="Toggle Activity & Alerts Drawer"
               aria-expanded={isNotificationOpen}
             >
-              <Bell
-                className={`w-4 h-4 ${
-                  isNotificationOpen ? 'text-lime-400' : 'text-slate-600'
-                }`}
+              {/* <span>Activity</span> */}
+
+              <NotificationBell
+                unreadCount={unreadCount}
+                isNotificationOpen={isNotificationOpen}
               />
-
-              <span>Activity</span>
-
-              {!isUnreadCountLoading && pendingNoticeCount > 0 && (
-                <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
-                  {pendingNoticeCount > 99 ? '99+' : pendingNoticeCount}
-                </span>
-              )}
             </button>
 
             {/* Logout Button */}
@@ -109,8 +176,8 @@ export default function AppLayout() {
         </header>
 
         {/* Main Content Viewport */}
-        <main className="flex-1 min-w-0 overflow-y-auto p-8">
-          <div className="max-w-5xl mx-auto space-y-6">
+        <main className="flex-1 min-w-0 overflow-y-auto p-2">
+          <div className="max-w-10xl mx-auto space-y-6">
             <Outlet />
           </div>
         </main>
@@ -144,9 +211,14 @@ export default function AppLayout() {
         </div>
 
         {/* Panel container takes remaining vertical height cleanly */}
-        <div className="flex-1 overflow-hidden p-6 pt-4">
-          <NotificationPanel />
-        </div>
+        {isNotificationOpen && (
+          <div className="flex-1 overflow-hidden p-6 pt-4">
+            <NotificationPanel
+              unreadCount={unreadCount}
+              loadLatestCount={loadLatestCount}
+            />
+          </div>
+        )}
       </aside>
 
       {/* 4. AI Copilot Modal */}

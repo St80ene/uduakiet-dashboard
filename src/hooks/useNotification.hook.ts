@@ -31,15 +31,15 @@ export const notificationKeys = {
   unreadCount: () => [...NOTIFICATIONS_KEY, 'unread-count'] as const,
 };
 
-// 1. Replaced useQuery with useInfiniteQuery for infinite scrolling
-export function useInfiniteNotifications(isRead?: boolean, limit = 20) {
+// 1. Using useInfiniteQuery for infinite scrolling
+export function useInfiniteNotifications(is_read?: boolean, limit = 20) {
   return useInfiniteQuery({
-    queryKey: notificationKeys.list(isRead),
+    queryKey: notificationKeys.list(is_read),
     queryFn: ({ pageParam }) =>
       getAll({
         cursor: pageParam as string | undefined,
         limit,
-        isRead,
+        is_read,
       }),
     initialPageParam: undefined as string | undefined,
     getNextPageParam: (lastPage) =>
@@ -54,7 +54,7 @@ export function useUnreadCount(enabled = true) {
     queryKey: notificationKeys.unreadCount(),
     queryFn: async () => {
       const response = await getUnreadCount();
-      return response.data?.unreadCount ?? 0;
+      return response.data ?? 0;
     },
     enabled, // Only runs the query if enabled is true
     retry: 1,

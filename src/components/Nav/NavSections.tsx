@@ -43,7 +43,7 @@ export const NavSections: FC<NavSectionsProps> = ({ visibleSections }) => {
             <button
               type="button"
               onClick={() => toggleSection(idx)}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`w-full cursor-pointer flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all ${
                 hasActiveChild || isOpen
                   ? 'bg-[#EBEBE2] text-slate-900'
                   : 'text-slate-600 hover:bg-[#EBEBE2]/50 hover:text-slate-900'

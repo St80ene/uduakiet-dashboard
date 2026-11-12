@@ -38,6 +38,7 @@ import { UsersPage } from './components/Users';
 import { AuditLogsPage } from './components/AuditLogs';
 import { IndexRedirect } from './components/Auth/IndexRedirect';
 import { PermissionGuard } from './components/Auth/PermissionsGuard';
+import { PurchaseOrderDetailPage } from './components/PurchaseOrders/PurchaseOrderDetailPage';
 
 // ==========================================
 // 2. MAIN APP ROUTER
@@ -134,6 +135,10 @@ export default function App() {
               }
             >
               <Route path="/purchase-orders" element={<PurchaseOrdersPage />} />
+              <Route
+                path="/purchase-orders/:poId"
+                element={<PurchaseOrderDetailPage />}
+              />
             </Route>
 
             <Route
