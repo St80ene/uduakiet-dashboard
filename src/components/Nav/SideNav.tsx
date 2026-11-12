@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Megaphone, Plus, Search } from 'lucide-react';
 
 import { useAuth } from '@/services/auth/hooks/useAuth';
 import { UserRole } from '@/enum/role';
-import { UserPermission } from '@/enum/user_permission.enum'; // Updated import
+import { UserPermission } from '@/enum/user_permission.enum';
 
 import { NAV_SECTIONS, type NavItem, type NavSection } from './NavItems';
 import { UduaKietLogo } from '@/common/AppLogo';
@@ -17,40 +17,35 @@ export const SideNav: React.FC = () => {
   const location = useLocation();
 
   const currentRole = user?.role?.name ?? UserRole.CASHIER;
-  const isSuperAdmin = currentRole === UserRole.SUPER_ADMIN;
 
   const pendingNoticeCount = notices.filter(
-    (n) =>
-      n.requiresAcknowledgment &&
-      !n.acknowledgedUserIds.includes(currentUserId),
+    (notice) =>
+      notice.requiresAcknowledgment &&
+      !notice.acknowledgedUserIds.includes(currentUserId),
   ).length;
 
   const userPermissions = useMemo(
     () =>
       new Set<UserPermission>(
         user?.role?.rolePermissions?.map(
-          (role_permission) =>
-            role_permission.permission.name as UserPermission,
+          (rolePermission) => rolePermission.permission.name as UserPermission,
         ) ?? [],
       ),
     [user?.role?.rolePermissions],
   );
 
   const hasPermission = useCallback(
-    (permission: UserPermission): boolean => {
-      if (isSuperAdmin) return true;
-      return userPermissions.has(permission);
-    },
-    [isSuperAdmin, userPermissions],
+    (permission: UserPermission): boolean => userPermissions.has(permission),
+    [userPermissions],
   );
 
   const canAccessNavItem = useCallback(
     (item: NavItem): boolean => {
-      if (!item.permissions || item.permissions.length === 0) return true;
-      if (item.permissionMode === 'any') {
-        return item.permissions.some(hasPermission);
-      }
-      return item.permissions.every(hasPermission);
+      if (!item.permissions?.length) return true;
+
+      return item.permissionMode === 'any'
+        ? item.permissions.some(hasPermission)
+        : item.permissions.every(hasPermission);
     },
     [hasPermission],
   );
@@ -64,6 +59,9 @@ export const SideNav: React.FC = () => {
     [canAccessNavItem],
   );
 
+  // Announcement publishing currently has no dedicated permission.
+  const canPublishNotice = currentRole === UserRole.SUPER_ADMIN;
+
   return (
     <aside
       aria-label="Main Navigation"
@@ -76,18 +74,18 @@ export const SideNav: React.FC = () => {
         px-3 py-4 overflow-hidden
       "
     >
-      {/* ================= TOP SECTION: BRAND & NAVIGATION ================= */}
       <div className="space-y-4">
         {/* LOGO */}
         <div className="flex items-center gap-3 px-2 py-1">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-lime-400 shadow-sm">
-            <UduaKietLogo className="w-5 h-5" />
+            <UduaKietLogo className="h-5 w-5" />
           </div>
+
           <div>
-            <span className="font-bold tracking-tight text-slate-900 text-base">
+            <span className="text-base font-bold tracking-tight text-slate-900">
               UduaKiet
             </span>
-            <p className="text-[10px] text-slate-500 font-medium">
+            <p className="text-[10px] font-medium text-slate-500">
               Inventory System
             </p>
           </div>
@@ -95,65 +93,70 @@ export const SideNav: React.FC = () => {
 
         {/* SEARCH */}
         <div className="relative px-1">
-          <Search className="w-3.5 h-3.5 absolute left-3.5 top-2.5 text-slate-400" />
+          <Search className="absolute left-3.5 top-2.5 h-3.5 w-3.5 text-slate-400" />
+
           <input
             type="text"
             placeholder="Search inventory..."
-            className="w-full pl-9 pr-3 py-1.5 bg-white border border-slate-200/80 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-300 transition-all shadow-2xs"
+            aria-label="Search inventory"
+            className="w-full rounded-xl border border-slate-200/80 bg-white py-1.5 pl-9 pr-3 text-xs text-slate-800 shadow-2xs placeholder:text-slate-400 transition-all focus:outline-none focus:ring-2 focus:ring-slate-300"
           />
         </div>
 
-        {/* COLLAPSIBLE PAGE CATEGORIES */}
+        {/* NAVIGATION */}
         <NavSections visibleSections={visibleSections} />
       </div>
 
-      {/* ================= BOTTOM SECTION: ANNOUNCEMENTS & USER ================= */}
-      <div className="pt-2 border-t border-slate-200/60 space-y-1 px-1">
-        {/* NOTICE BOARD FULL FEED LINK */}
+      {/* BOTTOM SECTION */}
+      <div className="space-y-1 border-t border-slate-200/60 px-1 pt-2">
+        {/* NOTICE BOARD */}
         <Link
           to="/notices/feeds"
-          className={`flex items-center justify-between px-3 py-2 rounded-xl transition-all text-xs font-semibold ${
+          className={`flex items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
             location.pathname.startsWith('/notices')
               ? 'bg-[#EBEBE2] text-slate-900'
               : 'text-slate-600 hover:bg-[#EBEBE2]/70 hover:text-slate-900'
           }`}
         >
-          <div className="flex items-center gap-2.5">
-            <Megaphone className="w-3.5 h-3.5 text-slate-500" />
+          <span className="flex items-center gap-2.5">
+            <Megaphone className="h-3.5 w-3.5 text-slate-500" />
             <span>Notice Board</span>
-          </div>
+          </span>
+
           {pendingNoticeCount > 0 && (
-            <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+            <span className="rounded-full bg-rose-500 px-1.5 py-0.5 text-[10px] font-bold text-white">
               {pendingNoticeCount}
             </span>
           )}
         </Link>
 
-        {/* PUBLISH ANNOUNCEMENT ACTION (Super Admin or Authorized) */}
-        {isSuperAdmin && (
+        {/* PUBLISH ANNOUNCEMENT */}
+        {canPublishNotice && (
           <Link
             to="/notices/publish"
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-colors text-[11px] font-medium ${
+            className={`flex items-center gap-2 rounded-xl px-3 py-1.5 text-[11px] font-medium transition-colors ${
               location.pathname === '/notices/publish'
-                ? 'bg-[#EBEBE2] text-slate-900 font-bold'
-                : 'text-slate-500 hover:text-slate-900 hover:bg-[#EBEBE2]/40'
+                ? 'bg-[#EBEBE2] font-bold text-slate-900'
+                : 'text-slate-500 hover:bg-[#EBEBE2]/40 hover:text-slate-900'
             }`}
           >
-            <Plus className="w-3.5 h-3.5 text-slate-400" />
+            <Plus className="h-3.5 w-3.5 text-slate-400" />
             <span>Publish Announcement</span>
           </Link>
         )}
 
-        {/* USER PROFILE INFO */}
-        <div className="pt-2 mt-1 border-t border-slate-200/60 flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-slate-900 text-white font-bold text-xs flex items-center justify-center shrink-0">
-            {user?.first_name ?? 'U'}
+        {/* USER PROFILE */}
+        <div className="mt-1 flex items-center gap-2.5 border-t border-slate-200/60 pt-2">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-slate-900 text-xs font-bold text-white">
+            {user?.first_name?.charAt(0) ?? 'U'}
           </div>
-          <div className="text-left min-w-0">
-            <p className="text-xs font-bold text-slate-900 truncate">
+
+          <div className="min-w-0 text-left">
+            <p className="truncate text-xs font-bold text-slate-900">
               {user?.first_name ?? 'Account'}
             </p>
-            <p className="text-[10px] text-slate-500 capitalize truncate">
+
+            <p className="truncate text-[10px] capitalize text-slate-500">
               {currentRole.toLowerCase()}
             </p>
           </div>
