@@ -82,6 +82,7 @@ export interface IProduct {
   business_id: string;
   category?: ICategory | null;
   source?: IProductSource;
+  sources?: IProductSource[];
   default_reorder_point: number;
   purchase_orders?: IPurchaseOrder[];
   business: IBusiness;

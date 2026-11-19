@@ -9,6 +9,26 @@ export const formatCurrency = (amount: number | string): string => {
   });
 };
 
+const currencyFormatter = new Intl.NumberFormat('en-NG', {
+  style: 'currency',
+  currency: 'NGN',
+  maximumFractionDigits: 2,
+});
+
+const numberFormatter = new Intl.NumberFormat('en-NG');
+
+export const formatNumber = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return '—';
+
+  return numberFormatter.format(value);
+};
+
+export const formatMinorCurrency = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return '—';
+
+  return currencyFormatter.format(value / 100);
+};
+
 export const formatQuantity = (
   quantity: number,
   uomType: UomType,

@@ -393,7 +393,7 @@ export const ProductSources: React.FC = () => {
         <button
           type="button"
           onClick={() => handleOpenEditModal(item)}
-          className="p-1 text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors"
+          className="p-1 cursor-pointer text-slate-500 hover:text-cyan-600 hover:bg-cyan-50 rounded transition-colors"
           title="Edit Product Source"
         >
           <Edit2 size={14} />
@@ -533,7 +533,7 @@ export const ProductSources: React.FC = () => {
               </h2>
               <button
                 onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600 rounded p-1"
+                className="text-slate-400 hover:text-slate-600 rounded p-1 cursor-pointer"
               >
                 <X size={16} />
               </button>

@@ -360,7 +360,7 @@ export default function Login() {
 
             {/* Footer */}
             <div className="flex items-center justify-between text-[10px] text-slate-500">
-              <p>© {new Date().getFullYear()} UduaKiet</p>
+              <p>© {new Date().getFullYear()} Etisunix</p>
               <p>Made for growing businesses</p>
             </div>
           </div>
