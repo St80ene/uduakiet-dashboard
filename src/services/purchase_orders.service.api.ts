@@ -7,7 +7,7 @@ import type {
 import apiClient from './api';
 import type { IPurchaseOrdersResponse } from '@/types';
 
-const PURCHASE_ORDERS_RESOURCE = '/purchase-orders';
+export const PURCHASE_ORDERS_RESOURCE = '/purchase-orders';
 
 interface IReasonPayload {
   reason: string | undefined;

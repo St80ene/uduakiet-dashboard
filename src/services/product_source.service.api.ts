@@ -1,5 +1,6 @@
 import type { IBasePaginationParams } from '@/interfaces';
 import apiClient from './api';
+import { PURCHASE_ORDERS_RESOURCE } from './purchase_orders.service.api';
 
 const PRODUCT_SOURCE_RESOURCE = '/product-sources';
 
@@ -46,10 +47,28 @@ export const productSourceService = {
 
     return response.data;
   },
+
+  getProductPurchaseHistory: async (
+    productId: string,
+    params?: {
+      page?: number;
+      limit?: number;
+      order?: 'ASC' | 'DESC';
+      sortBy?: string;
+    },
+  ) => {
+    const response = await apiClient.get(
+      `${PURCHASE_ORDERS_RESOURCE}/products/${productId}/history`,
+      { params },
+    );
+
+    return response.data;
+  },
 };
 
 export const {
   getAllProductSources,
+  getProductPurchaseHistory,
   createProductSource,
   updateProductSource,
 } = productSourceService;

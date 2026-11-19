@@ -18,12 +18,6 @@ import type { IAuditLog } from '@/interfaces/auditlog';
 import type { IPaginationMeta } from '@/interfaces';
 import type { IProduct } from '@/interfaces/products';
 import LoadingScreen from '@/common/Error/LoadingScreen';
-import type { ISupplier } from '@/interfaces/supplier';
-import { getAllSuppliers } from '@/services/suppliers.service.api';
-import {
-  createProductSource,
-  updateProductSource,
-} from '@/services/product_source.service.api';
 import EditProductModal from '../modals/EditProduct';
 import ProductLedger from './Tabs/ProductLedger';
 import ProductRelationships from './Tabs/ProductRelationships';
@@ -40,8 +34,6 @@ export default function ProductDetailsPage() {
   );
   const [auditPage, setAuditPage] = useState(1);
   const [auditLimit, setAuditLimit] = useState(10);
-  const [selectedSupplierId, setSelectedSupplierId] = useState<string>('');
-  const [isChangingSupplier, setIsChangingSupplier] = useState(false);
 
   const handleAuditPageChange = (page: number) => {
     setAuditPage(page);
@@ -100,52 +92,6 @@ export default function ProductDetailsPage() {
       setIsSubmitting(false);
     },
   });
-
-  const { data: suppliersData, isLoading: isLoadingSuppliers } = useQuery({
-    queryKey: ['suppliers-list'],
-    queryFn: () =>
-      getAllSuppliers({
-        page: 1,
-        limit: 100,
-      }),
-  });
-
-  const suppliers = suppliersData?.suppliers || [];
-
-  const assignedSupplier: ISupplier | undefined =
-    product?.source?.supplier || undefined;
-
-  // Mutation to handle assigning (create) or changing (update) the single supplier
-  const assignOrUpdateSupplierMutation = useMutation({
-    mutationFn: async (supplierId: string) => {
-      // If a source record already exists, update it
-      if (product?.source?.id) {
-        return await updateProductSource(product?.source?.id, {
-          product_id: productId!,
-          supplier_id: supplierId,
-        });
-      }
-
-      // Otherwise, create a new product source relation
-      return await createProductSource({
-        product_id: productId!,
-        supplier_id: supplierId,
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['product', productId] });
-      setSelectedSupplierId('');
-      setIsChangingSupplier(false);
-    },
-    onError: (error) => {
-      console.error('Failed to save supplier assignment:', error);
-    },
-  });
-
-  const handleAssignSupplier = () => {
-    if (!selectedSupplierId) return;
-    assignOrUpdateSupplierMutation.mutate(selectedSupplierId);
-  };
 
   useEffect(() => {
     if (activeTab !== 'ledger' || !productId) {
@@ -296,16 +242,8 @@ export default function ProductDetailsPage() {
 
         {activeTab === 'relationships' && (
           <ProductRelationships
-            purchase_orders={product.purchase_orders ?? []}
-            assignOrUpdateSupplierMutation={assignOrUpdateSupplierMutation}
-            assignedSupplier={assignedSupplier ?? null}
-            isChangingSupplier={isChangingSupplier}
-            setIsChangingSupplier={setIsChangingSupplier}
-            selectedSupplierId={selectedSupplierId}
-            setSelectedSupplierId={setSelectedSupplierId}
-            suppliers={suppliers}
-            isLoadingSuppliers={isLoadingSuppliers}
-            handleAssignSupplier={handleAssignSupplier}
+            productId={product.id}
+            linkedSuppliers={product.sources ?? []}
           />
         )}
 
